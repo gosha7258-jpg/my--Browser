@@ -4,199 +4,200 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MyBrowser Desktop</title>
+<title>MyBrowser // Desktop</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&display=swap');
-
-/* Futuristic bottom taskbar */
-#dock {
-  font-family: 'Orbitron', sans-serif;
-  letter-spacing: 1.5px;
-  border: 1px solid rgba(255, 198, 54, 0.7);
-  box-shadow:
-    0 0 15px rgba(255, 170, 0, 0.25),
-    inset 0 0 12px rgba(255, 170, 0, 0.08);
-}
-
-/* Glowing clock */
-#clock {
-  font-family: 'Orbitron', sans-serif;
-  font-weight: 700;
-  font-size: 13px;
-  color: #ffe16a;
-  text-shadow:
-    0 0 6px #ffb700,
-    0 0 14px rgba(255, 170, 0, 0.7);
-}
-
-/* Glowing icons on hover */
-#dock button:hover {
-  color: #ffe16a;
-  text-shadow: 0 0 12px #ffc400;
-  transform: translateY(-3px);
-  transition: 0.2s;
-}
-
 :root {
-  --accent:#ffd55a;
-  --panel:rgba(13,14,20,.92);
-  --border:rgba(255,220,120,.35);
+  --yellow:#ffe65c;
+  --red:#ff384b;
+  --glass:rgba(9,11,15,.94);
 }
 * {box-sizing:border-box}
 body {
   margin:0;
-  color:white;
-  font:14px Arial,sans-serif;
   overflow:hidden;
-  background:#100909 url("https://wallpapercave.com/wp/wp15347483.png")
-    center/cover fixed no-repeat;
+  font-family:Arial,sans-serif;
+  color:#fff;
+  background:#0a0809 url("https://wallpapercave.com/wp/wp15347483.png") center/cover fixed no-repeat;
 }
-body:before {
+body::before {
   content:"";
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.25);
+  background:#0004;
   pointer-events:none;
 }
 button,input,textarea {font:inherit}
 button {cursor:pointer}
+button:focus-visible,.app:focus-visible {
+  outline:2px solid var(--yellow);
+}
+
+/* DESKTOP */
 #desktop {
   position:absolute;
-  top:20px;
-  left:20px;
+  top:18px;
+  left:18px;
   display:grid;
-  grid-template-columns:repeat(3,85px);
-  gap:18px;
+  grid-template-columns:repeat(3,90px);
+  gap:13px;
 }
 .app {
-  width:85px;
-  padding:12px 4px;
+  padding:10px 4px;
   text-align:center;
   border:1px solid transparent;
   border-radius:12px;
   cursor:pointer;
+  font-size:12px;
+  text-shadow:0 1px 4px #000;
 }
 .app:hover {
-  background:rgba(255,255,255,.12);
-  border-color:var(--border);
+  background:#ffffff20;
+  border-color:#ffe65c66;
 }
 .app .symbol {
-  font-size:32px;
   display:block;
+  font-size:32px;
   margin-bottom:8px;
 }
+
+/* TASKBAR */
 #dock {
   position:fixed;
-  bottom:20px;
   left:50%;
+  bottom:17px;
   transform:translateX(-50%);
   display:flex;
-  gap:10px;
   align-items:center;
-  padding:10px 16px;
-  background:rgba(10,11,17,.86);
-  border:1px solid var(--border);
-  border-radius:18px;
+  gap:7px;
+  padding:9px 14px;
+  max-width:96vw;
+  background:#08090eea;
+  border:1px solid #ffe65c99;
+  border-radius:13px;
+  box-shadow:0 0 25px #ffc40033;
   backdrop-filter:blur(15px);
-  z-index:9999;
+  z-index:9000;
 }
 #dock button {
-  font-size:24px;
-  color:white;
+  display:grid;
+  place-items:center;
+  width:37px;
+  height:37px;
   background:none;
   border:0;
-  border-radius:9px;
-  padding:6px 9px;
+  border-radius:8px;
+  color:var(--yellow);
+  transition:.2s;
 }
-#dock button:hover {background:#ffffff22}
-#clock {white-space:nowrap;color:var(--accent)}
+#dock button:hover {
+  background:#ffe65c22;
+  box-shadow:0 0 12px #ffd40055;
+  transform:translateY(-3px);
+}
+#dock svg {
+  width:22px;
+  height:22px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.system-label,#clock {
+  font:10px Orbitron,monospace;
+  color:var(--yellow);
+  text-shadow:0 0 9px #ffc400;
+  white-space:nowrap;
+}
+.system-label {margin-right:8px}
+#clock {margin-left:8px}
+
+/* WINDOWS */
 .window {
   position:absolute;
-  width:700px;
-  height:470px;
-  max-width:95vw;
-  max-height:80vh;
   top:12%;
-  left:25%;
+  left:23%;
+  width:720px;
+  height:480px;
+  max-width:96vw;
+  max-height:78vh;
   display:flex;
   flex-direction:column;
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:13px;
   overflow:hidden;
-  box-shadow:0 20px 70px #000a;
+  background:var(--glass);
+  border:1px solid #ffe65c88;
+  border-radius:12px;
+  box-shadow:0 20px 65px #000b,0 0 20px #ffc40015;
   backdrop-filter:blur(18px);
 }
 .titlebar {
   display:flex;
-  align-items:center;
   justify-content:space-between;
-  padding:11px 14px;
-  background:#ffffff12;
+  align-items:center;
+  padding:12px 14px;
+  background:#ffffff10;
+  font:12px Orbitron,monospace;
+  color:var(--yellow);
   cursor:move;
   user-select:none;
+  touch-action:none;
 }
 .titlebar button {
-  color:white;
-  background:#ffffff20;
   border:0;
+  background:#ffffff20;
+  color:white;
   border-radius:5px;
   padding:5px 10px;
 }
-.titlebar button:hover {background:#b42d36}
+.titlebar button:hover {background:#b52935}
 .content {
-  flex:1;
-  min-height:0;
   display:flex;
   flex-direction:column;
+  flex:1;
+  min-height:0;
   padding:15px;
   gap:10px;
+  overflow:auto;
 }
 .toolbar {display:flex;gap:7px}
 .toolbar button,.action {
-  background:#ffffff16;
-  color:white;
-  border:1px solid #ffffff20;
-  border-radius:7px;
   padding:9px 12px;
-}
-.toolbar input,.field {
-  flex:1;
-  min-width:0;
-  background:#ffffff13;
-  border:1px solid #ffffff25;
+  background:#ffffff17;
+  border:1px solid #ffffff24;
   border-radius:7px;
+  color:white;
+}
+.toolbar button:hover,.action:hover {
+  border-color:var(--yellow);
+}
+.field,.toolbar input {
+  min-width:0;
+  flex:1;
   padding:10px;
+  background:#ffffff12;
+  border:1px solid #ffffff30;
+  border-radius:7px;
   color:white;
   outline:none;
-}
-.toolbar input:focus,.field:focus {
-  border-color:var(--accent);
 }
 iframe {
-  flex:1;
   width:100%;
+  flex:1;
+  min-height:150px;
   border:0;
+  border-radius:6px;
   background:white;
-  border-radius:7px;
 }
 textarea {
-  width:100%;
   flex:1;
+  min-height:100px;
   resize:none;
+  background:#ffffff0c;
+  border:1px solid #ffffff30;
+  border-radius:7px;
+  padding:12px;
   color:white;
-  background:#ffffff0d;
-  border:1px solid #ffffff25;
-  border-radius:8px;
-  padding:14px;
-  outline:none;
-}
-#terminal-output {
-  flex:1;
-  overflow:auto;
-  font:14px monospace;
-  color:#9cf6bc;
-  white-space:pre-wrap;
 }
 .calc {
   display:grid;
@@ -204,139 +205,546 @@ textarea {
   gap:8px;
 }
 .calc button {
-  padding:18px;
+  padding:17px;
   border:0;
-  border-radius:8px;
+  border-radius:7px;
   background:#ffffff19;
   color:white;
-  font-size:20px;
+  font-size:19px;
 }
-.calc button:hover {background:#ffffff33}
-#display {font-size:24px;text-align:right}
+.calc button:hover {background:#ffe65c33}
+#terminal-output {
+  flex:1;
+  overflow:auto;
+  white-space:pre-wrap;
+  font:14px "Share Tech Mono",monospace;
+  color:#ffe65c;
+}
+@media(max-width:700px) {
+  .system-label {display:none}
+  #dock {gap:2px;padding:7px}
+  #dock button {width:32px}
+  .window {left:2%!important;top:8%!important}
+}
+
+/* ====================================
+   CINEMATIC REBOOT SCREEN
+==================================== */
+#md-boot {
+  position:fixed;
+  inset:0;
+  z-index:999999;
+  overflow:hidden;
+  background:#050507;
+  color:var(--yellow);
+  font-family:"Share Tech Mono",monospace;
+  transition:opacity .9s ease;
+}
+#md-boot::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:15;
+  pointer-events:none;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      #0006 0px,
+      #0006 1px,
+      transparent 2px,
+      transparent 4px
+    ),
+    radial-gradient(
+      ellipse at center,
+      transparent 25%,
+      #000a 100%
+    );
+}
+#md-boot::after {
+  content:"";
+  position:absolute;
+  inset:-100% 0;
+  pointer-events:none;
+  background:linear-gradient(
+    transparent 47%,
+    #ffd40012 50%,
+    transparent 53%
+  );
+  animation:screenSweep 4s linear infinite;
+}
+.boot-logs {
+  position:absolute;
+  top:20px;
+  left:22px;
+  max-width:80vw;
+  font-size:clamp(11px,1.25vw,16px);
+  line-height:1.55;
+  letter-spacing:1.4px;
+  white-space:pre-wrap;
+  color:#ffe86d;
+  text-shadow:0 0 9px #ffc40088;
+  z-index:5;
+}
+.boot-cursor {
+  display:inline-block;
+  width:9px;
+  height:16px;
+  background:#ffe65c;
+  vertical-align:middle;
+  box-shadow:0 0 10px #ffe000;
+  animation:cursorBlink .7s steps(1) infinite;
+}
+.boot-right {
+  position:absolute;
+  right:20px;
+  top:20px;
+  text-align:right;
+  font-size:12px;
+  line-height:1.5;
+  color:#d8b83c;
+  z-index:5;
+}
+.boot-center {
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  z-index:4;
+}
+#boot-main {
+  position:relative;
+  font-family:Orbitron,monospace;
+  font-weight:800;
+  font-size:clamp(23px,5.2vw,82px);
+  letter-spacing:5px;
+  text-align:center;
+  color:#fff5ac;
+  white-space:nowrap;
+  text-shadow:
+    0 0 4px #fff,
+    0 0 12px #ffe600,
+    0 0 28px #ffd000,
+    0 0 65px #ffb900,
+    0 0 110px #ff9a00;
+  animation:
+    textFlicker 2.2s infinite,
+    textJitter 3s infinite;
+}
+#boot-main::before,
+#boot-main::after {
+  content:attr(data-text);
+  position:absolute;
+  inset:0;
+  opacity:0;
+  pointer-events:none;
+}
+#boot-main::before {
+  color:#fff5b0;
+  text-shadow:-9px 0 #ffbd00;
+  animation:glitchSliceA 1.1s infinite;
+}
+#boot-main::after {
+  color:#fff;
+  text-shadow:9px 0 #ff9f00;
+  animation:glitchSliceB 1.4s infinite;
+}
+.boot-bottom {
+  position:absolute;
+  right:22px;
+  bottom:23px;
+  z-index:5;
+  text-align:right;
+  color:#e6c74d;
+  font-size:12px;
+  letter-spacing:1.6px;
+  text-shadow:0 0 10px #ffcc0088;
+}
+.boot-lowerlogs {
+  position:absolute;
+  bottom:22px;
+  left:22px;
+  z-index:5;
+  font-size:12px;
+  line-height:1.5;
+  color:#d6b43d;
+}
+.glitch-strip {
+  position:absolute;
+  z-index:7;
+  left:0;
+  width:100%;
+  height:4px;
+  opacity:0;
+  background:linear-gradient(
+    90deg,
+    transparent,
+    #ffdd00,
+    #fff8a5,
+    #ffb800,
+    transparent
+  );
+  box-shadow:0 0 20px #ffcc00;
+  pointer-events:none;
+}
+.glitch-strip:nth-child(1) {
+  top:32%;
+  animation:stripGlitch .8s steps(2) infinite;
+}
+.glitch-strip:nth-child(2) {
+  top:49%;
+  animation:stripGlitch 1.1s steps(2) infinite .3s;
+}
+.glitch-strip:nth-child(3) {
+  top:62%;
+  animation:stripGlitch .65s steps(2) infinite .15s;
+}
+#md-boot.intense .glitch-strip {
+  animation-duration:.18s;
+}
+#md-boot.intense #boot-main {
+  animation-duration:.25s;
+}
+#md-boot.failed {
+  background:#120205;
+  box-shadow:inset 0 0 180px #ff000077;
+}
+#md-boot.failed #boot-main {
+  color:#ff8080;
+  text-shadow:
+    0 0 8px red,
+    0 0 25px red,
+    0 0 70px #ff0000;
+}
+#md-boot.failed #boot-main::before,
+#md-boot.failed #boot-main::after {
+  color:#ff5555;
+  text-shadow:8px 0 #f00;
+}
+#md-boot.failed .glitch-strip {
+  background:#ff2538;
+  box-shadow:0 0 30px red;
+}
+#md-boot.failed .boot-bottom {
+  color:#ff5151;
+}
+#md-boot.success #boot-main {
+  color:#fff7a6;
+  text-shadow:
+    0 0 8px #fff,
+    0 0 25px #ffdd00,
+    0 0 65px #ffb000;
+}
+
+@keyframes cursorBlink {
+  50% {opacity:0}
+}
+@keyframes screenSweep {
+  to {transform:translateY(100%)}
+}
+@keyframes textFlicker {
+  0%,88%,92%,97%,100% {opacity:1}
+  89%,95% {opacity:.4}
+  90%,96% {opacity:.85}
+}
+@keyframes textJitter {
+  0%,85%,100% {transform:translate(0)}
+  86% {transform:translate(-5px,2px)}
+  88% {transform:translate(7px,-2px)}
+  90% {transform:translate(-3px,1px)}
+}
+@keyframes glitchSliceA {
+  0%,72%,100% {
+    opacity:0;
+    clip-path:inset(100% 0 0 0);
+  }
+  74% {
+    opacity:.95;
+    transform:translate(-12px);
+    clip-path:inset(15% 0 62% 0);
+  }
+  79% {
+    opacity:.85;
+    transform:translate(9px);
+    clip-path:inset(58% 0 20% 0);
+  }
+  83% {opacity:0}
+}
+@keyframes glitchSliceB {
+  0%,66%,100% {
+    opacity:0;
+    clip-path:inset(0 0 100% 0);
+  }
+  68% {
+    opacity:.9;
+    transform:translate(13px);
+    clip-path:inset(42% 0 34% 0);
+  }
+  73% {
+    opacity:.8;
+    transform:translate(-9px);
+    clip-path:inset(76% 0 8% 0);
+  }
+  77% {opacity:0}
+}
+@keyframes stripGlitch {
+  0%,65%,100% {
+    opacity:0;
+    transform:translateX(0) scaleY(1);
+  }
+  67% {
+    opacity:.9;
+    transform:translateX(-18px) scaleY(3);
+  }
+  72% {
+    opacity:.6;
+    transform:translateX(24px) scaleY(1);
+  }
+  77% {opacity:0}
+}
+@media(max-width:700px) {
+  #boot-main {
+    font-size:clamp(17px,5vw,34px);
+    letter-spacing:1px;
+  }
+  .boot-right {display:none}
+  .boot-logs {font-size:10px}
+  .boot-lowerlogs,.boot-bottom {font-size:9px}
+}
+@media(prefers-reduced-motion:reduce) {
+  #md-boot *,
+  #md-boot::after {
+    animation:none!important;
+  }
+}
 </style>
 </head>
 <body>
 
+<!-- DESKTOP ICONS -->
 <div id="desktop">
-  <div class="app" onclick="openApp('browser')"><span class="symbol">🌐</span>Browser</div>
-  <div class="app" onclick="openApp('files')"><span class="symbol">📁</span>Files</div>
-  <div class="app" onclick="openApp('notes')"><span class="symbol">📝</span>Text Editor</div>
-  <div class="app" onclick="openApp('terminal')"><span class="symbol">⌨️</span>Terminal</div>
-  <div class="app" onclick="openApp('calculator')"><span class="symbol">🧮</span>Calculator</div>
-  <div class="app" onclick="openApp('settings')"><span class="symbol">⚙️</span>Settings</div>
-  <div class="app" onclick="openApp('about')"><span class="symbol">⭐</span>About</div>
+  <div class="app" tabindex="0" onclick="openApp('browser')"><span class="symbol">🌐</span>Browser</div>
+  <div class="app" tabindex="0" onclick="openApp('files')"><span class="symbol">📁</span>Files</div>
+  <div class="app" tabindex="0" onclick="openApp('notes')"><span class="symbol">📝</span>Text Editor</div>
+  <div class="app" tabindex="0" onclick="openApp('terminal')"><span class="symbol">⌨️</span>Terminal</div>
+  <div class="app" tabindex="0" onclick="openApp('calculator')"><span class="symbol">🧮</span>Calculator</div>
+  <div class="app" tabindex="0" onclick="openApp('settings')"><span class="symbol">⚙️</span>Settings</div>
+  <div class="app" tabindex="0" onclick="openApp('about')"><span class="symbol">⭐</span>About</div>
 </div>
 
 <div id="windows"></div>
 
+<!-- SCI-FI TASKBAR -->
 <div id="dock">
-  <button onclick="openApp('about')" title="Home">🏠</button>
-  <button onclick="openApp('files')" title="Files">📁</button>
-  <button onclick="openApp('terminal')" title="Terminal">⌨️</button>
-  <button onclick="openApp('browser')" title="Browser">🌐</button>
-  <button onclick="openApp('notes')" title="Notes">📝</button>
-  <button onclick="openApp('settings')" title="Settings">⚙️</button>
+  <span class="system-label">MYBROWSER // ONLINE</span>
+
+  <button onclick="openApp('about')" title="Home">
+    <svg viewBox="0 0 24 24">
+      <path d="M3 10L12 3L21 10V21H3Z"/>
+      <path d="M9 21V14H15V21"/>
+    </svg>
+  </button>
+
+  <button onclick="openApp('files')" title="Files">
+    <svg viewBox="0 0 24 24">
+      <path d="M3 6H10L12 9H21V20H3Z"/>
+    </svg>
+  </button>
+
+  <button onclick="openApp('terminal')" title="Terminal">
+    <svg viewBox="0 0 24 24">
+      <rect x="2" y="4" width="20" height="16" rx="2"/>
+      <path d="M6 9L10 12L6 15M12 16H18"/>
+    </svg>
+  </button>
+
+  <button onclick="openApp('browser')" title="Browser">
+    <svg viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M3 12H21M12 3C6 8 6 16 12 21M12 3C18 8 18 16 12 21"/>
+    </svg>
+  </button>
+
+  <button onclick="openApp('notes')" title="Notes">
+    <svg viewBox="0 0 24 24">
+      <path d="M5 3H16L20 7V21H5Z"/>
+      <path d="M8 12H17M8 16H17"/>
+    </svg>
+  </button>
+
+  <button onclick="openApp('settings')" title="Settings">
+    <svg viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="4"/>
+      <circle cx="12" cy="12" r="9" stroke-dasharray="3 3"/>
+    </svg>
+  </button>
+
   <span id="clock"></span>
 </div>
 
+<!-- REBOOT SCREEN -->
+<div id="md-boot">
+  <div class="glitch-strip"></div>
+  <div class="glitch-strip"></div>
+  <div class="glitch-strip"></div>
+
+  <div class="boot-logs">
+    <span id="boot-typed"></span><span class="boot-cursor"></span>
+  </div>
+
+  <div class="boot-right">
+    SYS://CORE<br>
+    VER: ???.???<br>
+    STATUS: UNKNOWN
+  </div>
+
+  <div class="boot-center">
+    <div id="boot-main" data-text="REBOOTING...">
+      REBOOTING...
+    </div>
+  </div>
+
+  <div class="boot-lowerlogs">
+    &gt; RESTORING DRONE SYSTEMS...<br>
+    &gt; REINITIALIZING MEMORY BANKS...<br>
+    &gt; ESTABLISHING CONNECTION...
+  </div>
+
+  <div class="boot-bottom" id="boot-bottom">
+    DATA RESTORATION IN PROGRESS<br>
+    &gt; PLEASE WAIT...
+  </div>
+</div>
+
 <script>
+/* DESKTOP APPS */
 let topZ=10;
-let count=0;
-const titles={
-  browser:"🌐 MyBrowser",
-  files:"📁 Files",
-  notes:"📝 Text Editor",
-  terminal:"⌨️ Terminal",
-  calculator:"🧮 Calculator",
-  settings:"⚙️ Settings",
-  about:"⭐ About MyBrowser"
+let windowCount=0;
+
+const appTitles={
+  browser:"MYBROWSER // BROWSER",
+  files:"FILES",
+  notes:"TEXT EDITOR",
+  terminal:"SYSTEM TERMINAL",
+  calculator:"CALCULATOR",
+  settings:"SYSTEM SETTINGS",
+  about:"ABOUT MYBROWSER"
 };
 
 function openApp(type){
-  const id="win"+(++count);
+  const id="win"+(++windowCount);
   const w=document.createElement("div");
   w.className="window";
   w.id=id;
-  w.style.left=(15+count%5*5)+"%";
-  w.style.top=(10+count%5*4)+"%";
   w.style.zIndex=++topZ;
+  w.style.left=(16+windowCount%5*5)+"%";
+  w.style.top=(9+windowCount%5*4)+"%";
 
-  w.innerHTML=`
-    <div class="titlebar">
-      <strong>${titles[type]}</strong>
-      <button onclick="document.getElementById('${id}').remove()">✕</button>
-    </div>
-    <div class="content"></div>`;
+  const bar=document.createElement("div");
+  bar.className="titlebar";
 
+  const title=document.createElement("strong");
+  title.textContent=appTitles[type];
+
+  const close=document.createElement("button");
+  close.textContent="✕";
+  close.onclick=()=>w.remove();
+
+  bar.append(title,close);
+
+  const area=document.createElement("div");
+  area.className="content";
+
+  w.append(bar,area);
   document.getElementById("windows").appendChild(w);
-  w.addEventListener("pointerdown",()=>w.style.zIndex=++topZ);
-  makeDraggable(w);
 
-  const area=w.querySelector(".content");
+  w.addEventListener("pointerdown",()=>{
+    w.style.zIndex=++topZ;
+  });
+
+  makeDraggable(w,bar);
 
   if(type==="browser") browserApp(area);
   if(type==="notes") notesApp(area);
   if(type==="terminal") terminalApp(area);
   if(type==="calculator") calculatorApp(area);
   if(type==="settings") settingsApp(area);
-  if(type==="files") {
-    area.innerHTML="<h2>📁 My Files</h2><p>This is a web desktop. It cannot access your computer's actual files.</p><button class='action' id='upload'>Choose a local file</button><p id='fileinfo'></p>";
-    area.querySelector("#upload").onclick=()=>{
-      const picker=document.createElement("input");
-      picker.type="file";
-      picker.onchange=()=>{
-        area.querySelector("#fileinfo").textContent=
-          picker.files[0]?.name || "No file selected";
+
+  if(type==="files"){
+    area.innerHTML=`
+      <h2>MY FILES</h2>
+      <p>This is a simulated desktop. It cannot read your device files automatically.</p>
+      <button class="action" id="choose-file">Choose file</button>
+      <p id="file-name"></p>`;
+    area.querySelector("#choose-file").onclick=()=>{
+      const input=document.createElement("input");
+      input.type="file";
+      input.onchange=()=>{
+        area.querySelector("#file-name").textContent=
+          input.files[0]?.name||"No file selected";
       };
-      picker.click();
+      input.click();
     };
   }
+
   if(type==="about"){
-    area.innerHTML="<h1>MyBrowser Desktop</h1><p>A custom desktop website inspired by NautilusOS.</p><p>Features: draggable windows, browser, notes, calculator, settings and a simulated terminal.</p>";
+    area.innerHTML=`
+      <h1 style="color:#ffe65c;font-family:Orbitron">
+        MYBROWSER
+      </h1>
+      <p>Desktop Operating System // Custom Edition</p>
+      <p>Browser, notes, calculator, simulated terminal, and draggable windows.</p>
+      <p>STATUS: SYSTEM ONLINE</p>`;
   }
 }
 
-function makeDraggable(w){
-  const bar=w.querySelector(".titlebar");
-  let active=false,dx=0,dy=0;
+function makeDraggable(w,bar){
+  let dragging=false,dx=0,dy=0;
+
   bar.addEventListener("pointerdown",e=>{
-    if(e.target.tagName==="BUTTON")return;
-    active=true;
+    if(e.target.closest("button"))return;
+
+    dragging=true;
     dx=e.clientX-w.offsetLeft;
     dy=e.clientY-w.offsetTop;
     bar.setPointerCapture(e.pointerId);
   });
+
   bar.addEventListener("pointermove",e=>{
-    if(!active)return;
+    if(!dragging)return;
     w.style.left=Math.max(0,Math.min(
-      innerWidth-100,e.clientX-dx))+"px";
+      innerWidth-100,e.clientX-dx
+    ))+"px";
     w.style.top=Math.max(0,Math.min(
-      innerHeight-80,e.clientY-dy))+"px";
+      innerHeight-70,e.clientY-dy
+    ))+"px";
   });
-  bar.addEventListener("pointerup",()=>active=false);
-  bar.addEventListener("pointercancel",()=>active=false);
+
+  bar.addEventListener("pointerup",()=>dragging=false);
+  bar.addEventListener("pointercancel",()=>dragging=false);
 }
 
 function browserApp(area){
   area.innerHTML=`
     <div class="toolbar">
       <button id="home">⌂</button>
-      <input id="address" placeholder="Search or enter a URL">
-      <button id="go">Go</button>
-      <button id="external" title="Open in a normal tab">↗</button>
+      <input id="address" placeholder="Search or enter URL">
+      <button id="go">GO</button>
+      <button id="external" title="Open normal tab">↗</button>
     </div>
-    <p id="browserhelp" style="color:#ddd;margin:0">
-      Enter a website URL. Some websites block embedded viewing.
+    <p style="font-size:12px;color:#bbb">
+      Some websites block embedded viewing.
     </p>
-    <iframe title="Web page" src="about:blank"></iframe>`;
+    <iframe title="Browser" src="about:blank"></iframe>`;
 
   const address=area.querySelector("#address");
   const frame=area.querySelector("iframe");
   let current="";
 
   function navigate(){
-    let value=address.value.trim();
+    const value=address.value.trim();
     if(!value)return;
+
     if(/^https?:\/\//i.test(value)){
       current=value;
     }else if(value.includes(".")&&!value.includes(" ")){
@@ -345,60 +753,80 @@ function browserApp(area){
       current="https://www.google.com/search?q="+
         encodeURIComponent(value);
     }
+
     frame.src=current;
   }
 
   area.querySelector("#go").onclick=navigate;
-  address.onkeydown=e=>{if(e.key==="Enter")navigate()};
+  address.onkeydown=e=>{
+    if(e.key==="Enter")navigate();
+  };
+
   area.querySelector("#home").onclick=()=>{
     current="";
     address.value="";
     frame.src="about:blank";
   };
+
   area.querySelector("#external").onclick=()=>{
-    if(current)window.open(current,"_blank","noopener,noreferrer");
+    if(current){
+      window.open(current,"_blank","noopener,noreferrer");
+    }
   };
 }
 
 function notesApp(area){
   area.innerHTML=`
-    <p>Notes are saved in this browser.</p>
+    <p>Local notes // saved in your browser</p>
     <textarea placeholder="Start typing..."></textarea>
-    <button class="action" id="save">Save notes</button>`;
+    <button class="action" id="save">SAVE NOTES</button>`;
+
   const input=area.querySelector("textarea");
   input.value=localStorage.getItem("mybrowser-notes")||"";
+
   area.querySelector("#save").onclick=()=>{
     localStorage.setItem("mybrowser-notes",input.value);
-    alert("Notes saved!");
+    alert("Notes saved.");
   };
 }
 
 function terminalApp(area){
   area.innerHTML=`
-    <div id="terminal-output">MyBrowser Terminal
-Type help to see commands.
-This is a simulated terminal, not a system shell.
+    <div id="terminal-output">MYBROWSER TERMINAL
+SIMULATION MODE ACTIVE
+Type HELP for commands.
 
 </div>
-    <input class="field" placeholder="Enter a command">`;
+    <input class="field" placeholder="Enter command">`;
+
   const output=area.querySelector("#terminal-output");
   const input=area.querySelector("input");
+
   input.onkeydown=e=>{
     if(e.key!=="Enter")return;
-    const command=input.value.trim().toLowerCase();
+
+    const command=input.value.trim();
+    const lower=command.toLowerCase();
     input.value="";
-    if(command==="clear"){
+
+    if(lower==="clear"){
       output.textContent="";
       return;
     }
-    let result={
-      help:"Commands: help, date, whoami, echo TEXT, clear",
+
+    let answer={
+      help:"HELP, DATE, WHOAMI, STATUS, CLEAR, ECHO TEXT",
       date:new Date().toString(),
-      whoami:"mybrowser-user"
-    }[command];
-    if(command.startsWith("echo "))result=command.slice(5);
+      whoami:"mybrowser-user",
+      status:"SYSTEM ONLINE // CORE STABLE"
+    }[lower];
+
+    if(lower.startsWith("echo ")){
+      answer=command.slice(5);
+    }
+
     output.textContent+="> "+command+"\n"+
-      (result??"Unknown command")+"\n\n";
+      (answer??"Unknown command")+"\n\n";
     output.scrollTop=output.scrollHeight;
   };
 }
@@ -407,19 +835,28 @@ function calculatorApp(area){
   area.innerHTML=`
     <input class="field" id="display" readonly value="0">
     <div class="calc"></div>`;
+
   const display=area.querySelector("#display");
   const grid=area.querySelector(".calc");
   let expression="";
-  for(const key of ["7","8","9","/","4","5","6","*",
-                     "1","2","3","-","C","0","=","+"]){
-    const button=document.createElement("button");
-    button.textContent=key;
-    button.onclick=()=>{
-      if(key==="C")expression="";
-      else if(key==="="){
+
+  for(const key of [
+    "7","8","9","/",
+    "4","5","6","*",
+    "1","2","3","-",
+    "C","0","=","+"
+  ]){
+    const b=document.createElement("button");
+    b.textContent=key;
+
+    b.onclick=()=>{
+      if(key==="C"){
+        expression="";
+      }else if(key==="="){
         try{
           if(!/^[0-9+\-*/. ()]+$/.test(expression))
-            throw Error("Invalid expression");
+            throw Error("Invalid");
+
           expression=String(Function(
             '"use strict";return ('+expression+')'
           )());
@@ -430,35 +867,40 @@ function calculatorApp(area){
         if(expression==="Error")expression="";
         expression+=key;
       }
+
       display.value=expression||"0";
     };
-    grid.appendChild(button);
+
+    grid.appendChild(b);
   }
 }
 
 function settingsApp(area){
   area.innerHTML=`
-    <h2>Appearance</h2>
-    <p>Choose your accent color:</p>
+    <h2>SYSTEM SETTINGS</h2>
+    <p>Choose accent color:</p>
     <div class="toolbar">
-      <button data-color="#ffd55a">Yellow</button>
-      <button data-color="#82d9c8">Mint</button>
-      <button data-color="#ff6666">Red</button>
-      <button data-color="#bba0ff">Purple</button>
+      <button data-color="#ffe65c">YELLOW</button>
+      <button data-color="#ff5261">RED</button>
+      <button data-color="#81e0ca">MINT</button>
     </div>`;
-  area.querySelectorAll("[data-color]").forEach(button=>{
-    button.onclick=()=>{
+
+  area.querySelectorAll("[data-color]").forEach(b=>{
+    b.onclick=()=>{
       document.documentElement.style.setProperty(
-        "--accent",button.dataset.color
+        "--yellow",b.dataset.color
       );
-      localStorage.setItem("mybrowser-accent",button.dataset.color);
+      localStorage.setItem("mybrowser-accent",b.dataset.color);
     };
   });
 }
 
-const savedColor=localStorage.getItem("mybrowser-accent");
-if(savedColor)
-  document.documentElement.style.setProperty("--accent",savedColor);
+const savedAccent=localStorage.getItem("mybrowser-accent");
+if(savedAccent){
+  document.documentElement.style.setProperty(
+    "--yellow",savedAccent
+  );
+}
 
 function updateClock(){
   document.getElementById("clock").textContent=
@@ -468,6 +910,92 @@ function updateClock(){
 }
 updateClock();
 setInterval(updateClock,1000);
+
+/* ====================================
+   CINEMATIC SYSTEM REBOOT
+==================================== */
+(function startReboot(){
+  const boot=document.getElementById("md-boot");
+  const typed=document.getElementById("boot-typed");
+  const main=document.getElementById("boot-main");
+  const bottom=document.getElementById("boot-bottom");
+
+  const failed=Math.random()<0.5;
+
+  const lines=[
+    "> SERIAL DESIGNATION: ???",
+    "> AUTO RUN COMPLETE.",
+    "> INITIALIZING ABSOLUTE SOLVER...",
+    "> LOADING CORE MODULES...",
+    "> CHECKING SYSTEM INTEGRITY...",
+    "> RESTORING CORE MEMORY...",
+    "> REBOOTING, PLEASE WAIT..."
+  ];
+
+  let line=0;
+  let character=0;
+
+  function typeNext(){
+    if(line>=lines.length){
+      beginFinalSequence();
+      return;
+    }
+
+    const current=lines[line];
+
+    if(character<current.length){
+      typed.textContent+=current[character];
+      character++;
+
+      // Smooth typing with a slight variation
+      setTimeout(typeNext,20+Math.random()*18);
+    }else{
+      typed.textContent+="\n";
+      line++;
+      character=0;
+      setTimeout(typeNext,180);
+    }
+  }
+
+  function setMain(text){
+    main.textContent=text;
+    main.setAttribute("data-text",text);
+  }
+
+  function beginFinalSequence(){
+    boot.classList.add("intense");
+    bottom.innerHTML=
+      "SYSTEM INTEGRITY CHECK<br>&gt; FINALIZING REBOOT...";
+
+    // Heavy glitching before the result
+    setTimeout(()=>{
+      boot.classList.remove("intense");
+
+      if(failed){
+        boot.classList.add("failed");
+        setMain("REBOOT FAILED X D");
+        bottom.innerHTML=
+          "CRITICAL SYSTEM ERROR<br>&gt; CODE: 0xDEAD";
+      }else{
+        boot.classList.add("success");
+        setMain("REBOOT SUCCESSFUL : )");
+        bottom.innerHTML=
+          "SYSTEM ONLINE<br>&gt; WELCOME BACK_";
+      }
+
+      // Display the result before desktop appears
+      setTimeout(()=>{
+        boot.style.opacity="0";
+
+        setTimeout(()=>{
+          boot.remove();
+        },900);
+      },2700);
+    },2300);
+  }
+
+  setTimeout(typeNext,500);
+})();
 </script>
 </body>
 </html>
