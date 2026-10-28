@@ -2,627 +2,441 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#10131c">
-  <title>MyBrowser</title>
-  <style>
-    :root {
-      color-scheme: dark;
-      --bg: #10131c;
-      --panel: #191e2b;
-      --panel2: #252b3b;
-      --line: #30384a;
-      --text: #f4f6fc;
-      --muted: #9ba7bd;
-      --accent: #7c83ff;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Inter, system-ui, Arial, sans-serif;
-    }
-
-    button, input { font: inherit; }
-
-    button {
-      color: var(--text);
-      border: 1px solid var(--line);
-      background: var(--panel2);
-      border-radius: 9px;
-      padding: 9px 12px;
-      cursor: pointer;
-    }
-
-    button:hover { filter: brightness(1.2); }
-    button:disabled { opacity: .35; cursor: default; }
-
-    .topbar {
-      height: 48px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 0 16px;
-      border-bottom: 1px solid var(--line);
-      background: #141824;
-    }
-
-    .brand-mark {
-      display: grid;
-      place-items: center;
-      width: 26px;
-      height: 26px;
-      background: var(--accent);
-      border-radius: 8px;
-      font-weight: 900;
-    }
-
-    .brand-name { font-weight: 750; letter-spacing: .3px; }
-    .top-spacer { flex: 1; }
-    .small-label { color: var(--muted); font-size: 12px; }
-
-    .tabs {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 12px 0;
-      overflow-x: auto;
-      background: #141824;
-    }
-
-    .tab {
-      min-width: 110px;
-      max-width: 210px;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 12px;
-      background: #1a1f2d;
-      border: 1px solid transparent;
-      border-radius: 10px 10px 0 0;
-      color: var(--muted);
-    }
-
-    .tab.active {
-      background: var(--bg);
-      color: var(--text);
-      border-color: var(--line);
-      border-bottom-color: var(--bg);
-    }
-
-    .tab-title {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .close-tab {
-      border: 0;
-      background: transparent;
-      padding: 0 3px;
-    }
-
-    .new-tab { flex-shrink: 0; }
-
-    .toolbar {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      padding: 12px;
-      border-bottom: 1px solid var(--line);
-      background: var(--bg);
-    }
-
-    .nav-button {
-      min-width: 38px;
-      padding: 10px;
-      font-size: 16px;
-    }
-
-    .address-form {
-      display: flex;
-      align-items: center;
-      flex: 1;
-      min-width: 0;
-      gap: 8px;
-      border: 1px solid var(--line);
-      background: var(--panel);
-      border-radius: 12px;
-      padding: 4px 5px 4px 12px;
-    }
-
-    .address-form input {
-      width: 100%;
-      min-width: 0;
-      border: 0;
-      outline: 0;
-      background: transparent;
-      color: var(--text);
-      padding: 8px 0;
-    }
-
-    .address-form button {
-      background: var(--accent);
-      border: 0;
-      font-weight: 650;
-    }
-
-    .home {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 55px 24px 40px;
-    }
-
-    .hero { text-align: center; margin-bottom: 28px; }
-
-    .hero-icon {
-      width: 58px;
-      height: 58px;
-      margin: 0 auto 15px;
-      display: grid;
-      place-items: center;
-      border-radius: 18px;
-      background: linear-gradient(135deg, #7c83ff, #b18cff);
-      font-size: 27px;
-      box-shadow: 0 8px 35px #7c83ff30;
-    }
-
-    h1 { font-size: clamp(32px, 6vw, 48px); margin: 0 0 8px; }
-    .subtitle { color: var(--muted); margin: 0; }
-
-    .search-box {
-      display: flex;
-      gap: 8px;
-      padding: 7px;
-      border: 1px solid var(--line);
-      background: var(--panel);
-      border-radius: 15px;
-      margin-bottom: 28px;
-      box-shadow: 0 12px 45px #00000020;
-    }
-
-    .search-box input {
-      flex: 1;
-      width: 100%;
-      min-width: 0;
-      border: 0;
-      outline: 0;
-      background: transparent;
-      color: var(--text);
-      padding: 12px;
-    }
-
-    .search-box button {
-      background: var(--accent);
-      border: 0;
-      font-weight: 700;
-      padding: 12px 18px;
-    }
-
-    .section-heading {
-      font-size: 14px;
-      color: var(--muted);
-      font-weight: 650;
-      margin: 0 0 13px;
-    }
-
-    .shortcuts {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .shortcut {
-      min-height: 115px;
-      padding: 18px 10px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      text-align: center;
-      text-decoration: none;
-      color: var(--text);
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-    }
-
-    .shortcut:hover {
-      background: var(--panel2);
-      border-color: var(--accent);
-    }
-
-    .shortcut-icon { font-size: 26px; }
-    .shortcut-name { font-size: 13px; font-weight: 650; }
-
-    .notice {
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.6;
-      margin-top: 24px;
-      text-align: center;
-    }
-
-    .viewer {
-      display: none;
-      padding: 12px;
-    }
-
-    .viewer.show { display: block; }
-
-    .viewer-bar {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      padding: 10px 12px;
-      margin-bottom: 10px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: var(--panel);
-      font-size: 13px;
-    }
-
-    .viewer-bar span { flex: 1; min-width: 150px; color: var(--muted); }
-
-    .viewer iframe {
-      display: block;
-      width: 100%;
-      height: calc(100vh - 220px);
-      min-height: 350px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: white;
-    }
-
-    .viewer-help {
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.6;
-    }
-
-    .viewer-help a { color: #a5b4fc; }
-
-    .status {
-      font-size: 12px;
-      color: var(--muted);
-      padding: 0 16px 15px;
-    }
-
-    @media (max-width: 600px) {
-      .topbar { padding: 0 10px; }
-      .toolbar { gap: 4px; padding: 8px; }
-      .nav-button { min-width: 33px; padding: 8px; }
-      .shortcuts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .home { padding: 40px 16px 28px; }
-      .search-box button { padding: 10px 12px; }
-      .viewer { padding: 8px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MyBrowser Desktop</title>
+<style>
+:root {
+  --accent:#ffd55a;
+  --panel:rgba(13,14,20,.92);
+  --border:rgba(255,220,120,.35);
+}
+* {box-sizing:border-box}
+body {
+  margin:0;
+  color:white;
+  font:14px Arial,sans-serif;
+  overflow:hidden;
+  background:#100909 url("https://wallpapercave.com/wp/wp15347483.png")
+    center/cover fixed no-repeat;
+}
+body:before {
+  content:"";
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.25);
+  pointer-events:none;
+}
+button,input,textarea {font:inherit}
+button {cursor:pointer}
+#desktop {
+  position:absolute;
+  top:20px;
+  left:20px;
+  display:grid;
+  grid-template-columns:repeat(3,85px);
+  gap:18px;
+}
+.app {
+  width:85px;
+  padding:12px 4px;
+  text-align:center;
+  border:1px solid transparent;
+  border-radius:12px;
+  cursor:pointer;
+}
+.app:hover {
+  background:rgba(255,255,255,.12);
+  border-color:var(--border);
+}
+.app .symbol {
+  font-size:32px;
+  display:block;
+  margin-bottom:8px;
+}
+#dock {
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:10px;
+  align-items:center;
+  padding:10px 16px;
+  background:rgba(10,11,17,.86);
+  border:1px solid var(--border);
+  border-radius:18px;
+  backdrop-filter:blur(15px);
+  z-index:9999;
+}
+#dock button {
+  font-size:24px;
+  color:white;
+  background:none;
+  border:0;
+  border-radius:9px;
+  padding:6px 9px;
+}
+#dock button:hover {background:#ffffff22}
+#clock {white-space:nowrap;color:var(--accent)}
+.window {
+  position:absolute;
+  width:700px;
+  height:470px;
+  max-width:95vw;
+  max-height:80vh;
+  top:12%;
+  left:25%;
+  display:flex;
+  flex-direction:column;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:13px;
+  overflow:hidden;
+  box-shadow:0 20px 70px #000a;
+  backdrop-filter:blur(18px);
+}
+.titlebar {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:11px 14px;
+  background:#ffffff12;
+  cursor:move;
+  user-select:none;
+}
+.titlebar button {
+  color:white;
+  background:#ffffff20;
+  border:0;
+  border-radius:5px;
+  padding:5px 10px;
+}
+.titlebar button:hover {background:#b42d36}
+.content {
+  flex:1;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+  padding:15px;
+  gap:10px;
+}
+.toolbar {display:flex;gap:7px}
+.toolbar button,.action {
+  background:#ffffff16;
+  color:white;
+  border:1px solid #ffffff20;
+  border-radius:7px;
+  padding:9px 12px;
+}
+.toolbar input,.field {
+  flex:1;
+  min-width:0;
+  background:#ffffff13;
+  border:1px solid #ffffff25;
+  border-radius:7px;
+  padding:10px;
+  color:white;
+  outline:none;
+}
+.toolbar input:focus,.field:focus {
+  border-color:var(--accent);
+}
+iframe {
+  flex:1;
+  width:100%;
+  border:0;
+  background:white;
+  border-radius:7px;
+}
+textarea {
+  width:100%;
+  flex:1;
+  resize:none;
+  color:white;
+  background:#ffffff0d;
+  border:1px solid #ffffff25;
+  border-radius:8px;
+  padding:14px;
+  outline:none;
+}
+#terminal-output {
+  flex:1;
+  overflow:auto;
+  font:14px monospace;
+  color:#9cf6bc;
+  white-space:pre-wrap;
+}
+.calc {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+}
+.calc button {
+  padding:18px;
+  border:0;
+  border-radius:8px;
+  background:#ffffff19;
+  color:white;
+  font-size:20px;
+}
+.calc button:hover {background:#ffffff33}
+#display {font-size:24px;text-align:right}
+</style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand-mark">M</div>
-    <div class="brand-name">MyBrowser</div>
-    <div class="top-spacer"></div>
-    <span class="small-label">YOUR PERSONAL WEB</span>
-  </header>
 
-  <nav class="tabs" id="tabs" aria-label="Browser tabs"></nav>
+<div id="desktop">
+  <div class="app" onclick="openApp('browser')"><span class="symbol">🌐</span>Browser</div>
+  <div class="app" onclick="openApp('files')"><span class="symbol">📁</span>Files</div>
+  <div class="app" onclick="openApp('notes')"><span class="symbol">📝</span>Text Editor</div>
+  <div class="app" onclick="openApp('terminal')"><span class="symbol">⌨️</span>Terminal</div>
+  <div class="app" onclick="openApp('calculator')"><span class="symbol">🧮</span>Calculator</div>
+  <div class="app" onclick="openApp('settings')"><span class="symbol">⚙️</span>Settings</div>
+  <div class="app" onclick="openApp('about')"><span class="symbol">⭐</span>About</div>
+</div>
 
-  <div class="toolbar">
-    <button class="nav-button" id="back" title="Back" aria-label="Back">←</button>
-    <button class="nav-button" id="forward" title="Forward" aria-label="Forward">→</button>
-    <button class="nav-button" id="refresh" title="Refresh" aria-label="Refresh">↻</button>
+<div id="windows"></div>
 
-    <form class="address-form" id="addressForm">
-      <span aria-hidden="true">⌕</span>
-      <input id="address" aria-label="Search or enter website address"
-             placeholder="Search or enter website address..." autocomplete="url">
-      <button type="submit">Go</button>
-    </form>
-  </div>
+<div id="dock">
+  <button onclick="openApp('about')" title="Home">🏠</button>
+  <button onclick="openApp('files')" title="Files">📁</button>
+  <button onclick="openApp('terminal')" title="Terminal">⌨️</button>
+  <button onclick="openApp('browser')" title="Browser">🌐</button>
+  <button onclick="openApp('notes')" title="Notes">📝</button>
+  <button onclick="openApp('settings')" title="Settings">⚙️</button>
+  <span id="clock"></span>
+</div>
 
-  <main>
-    <section class="home" id="home">
-      <div class="hero">
-        <div class="hero-icon">✦</div>
-        <h1>MyBrowser</h1>
-        <p class="subtitle">Your web, your way.</p>
-      </div>
+<script>
+let topZ=10;
+let count=0;
+const titles={
+  browser:"🌐 MyBrowser",
+  files:"📁 Files",
+  notes:"📝 Text Editor",
+  terminal:"⌨️ Terminal",
+  calculator:"🧮 Calculator",
+  settings:"⚙️ Settings",
+  about:"⭐ About MyBrowser"
+};
 
-      <form class="search-box" id="homeSearch">
-        <input id="homeQuery" placeholder="Search the web or enter a URL..."
-               aria-label="Search the web or enter a URL">
-        <button type="submit">Search ↗</button>
-      </form>
+function openApp(type){
+  const id="win"+(++count);
+  const w=document.createElement("div");
+  w.className="window";
+  w.id=id;
+  w.style.left=(15+count%5*5)+"%";
+  w.style.top=(10+count%5*4)+"%";
+  w.style.zIndex=++topZ;
 
-      <h2 class="section-heading">QUICK ACCESS</h2>
-      <div class="shortcuts">
-        <a class="shortcut" href="https://www.google.com/" target="_blank" rel="noopener noreferrer">
-          <span class="shortcut-icon">🔎</span>
-          <span class="shortcut-name">Google Search</span>
-        </a>
-        <a class="shortcut" href="https://www.wikipedia.org/" target="_blank" rel="noopener noreferrer">
-          <span class="shortcut-icon">📚</span>
-          <span class="shortcut-name">Wikipedia</span>
-        </a>
-        <a class="shortcut" href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer">
-          <span class="shortcut-icon">▶️</span>
-          <span class="shortcut-name">YouTube</span>
-        </a>
-        <a class="shortcut" href="https://github.com/" target="_blank" rel="noopener noreferrer">
-          <span class="shortcut-icon">💻</span>
-          <span class="shortcut-name">GitHub</span>
-        </a>
-      </div>
+  w.innerHTML=`
+    <div class="titlebar">
+      <strong>${titles[type]}</strong>
+      <button onclick="document.getElementById('${id}').remove()">✕</button>
+    </div>
+    <div class="content"></div>`;
 
-      <p class="notice">
-        Websites may prevent embedded viewing. Use “Open in new tab”
-        if a website doesn't allow itself to appear inside MyBrowser.
-      </p>
-    </section>
+  document.getElementById("windows").appendChild(w);
+  w.addEventListener("pointerdown",()=>w.style.zIndex=++topZ);
+  makeDraggable(w);
 
-    <section class="viewer" id="viewer">
-      <div class="viewer-bar">
-        <span id="pageStatus">Ready to browse</span>
-        <button id="openExternal" type="button">Open in new tab ↗</button>
-        <button id="goHome" type="button">Home</button>
-      </div>
-      <iframe id="page" title="Embedded website"
-              referrerpolicy="no-referrer"></iframe>
-      <p class="viewer-help">
-        If this area stays blank or shows an error, the website may block
-        embedding. <a id="fallbackLink" href="https://example.com/"
-        target="_blank" rel="noopener noreferrer">Open the site separately</a>.
-      </p>
-    </section>
-  </main>
+  const area=w.querySelector(".content");
 
-  <div class="status" id="status" role="status">
-    Welcome to MyBrowser.
-  </div>
-
-  <script>
-    const $ = id => document.getElementById(id);
-
-    const tabsElement = $("tabs");
-    const address = $("address");
-    const home = $("home");
-    const viewer = $("viewer");
-    const frame = $("page");
-    const pageStatus = $("pageStatus");
-    const status = $("status");
-
-    let nextId = 2;
-    let activeId = 1;
-    let tabs = [{
-      id: 1,
-      title: "Home",
-      url: "",
-      history: [],
-      position: -1
-    }];
-
-    function activeTab() {
-      return tabs.find(tab => tab.id === activeId);
-    }
-
-    function safeUrl(text) {
-      let value = text.trim();
-      if (!value) return null;
-
-      // Plain words are sent to a search engine.
-      if (!/^(https?:\/\/)/i.test(value)) {
-        if (value.includes(" ") || !value.includes(".")) {
-          return "https://www.google.com/search?q=" +
-            encodeURIComponent(value);
-        }
-        value = "https://" + value;
-      }
-
-      try {
-        const parsed = new URL(value);
-        if (!["https:", "http:"].includes(parsed.protocol)) return null;
-        if (!parsed.hostname.includes(".")) return null;
-        return parsed.href;
-      } catch {
-        return null;
-      }
-    }
-
-    function renderTabs() {
-      tabsElement.innerHTML = "";
-
-      tabs.forEach(tab => {
-        const button = document.createElement("button");
-        button.className = "tab" + (tab.id === activeId ? " active" : "");
-        button.type = "button";
-        button.title = tab.url || "Home";
-
-        const title = document.createElement("span");
-        title.className = "tab-title";
-        title.textContent = tab.title;
-
-        button.appendChild(title);
-
-        if (tabs.length > 1) {
-          const close = document.createElement("span");
-          close.className = "close-tab";
-          close.textContent = "×";
-          close.title = "Close tab";
-          close.addEventListener("click", event => {
-            event.stopPropagation();
-            closeTab(tab.id);
-          });
-          button.appendChild(close);
-        }
-
-        button.addEventListener("click", () => switchTab(tab.id));
-        tabsElement.appendChild(button);
-      });
-
-      const add = document.createElement("button");
-      add.className = "new-tab";
-      add.type = "button";
-      add.textContent = "+";
-      add.title = "New tab";
-      add.addEventListener("click", newTab);
-      tabsElement.appendChild(add);
-
-      $("back").disabled = activeTab().position <= 0;
-      $("forward").disabled =
-        activeTab().position >= activeTab().history.length - 1;
-    }
-
-    function showHome() {
-      home.style.display = "block";
-      viewer.classList.remove("show");
-      address.value = "";
-      frame.src = "about:blank";
-      pageStatus.textContent = "Home";
-      renderTabs();
-    }
-
-    function openPage(url, addHistory = true) {
-      const tab = activeTab();
-      if (!tab || !url) return;
-
-      tab.url = url;
-      tab.title = new URL(url).hostname;
-      if (addHistory) {
-        tab.history = tab.history.slice(0, tab.position + 1);
-        tab.history.push(url);
-        tab.position = tab.history.length - 1;
-      }
-
-      home.style.display = "none";
-      viewer.classList.add("show");
-      address.value = url;
-      pageStatus.textContent = "Loading " + url;
-      status.textContent = "Attempting to display " + url;
-      $("fallbackLink").href = url;
-      $("openExternal").onclick = () => window.open(url, "_blank", "noopener,noreferrer");
-
-      frame.src = url;
-      renderTabs();
-
-      frame.onload = () => {
-        pageStatus.textContent = "Display attempted: " + url;
+  if(type==="browser") browserApp(area);
+  if(type==="notes") notesApp(area);
+  if(type==="terminal") terminalApp(area);
+  if(type==="calculator") calculatorApp(area);
+  if(type==="settings") settingsApp(area);
+  if(type==="files") {
+    area.innerHTML="<h2>📁 My Files</h2><p>This is a web desktop. It cannot access your computer's actual files.</p><button class='action' id='upload'>Choose a local file</button><p id='fileinfo'></p>";
+    area.querySelector("#upload").onclick=()=>{
+      const picker=document.createElement("input");
+      picker.type="file";
+      picker.onchange=()=>{
+        area.querySelector("#fileinfo").textContent=
+          picker.files[0]?.name || "No file selected";
       };
+      picker.click();
+    };
+  }
+  if(type==="about"){
+    area.innerHTML="<h1>MyBrowser Desktop</h1><p>A custom desktop website inspired by NautilusOS.</p><p>Features: draggable windows, browser, notes, calculator, settings and a simulated terminal.</p>";
+  }
+}
+
+function makeDraggable(w){
+  const bar=w.querySelector(".titlebar");
+  let active=false,dx=0,dy=0;
+  bar.addEventListener("pointerdown",e=>{
+    if(e.target.tagName==="BUTTON")return;
+    active=true;
+    dx=e.clientX-w.offsetLeft;
+    dy=e.clientY-w.offsetTop;
+    bar.setPointerCapture(e.pointerId);
+  });
+  bar.addEventListener("pointermove",e=>{
+    if(!active)return;
+    w.style.left=Math.max(0,Math.min(
+      innerWidth-100,e.clientX-dx))+"px";
+    w.style.top=Math.max(0,Math.min(
+      innerHeight-80,e.clientY-dy))+"px";
+  });
+  bar.addEventListener("pointerup",()=>active=false);
+  bar.addEventListener("pointercancel",()=>active=false);
+}
+
+function browserApp(area){
+  area.innerHTML=`
+    <div class="toolbar">
+      <button id="home">⌂</button>
+      <input id="address" placeholder="Search or enter a URL">
+      <button id="go">Go</button>
+      <button id="external" title="Open in a normal tab">↗</button>
+    </div>
+    <p id="browserhelp" style="color:#ddd;margin:0">
+      Enter a website URL. Some websites block embedded viewing.
+    </p>
+    <iframe title="Web page" src="about:blank"></iframe>`;
+
+  const address=area.querySelector("#address");
+  const frame=area.querySelector("iframe");
+  let current="";
+
+  function navigate(){
+    let value=address.value.trim();
+    if(!value)return;
+    if(/^https?:\/\//i.test(value)){
+      current=value;
+    }else if(value.includes(".")&&!value.includes(" ")){
+      current="https://"+value;
+    }else{
+      current="https://www.google.com/search?q="+
+        encodeURIComponent(value);
     }
+    frame.src=current;
+  }
 
-    function navigate(text) {
-      const url = safeUrl(text);
-      if (!url) {
-        status.textContent = "Enter a valid website address or search term.";
-        return;
-      }
-      openPage(url);
+  area.querySelector("#go").onclick=navigate;
+  address.onkeydown=e=>{if(e.key==="Enter")navigate()};
+  area.querySelector("#home").onclick=()=>{
+    current="";
+    address.value="";
+    frame.src="about:blank";
+  };
+  area.querySelector("#external").onclick=()=>{
+    if(current)window.open(current,"_blank","noopener,noreferrer");
+  };
+}
+
+function notesApp(area){
+  area.innerHTML=`
+    <p>Notes are saved in this browser.</p>
+    <textarea placeholder="Start typing..."></textarea>
+    <button class="action" id="save">Save notes</button>`;
+  const input=area.querySelector("textarea");
+  input.value=localStorage.getItem("mybrowser-notes")||"";
+  area.querySelector("#save").onclick=()=>{
+    localStorage.setItem("mybrowser-notes",input.value);
+    alert("Notes saved!");
+  };
+}
+
+function terminalApp(area){
+  area.innerHTML=`
+    <div id="terminal-output">MyBrowser Terminal
+Type help to see commands.
+This is a simulated terminal, not a system shell.
+
+</div>
+    <input class="field" placeholder="Enter a command">`;
+  const output=area.querySelector("#terminal-output");
+  const input=area.querySelector("input");
+  input.onkeydown=e=>{
+    if(e.key!=="Enter")return;
+    const command=input.value.trim().toLowerCase();
+    input.value="";
+    if(command==="clear"){
+      output.textContent="";
+      return;
     }
+    let result={
+      help:"Commands: help, date, whoami, echo TEXT, clear",
+      date:new Date().toString(),
+      whoami:"mybrowser-user"
+    }[command];
+    if(command.startsWith("echo "))result=command.slice(5);
+    output.textContent+="> "+command+"\n"+
+      (result??"Unknown command")+"\n\n";
+    output.scrollTop=output.scrollHeight;
+  };
+}
 
-    function newTab() {
-      const tab = {
-        id: nextId++,
-        title: "Home",
-        url: "",
-        history: [],
-        position: -1
-      };
-      tabs.push(tab);
-      activeId = tab.id;
-      showHome();
-      status.textContent = "New tab opened.";
-    }
-
-    function switchTab(id) {
-      activeId = id;
-      const tab = activeTab();
-      if (tab.url) {
-        openPage(tab.url, false);
-      } else {
-        showHome();
+function calculatorApp(area){
+  area.innerHTML=`
+    <input class="field" id="display" readonly value="0">
+    <div class="calc"></div>`;
+  const display=area.querySelector("#display");
+  const grid=area.querySelector(".calc");
+  let expression="";
+  for(const key of ["7","8","9","/","4","5","6","*",
+                     "1","2","3","-","C","0","=","+"]){
+    const button=document.createElement("button");
+    button.textContent=key;
+    button.onclick=()=>{
+      if(key==="C")expression="";
+      else if(key==="="){
+        try{
+          if(!/^[0-9+\-*/. ()]+$/.test(expression))
+            throw Error("Invalid expression");
+          expression=String(Function(
+            '"use strict";return ('+expression+')'
+          )());
+        }catch{
+          expression="Error";
+        }
+      }else{
+        if(expression==="Error")expression="";
+        expression+=key;
       }
-      renderTabs();
-    }
+      display.value=expression||"0";
+    };
+    grid.appendChild(button);
+  }
+}
 
-    function closeTab(id) {
-      if (tabs.length === 1) {
-        tabs[0] = {
-          id: tabs[0].id,
-          title: "Home",
-          url: "",
-          history: [],
-          position: -1
-        };
-        showHome();
-        return;
-      }
+function settingsApp(area){
+  area.innerHTML=`
+    <h2>Appearance</h2>
+    <p>Choose your accent color:</p>
+    <div class="toolbar">
+      <button data-color="#ffd55a">Yellow</button>
+      <button data-color="#82d9c8">Mint</button>
+      <button data-color="#ff6666">Red</button>
+      <button data-color="#bba0ff">Purple</button>
+    </div>`;
+  area.querySelectorAll("[data-color]").forEach(button=>{
+    button.onclick=()=>{
+      document.documentElement.style.setProperty(
+        "--accent",button.dataset.color
+      );
+      localStorage.setItem("mybrowser-accent",button.dataset.color);
+    };
+  });
+}
 
-      const index = tabs.findIndex(tab => tab.id === id);
-      tabs = tabs.filter(tab => tab.id !== id);
+const savedColor=localStorage.getItem("mybrowser-accent");
+if(savedColor)
+  document.documentElement.style.setProperty("--accent",savedColor);
 
-      if (activeId === id) {
-        activeId = tabs[Math.max(0, index - 1)].id;
-        switchTab(activeId);
-      } else {
-        renderTabs();
-      }
-    }
-
-    $("addressForm").addEventListener("submit", event => {
-      event.preventDefault();
-      navigate(address.value);
+function updateClock(){
+  document.getElementById("clock").textContent=
+    new Date().toLocaleTimeString([],{
+      hour:"numeric",minute:"2-digit"
     });
-
-    $("homeSearch").addEventListener("submit", event => {
-      event.preventDefault();
-      navigate($("homeQuery").value);
-    });
-
-    $("back").addEventListener("click", () => {
-      const tab = activeTab();
-      if (tab.position > 0) {
-        tab.position--;
-        openPage(tab.history[tab.position], false);
-      }
-    });
-
-    $("forward").addEventListener("click", () => {
-      const tab = activeTab();
-      if (tab.position < tab.history.length - 1) {
-        tab.position++;
-        openPage(tab.history[tab.position], false);
-      }
-    });
-
-    $("refresh").addEventListener("click", () => {
-      const tab = activeTab();
-      if (tab.url) {
-        frame.src = tab.url;
-        pageStatus.textContent = "Refreshing " + tab.url;
-      } else {
-        showHome();
-      }
-    });
-
-    $("goHome").addEventListener("click", () => {
-      const tab = activeTab();
-      tab.url = "";
-      tab.title = "Home";
-      tab.history = [];
-      tab.position = -1;
-      showHome();
-    });
-
-    showHome();
-  </script>
+}
+updateClock();
+setInterval(updateClock,1000);
+</script>
 </body>
 </html>
