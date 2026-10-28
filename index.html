@@ -6,6 +6,37 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MyBrowser Desktop</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&display=swap');
+
+/* Futuristic bottom taskbar */
+#dock {
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 1.5px;
+  border: 1px solid rgba(255, 198, 54, 0.7);
+  box-shadow:
+    0 0 15px rgba(255, 170, 0, 0.25),
+    inset 0 0 12px rgba(255, 170, 0, 0.08);
+}
+
+/* Glowing clock */
+#clock {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: #ffe16a;
+  text-shadow:
+    0 0 6px #ffb700,
+    0 0 14px rgba(255, 170, 0, 0.7);
+}
+
+/* Glowing icons on hover */
+#dock button:hover {
+  color: #ffe16a;
+  text-shadow: 0 0 12px #ffc400;
+  transform: translateY(-3px);
+  transition: 0.2s;
+}
+
 :root {
   --accent:#ffd55a;
   --panel:rgba(13,14,20,.92);
