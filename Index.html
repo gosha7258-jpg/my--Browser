@@ -1,0 +1,143 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MyBrowser</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #111827;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    header {
+      padding: 24px;
+      text-align: center;
+    }
+    h1 { font-size: 36px; margin-bottom: 8px; }
+    p { color: #aebbd0; }
+    main {
+      max-width: 1000px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    form {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    input {
+      flex: 1;
+      min-width: 180px;
+      padding: 14px;
+      border: 1px solid #475569;
+      border-radius: 10px;
+      background: #1f2937;
+      color: white;
+      font-size: 16px;
+    }
+    button {
+      padding: 14px 20px;
+      border: 0;
+      border-radius: 10px;
+      background: #3b82f6;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .panel {
+      margin-top: 24px;
+      padding: 24px;
+      background: #1f2937;
+      border-radius: 14px;
+      text-align: center;
+    }
+    iframe {
+      width: 100%;
+      height: 550px;
+      border: 1px solid #475569;
+      border-radius: 12px;
+      background: white;
+    }
+    .hidden { display: none; }
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>MyBrowser</h1>
+    <p>Your own custom web browsing homepage.</p>
+  </header>
+
+  <main>
+    <form id="searchForm">
+      <input id="url" placeholder="Enter a website URL..."
+             aria-label="Website URL" required>
+      <button type="submit">Open</button>
+    </form>
+
+    <div class="panel" id="welcome">
+      <h2>Welcome!</h2>
+      <p>Enter a website above to try opening it here.</p>
+      <p>Some websites block being displayed inside another page.</p>
+    </div>
+
+    <section id="browser" class="hidden">
+      <p id="status">Loading website...</p>
+      <iframe id="page" title="Embedded website"
+              referrerpolicy="no-referrer"></iframe>
+      <p>
+        If the page doesn't load, the website may prohibit embedding.
+        <a id="external" target="_blank" rel="noopener noreferrer"
+           style="color:#93c5fd">Open in a new tab instead</a>.
+      </p>
+    </section>
+  </main>
+
+  <footer>MyBrowser · Personal web project</footer>
+
+  <script>
+    const form = document.getElementById("searchForm");
+    const field = document.getElementById("url");
+    const frame = document.getElementById("page");
+    const browser = document.getElementById("browser");
+    const welcome = document.getElementById("welcome");
+    const status = document.getElementById("status");
+    const external = document.getElementById("external");
+
+    form.addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      let value = field.value.trim();
+      if (!value) return;
+
+      if (!/^https?:\/\//i.test(value)) {
+        value = "https://" + value;
+      }
+
+      try {
+        const parsed = new URL(value);
+        if (!["http:", "https:"].includes(parsed.protocol)) return;
+        value = parsed.href;
+      } catch {
+        status.textContent = "Please enter a valid website address.";
+        browser.classList.remove("hidden");
+        return;
+      }
+
+      welcome.classList.add("hidden");
+      browser.classList.remove("hidden");
+      status.textContent = "Attempting to load " + value;
+      external.href = value;
+      frame.src = value;
+    });
+  </script>
+</body>
+</html>
