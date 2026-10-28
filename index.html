@@ -5,35 +5,37 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MyBrowser // Desktop</title>
+<link rel="icon" id="site-favicon" href="data:,">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
 <style>
 :root {
-  --yellow:#ffe65c;
-  --red:#ff384b;
-  --glass:rgba(9,11,15,.94);
+  --accent:#ffe65c;
+  --glass:rgba(9,11,16,.95);
 }
 * {box-sizing:border-box}
 body {
   margin:0;
   overflow:hidden;
   font-family:Arial,sans-serif;
-  color:#fff;
-  background:#0a0809 url("https://wallpapercave.com/wp/wp15347483.png") center/cover fixed no-repeat;
+  color:white;
+  background:#09090b
+    url("https://wallpapercave.com/wp/wp15347483.png")
+    center/cover fixed no-repeat;
 }
 body::before {
   content:"";
   position:fixed;
   inset:0;
-  background:#0004;
+  background:#0005;
   pointer-events:none;
 }
-button,input,textarea {font:inherit}
+button,input,textarea,select {font:inherit}
 button {cursor:pointer}
-button:focus-visible,.app:focus-visible {
-  outline:2px solid var(--yellow);
+button:focus-visible,input:focus-visible,
+select:focus-visible,textarea:focus-visible {
+  outline:2px solid var(--accent);
 }
-
-/* DESKTOP */
 #desktop {
   position:absolute;
   top:18px;
@@ -49,13 +51,13 @@ button:focus-visible,.app:focus-visible {
   border-radius:12px;
   cursor:pointer;
   font-size:12px;
-  text-shadow:0 1px 4px #000;
+  text-shadow:0 1px 5px #000;
 }
 .app:hover {
   background:#ffffff20;
   border-color:#ffe65c66;
 }
-.app .symbol {
+.symbol {
   display:block;
   font-size:32px;
   margin-bottom:8px;
@@ -87,7 +89,7 @@ button:focus-visible,.app:focus-visible {
   background:none;
   border:0;
   border-radius:8px;
-  color:var(--yellow);
+  color:var(--accent);
   transition:.2s;
 }
 #dock button:hover {
@@ -106,7 +108,7 @@ button:focus-visible,.app:focus-visible {
 }
 .system-label,#clock {
   font:10px Orbitron,monospace;
-  color:var(--yellow);
+  color:var(--accent);
   text-shadow:0 0 9px #ffc400;
   white-space:nowrap;
 }
@@ -138,7 +140,7 @@ button:focus-visible,.app:focus-visible {
   padding:12px 14px;
   background:#ffffff10;
   font:12px Orbitron,monospace;
-  color:var(--yellow);
+  color:var(--accent);
   cursor:move;
   user-select:none;
   touch-action:none;
@@ -160,7 +162,7 @@ button:focus-visible,.app:focus-visible {
   gap:10px;
   overflow:auto;
 }
-.toolbar {display:flex;gap:7px}
+.toolbar {display:flex;gap:7px;flex-wrap:wrap}
 .toolbar button,.action {
   padding:9px 12px;
   background:#ffffff17;
@@ -169,7 +171,7 @@ button:focus-visible,.app:focus-visible {
   color:white;
 }
 .toolbar button:hover,.action:hover {
-  border-color:var(--yellow);
+  border-color:var(--accent);
 }
 .field,.toolbar input {
   min-width:0;
@@ -181,6 +183,7 @@ button:focus-visible,.app:focus-visible {
   color:white;
   outline:none;
 }
+select.field option {background:#15161b}
 iframe {
   width:100%;
   flex:1;
@@ -212,13 +215,82 @@ textarea {
   color:white;
   font-size:19px;
 }
-.calc button:hover {background:#ffe65c33}
 #terminal-output {
   flex:1;
   overflow:auto;
   white-space:pre-wrap;
   font:14px "Share Tech Mono",monospace;
   color:#ffe65c;
+}
+
+/* TAB CUSTOMIZATION APP */
+.tab-panel {
+  border:1px solid #ffe65c55;
+  background:#101116;
+  border-radius:12px;
+  padding:16px;
+}
+.tab-heading {
+  font:14px Orbitron,monospace;
+  color:#ffe65c;
+  margin:0 0 12px;
+}
+.tab-label {
+  font:11px Orbitron,monospace;
+  color:#d4bb69;
+  margin:14px 0 7px;
+}
+.tab-preview-shell {
+  background:#22252e;
+  border-radius:12px;
+  padding:10px 10px 0;
+}
+.tab-preview {
+  display:flex;
+  align-items:center;
+  gap:9px;
+  width:min(270px,100%);
+  padding:12px;
+  background:#353943;
+  border-radius:10px 10px 0 0;
+  border-top:2px solid #ffe65c;
+  font-size:13px;
+}
+.tab-preview img {
+  width:19px;
+  height:19px;
+  object-fit:contain;
+}
+.tab-preview span {
+  flex:1;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+.tab-note {
+  font-size:12px;
+  color:#aab0bc;
+  line-height:1.5;
+}
+.tab-actions {
+  display:flex;
+  gap:10px;
+  margin-top:15px;
+}
+.tab-actions button {flex:1}
+.primary-action {
+  background:#ffe65c;
+  color:#15120a;
+  border:0;
+  border-radius:7px;
+  padding:11px;
+  font-weight:bold;
+}
+.primary-action:hover {background:#fff0a2}
+#tab-feedback {
+  color:#ffe65c;
+  font-size:12px;
+  min-height:16px;
 }
 @media(max-width:700px) {
   .system-label {display:none}
@@ -227,16 +299,14 @@ textarea {
   .window {left:2%!important;top:8%!important}
 }
 
-/* ====================================
-   CINEMATIC REBOOT SCREEN
-==================================== */
+/* CINEMATIC REBOOT */
 #md-boot {
   position:fixed;
   inset:0;
   z-index:999999;
   overflow:hidden;
   background:#050507;
-  color:var(--yellow);
+  color:#ffe65c;
   font-family:"Share Tech Mono",monospace;
   transition:opacity .9s ease;
 }
@@ -248,16 +318,12 @@ textarea {
   pointer-events:none;
   background:
     repeating-linear-gradient(
-      0deg,
-      #0006 0px,
-      #0006 1px,
-      transparent 2px,
-      transparent 4px
+      0deg,#0006 0px,#0006 1px,
+      transparent 2px,transparent 4px
     ),
     radial-gradient(
       ellipse at center,
-      transparent 25%,
-      #000a 100%
+      transparent 25%,#000a 100%
     );
 }
 #md-boot::after {
@@ -327,9 +393,8 @@ textarea {
     0 0 28px #ffd000,
     0 0 65px #ffb900,
     0 0 110px #ff9a00;
-  animation:
-    textFlicker 2.2s infinite,
-    textJitter 3s infinite;
+  animation:textFlicker 2.2s infinite,
+            textJitter 3s infinite;
 }
 #boot-main::before,
 #boot-main::after {
@@ -345,7 +410,7 @@ textarea {
   animation:glitchSliceA 1.1s infinite;
 }
 #boot-main::after {
-  color:#fff;
+  color:white;
   text-shadow:9px 0 #ff9f00;
   animation:glitchSliceB 1.4s infinite;
 }
@@ -377,12 +442,8 @@ textarea {
   height:4px;
   opacity:0;
   background:linear-gradient(
-    90deg,
-    transparent,
-    #ffdd00,
-    #fff8a5,
-    #ffb800,
-    transparent
+    90deg,transparent,#ffdd00,
+    #fff8a5,#ffb800,transparent
   );
   box-shadow:0 0 20px #ffcc00;
   pointer-events:none;
@@ -425,33 +486,28 @@ textarea {
   background:#ff2538;
   box-shadow:0 0 30px red;
 }
-#md-boot.failed .boot-bottom {
-  color:#ff5151;
-}
+#md-boot.failed .boot-bottom {color:#ff5151}
 #md-boot.success #boot-main {
   color:#fff7a6;
   text-shadow:
-    0 0 8px #fff,
+    0 0 8px white,
     0 0 25px #ffdd00,
     0 0 65px #ffb000;
 }
-
-@keyframes cursorBlink {
-  50% {opacity:0}
-}
+@keyframes cursorBlink {50%{opacity:0}}
 @keyframes screenSweep {
-  to {transform:translateY(100%)}
+  to{transform:translateY(100%)}
 }
 @keyframes textFlicker {
-  0%,88%,92%,97%,100% {opacity:1}
-  89%,95% {opacity:.4}
-  90%,96% {opacity:.85}
+  0%,88%,92%,97%,100%{opacity:1}
+  89%,95%{opacity:.4}
+  90%,96%{opacity:.85}
 }
 @keyframes textJitter {
-  0%,85%,100% {transform:translate(0)}
-  86% {transform:translate(-5px,2px)}
-  88% {transform:translate(7px,-2px)}
-  90% {transform:translate(-3px,1px)}
+  0%,85%,100%{transform:translate(0)}
+  86%{transform:translate(-5px,2px)}
+  88%{transform:translate(7px,-2px)}
+  90%{transform:translate(-3px,1px)}
 }
 @keyframes glitchSliceA {
   0%,72%,100% {
@@ -468,7 +524,7 @@ textarea {
     transform:translate(9px);
     clip-path:inset(58% 0 20% 0);
   }
-  83% {opacity:0}
+  83%{opacity:0}
 }
 @keyframes glitchSliceB {
   0%,66%,100% {
@@ -485,7 +541,7 @@ textarea {
     transform:translate(-9px);
     clip-path:inset(76% 0 8% 0);
   }
-  77% {opacity:0}
+  77%{opacity:0}
 }
 @keyframes stripGlitch {
   0%,65%,100% {
@@ -500,7 +556,7 @@ textarea {
     opacity:.6;
     transform:translateX(24px) scaleY(1);
   }
-  77% {opacity:0}
+  77%{opacity:0}
 }
 @media(max-width:700px) {
   #boot-main {
@@ -513,28 +569,27 @@ textarea {
 }
 @media(prefers-reduced-motion:reduce) {
   #md-boot *,
-  #md-boot::after {
-    animation:none!important;
-  }
+  #md-boot::after {animation:none!important}
 }
 </style>
 </head>
-<body>
 
+<body>
 <!-- DESKTOP ICONS -->
 <div id="desktop">
-  <div class="app" tabindex="0" onclick="openApp('browser')"><span class="symbol">🌐</span>Browser</div>
-  <div class="app" tabindex="0" onclick="openApp('files')"><span class="symbol">📁</span>Files</div>
-  <div class="app" tabindex="0" onclick="openApp('notes')"><span class="symbol">📝</span>Text Editor</div>
-  <div class="app" tabindex="0" onclick="openApp('terminal')"><span class="symbol">⌨️</span>Terminal</div>
-  <div class="app" tabindex="0" onclick="openApp('calculator')"><span class="symbol">🧮</span>Calculator</div>
-  <div class="app" tabindex="0" onclick="openApp('settings')"><span class="symbol">⚙️</span>Settings</div>
-  <div class="app" tabindex="0" onclick="openApp('about')"><span class="symbol">⭐</span>About</div>
+  <div class="app" onclick="openApp('browser')"><span class="symbol">🌐</span>Browser</div>
+  <div class="app" onclick="openApp('files')"><span class="symbol">📁</span>Files</div>
+  <div class="app" onclick="openApp('notes')"><span class="symbol">📝</span>Text Editor</div>
+  <div class="app" onclick="openApp('terminal')"><span class="symbol">⌨️</span>Terminal</div>
+  <div class="app" onclick="openApp('calculator')"><span class="symbol">🧮</span>Calculator</div>
+  <div class="app" onclick="openApp('settings')"><span class="symbol">⚙️</span>Settings</div>
+  <div class="app" onclick="openApp('tabs')"><span class="symbol">🖥️</span>Tab Customization</div>
+  <div class="app" onclick="openApp('about')"><span class="symbol">⭐</span>About</div>
 </div>
 
 <div id="windows"></div>
 
-<!-- SCI-FI TASKBAR -->
+<!-- TASKBAR -->
 <div id="dock">
   <span class="system-label">MYBROWSER // ONLINE</span>
 
@@ -579,6 +634,13 @@ textarea {
     </svg>
   </button>
 
+  <button onclick="openApp('tabs')" title="Tab Customization">
+    <svg viewBox="0 0 24 24">
+      <rect x="2" y="4" width="20" height="16" rx="3"/>
+      <path d="M2 10H22M7 7H11"/>
+    </svg>
+  </button>
+
   <span id="clock"></span>
 </div>
 
@@ -599,9 +661,7 @@ textarea {
   </div>
 
   <div class="boot-center">
-    <div id="boot-main" data-text="REBOOTING...">
-      REBOOTING...
-    </div>
+    <div id="boot-main" data-text="REBOOTING...">REBOOTING...</div>
   </div>
 
   <div class="boot-lowerlogs">
@@ -617,7 +677,61 @@ textarea {
 </div>
 
 <script>
-/* DESKTOP APPS */
+/* TAB APPEARANCE SYSTEM */
+const tabPresets={
+  mybrowser:{title:"MyBrowser // Desktop",icon:"🌐"},
+  study:{title:"Study Workspace",icon:"🎓"},
+  learning:{title:"Learning Hub",icon:"📚"},
+  documents:{title:"Documents",icon:"📄"},
+  system:{title:"System Core",icon:"⚙️"},
+  custom:{title:"My Custom Tab",icon:"✨"}
+};
+
+function emojiFavicon(emoji){
+  const canvas=document.createElement("canvas");
+  canvas.width=64;
+  canvas.height=64;
+  const ctx=canvas.getContext("2d");
+  ctx.font="48px sans-serif";
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+  ctx.fillText(emoji,32,34);
+  return canvas.toDataURL("image/png");
+}
+
+function getTabChoice(){
+  try {
+    return JSON.parse(
+      localStorage.getItem("mybrowser-tab-choice")
+    )||{title:tabPresets.mybrowser.title,
+       icon:tabPresets.mybrowser.icon};
+  }catch {
+    return {
+      title:tabPresets.mybrowser.title,
+      icon:tabPresets.mybrowser.icon
+    };
+  }
+}
+
+function applyTabChoice(choice,save=true){
+  const title=String(choice.title||"MyBrowser").slice(0,60);
+  const icon=String(choice.icon||"🌐").slice(0,8);
+
+  document.title=title;
+  document.getElementById("site-favicon").href=
+    emojiFavicon(icon);
+
+  if(save){
+    localStorage.setItem(
+      "mybrowser-tab-choice",
+      JSON.stringify({title,icon})
+    );
+  }
+}
+
+applyTabChoice(getTabChoice(),false);
+
+/* DESKTOP WINDOW SYSTEM */
 let topZ=10;
 let windowCount=0;
 
@@ -628,6 +742,7 @@ const appTitles={
   terminal:"SYSTEM TERMINAL",
   calculator:"CALCULATOR",
   settings:"SYSTEM SETTINGS",
+  tabs:"TAB CUSTOMIZATION",
   about:"ABOUT MYBROWSER"
 };
 
@@ -661,21 +776,22 @@ function openApp(type){
   w.addEventListener("pointerdown",()=>{
     w.style.zIndex=++topZ;
   });
-
   makeDraggable(w,bar);
 
-  if(type==="browser") browserApp(area);
-  if(type==="notes") notesApp(area);
-  if(type==="terminal") terminalApp(area);
-  if(type==="calculator") calculatorApp(area);
-  if(type==="settings") settingsApp(area);
+  if(type==="browser")browserApp(area);
+  if(type==="notes")notesApp(area);
+  if(type==="terminal")terminalApp(area);
+  if(type==="calculator")calculatorApp(area);
+  if(type==="settings")settingsApp(area);
+  if(type==="tabs")tabCustomizationApp(area);
 
   if(type==="files"){
     area.innerHTML=`
       <h2>MY FILES</h2>
-      <p>This is a simulated desktop. It cannot read your device files automatically.</p>
-      <button class="action" id="choose-file">Choose file</button>
+      <p>This desktop cannot automatically read your computer's files.</p>
+      <button class="action" id="choose-file">Choose File</button>
       <p id="file-name"></p>`;
+
     area.querySelector("#choose-file").onclick=()=>{
       const input=document.createElement("input");
       input.type="file";
@@ -689,11 +805,9 @@ function openApp(type){
 
   if(type==="about"){
     area.innerHTML=`
-      <h1 style="color:#ffe65c;font-family:Orbitron">
-        MYBROWSER
-      </h1>
+      <h1 style="color:#ffe65c;font-family:Orbitron">MYBROWSER</h1>
       <p>Desktop Operating System // Custom Edition</p>
-      <p>Browser, notes, calculator, simulated terminal, and draggable windows.</p>
+      <p>Browser, notes, calculator, terminal simulation, draggable windows and tab customization.</p>
       <p>STATUS: SYSTEM ONLINE</p>`;
   }
 }
@@ -703,7 +817,6 @@ function makeDraggable(w,bar){
 
   bar.addEventListener("pointerdown",e=>{
     if(e.target.closest("button"))return;
-
     dragging=true;
     dx=e.clientX-w.offsetLeft;
     dy=e.clientY-w.offsetTop;
@@ -724,13 +837,14 @@ function makeDraggable(w,bar){
   bar.addEventListener("pointercancel",()=>dragging=false);
 }
 
+/* BROWSER */
 function browserApp(area){
   area.innerHTML=`
     <div class="toolbar">
       <button id="home">⌂</button>
       <input id="address" placeholder="Search or enter URL">
       <button id="go">GO</button>
-      <button id="external" title="Open normal tab">↗</button>
+      <button id="external" title="Open in a normal tab">↗</button>
     </div>
     <p style="font-size:12px;color:#bbb">
       Some websites block embedded viewing.
@@ -753,7 +867,6 @@ function browserApp(area){
       current="https://www.google.com/search?q="+
         encodeURIComponent(value);
     }
-
     frame.src=current;
   }
 
@@ -761,20 +874,19 @@ function browserApp(area){
   address.onkeydown=e=>{
     if(e.key==="Enter")navigate();
   };
-
   area.querySelector("#home").onclick=()=>{
     current="";
     address.value="";
     frame.src="about:blank";
   };
-
   area.querySelector("#external").onclick=()=>{
-    if(current){
-      window.open(current,"_blank","noopener,noreferrer");
-    }
+    if(current)window.open(
+      current,"_blank","noopener,noreferrer"
+    );
   };
 }
 
+/* NOTES */
 function notesApp(area){
   area.innerHTML=`
     <p>Local notes // saved in your browser</p>
@@ -790,6 +902,7 @@ function notesApp(area){
   };
 }
 
+/* TERMINAL */
 function terminalApp(area){
   area.innerHTML=`
     <div id="terminal-output">MYBROWSER TERMINAL
@@ -804,7 +917,6 @@ Type HELP for commands.
 
   input.onkeydown=e=>{
     if(e.key!=="Enter")return;
-
     const command=input.value.trim();
     const lower=command.toLowerCase();
     input.value="";
@@ -821,9 +933,7 @@ Type HELP for commands.
       status:"SYSTEM ONLINE // CORE STABLE"
     }[lower];
 
-    if(lower.startsWith("echo ")){
-      answer=command.slice(5);
-    }
+    if(lower.startsWith("echo "))answer=command.slice(5);
 
     output.textContent+="> "+command+"\n"+
       (answer??"Unknown command")+"\n\n";
@@ -831,6 +941,7 @@ Type HELP for commands.
   };
 }
 
+/* CALCULATOR */
 function calculatorApp(area){
   area.innerHTML=`
     <input class="field" id="display" readonly value="0">
@@ -850,13 +961,11 @@ function calculatorApp(area){
     b.textContent=key;
 
     b.onclick=()=>{
-      if(key==="C"){
-        expression="";
-      }else if(key==="="){
+      if(key==="C")expression="";
+      else if(key==="="){
         try{
           if(!/^[0-9+\-*/. ()]+$/.test(expression))
             throw Error("Invalid");
-
           expression=String(Function(
             '"use strict";return ('+expression+')'
           )());
@@ -867,14 +976,13 @@ function calculatorApp(area){
         if(expression==="Error")expression="";
         expression+=key;
       }
-
       display.value=expression||"0";
     };
-
     grid.appendChild(b);
   }
 }
 
+/* SETTINGS */
 function settingsApp(area){
   area.innerHTML=`
     <h2>SYSTEM SETTINGS</h2>
@@ -883,22 +991,151 @@ function settingsApp(area){
       <button data-color="#ffe65c">YELLOW</button>
       <button data-color="#ff5261">RED</button>
       <button data-color="#81e0ca">MINT</button>
-    </div>`;
+    </div>
+    <hr style="width:100%;border:1px solid #ffffff22">
+    <h3>Tab Appearance</h3>
+    <p>Customize the actual browser tab title and icon.</p>
+    <button class="action" id="open-tabs">OPEN TAB CUSTOMIZATION</button>`;
 
   area.querySelectorAll("[data-color]").forEach(b=>{
     b.onclick=()=>{
       document.documentElement.style.setProperty(
-        "--yellow",b.dataset.color
+        "--accent",b.dataset.color
       );
-      localStorage.setItem("mybrowser-accent",b.dataset.color);
+      localStorage.setItem(
+        "mybrowser-accent",b.dataset.color
+      );
     };
   });
+
+  area.querySelector("#open-tabs").onclick=()=>{
+    openApp("tabs");
+  };
+}
+
+/* TAB CUSTOMIZATION */
+function tabCustomizationApp(area){
+  area.innerHTML=`
+    <div class="tab-panel">
+      <h3 class="tab-heading">TAB CUSTOMIZATION</h3>
+      <p class="tab-note">
+        Personalize the name and icon of your actual browser tab.
+      </p>
+
+      <div class="tab-label">LIVE PREVIEW</div>
+      <div class="tab-preview-shell">
+        <div class="tab-preview">
+          <img id="preview-icon" alt="">
+          <span id="preview-title">MyBrowser</span>
+          <span style="flex:none;color:#aaa">×</span>
+        </div>
+      </div>
+
+      <div class="tab-label">PRESET</div>
+      <select id="tab-preset" class="field"
+        style="width:100%;flex:none">
+        <option value="mybrowser">MyBrowser</option>
+        <option value="study">Study Workspace</option>
+        <option value="learning">Learning Hub</option>
+        <option value="documents">Documents</option>
+        <option value="system">System Core</option>
+        <option value="custom">Custom</option>
+      </select>
+
+      <div class="tab-label">TAB TITLE</div>
+      <input id="custom-title" class="field"
+        style="width:100%;flex:none"
+        maxlength="60"
+        placeholder="Enter a custom tab title">
+
+      <div class="tab-label">TAB ICON</div>
+      <select id="custom-icon" class="field"
+        style="width:100%;flex:none">
+        <option value="🌐">🌐 Globe</option>
+        <option value="🎓">🎓 Graduation Cap</option>
+        <option value="📚">📚 Books</option>
+        <option value="📄">📄 Document</option>
+        <option value="⚙️">⚙️ System</option>
+        <option value="✨">✨ Sparkle</option>
+        <option value="💻">💻 Computer</option>
+        <option value="📝">📝 Notes</option>
+        <option value="⭐">⭐ Star</option>
+      </select>
+
+      <div class="tab-actions">
+        <button id="apply-tab" class="primary-action">
+          APPLY APPEARANCE
+        </button>
+        <button id="reset-tab" class="action">
+          RESET
+        </button>
+      </div>
+
+      <p id="tab-feedback"></p>
+      <p class="tab-note">
+        This changes your browser tab's appearance,
+        not the website address or identity.
+      </p>
+    </div>`;
+
+  const preset=area.querySelector("#tab-preset");
+  const title=area.querySelector("#custom-title");
+  const icon=area.querySelector("#custom-icon");
+  const previewTitle=area.querySelector("#preview-title");
+  const previewIcon=area.querySelector("#preview-icon");
+  const feedback=area.querySelector("#tab-feedback");
+
+  const saved=getTabChoice();
+  title.value=saved.title;
+  icon.value=saved.icon;
+  if(!icon.value)icon.value="🌐";
+
+  function updatePreview(){
+    previewTitle.textContent=title.value||"MyBrowser";
+    previewIcon.src=emojiFavicon(icon.value||"🌐");
+  }
+
+  preset.onchange=()=>{
+    const selected=tabPresets[preset.value];
+    title.value=selected.title;
+    icon.value=selected.icon;
+    updatePreview();
+  };
+
+  title.oninput=()=>{
+    preset.value="custom";
+    updatePreview();
+  };
+
+  icon.onchange=()=>{
+    preset.value="custom";
+    updatePreview();
+  };
+
+  area.querySelector("#apply-tab").onclick=()=>{
+    applyTabChoice({
+      title:title.value.trim()||"MyBrowser",
+      icon:icon.value
+    });
+    feedback.textContent="✓ TAB APPEARANCE UPDATED";
+  };
+
+  area.querySelector("#reset-tab").onclick=()=>{
+    preset.value="mybrowser";
+    title.value=tabPresets.mybrowser.title;
+    icon.value=tabPresets.mybrowser.icon;
+    applyTabChoice(tabPresets.mybrowser);
+    updatePreview();
+    feedback.textContent="✓ RESTORED DEFAULT APPEARANCE";
+  };
+
+  updatePreview();
 }
 
 const savedAccent=localStorage.getItem("mybrowser-accent");
 if(savedAccent){
   document.documentElement.style.setProperty(
-    "--yellow",savedAccent
+    "--accent",savedAccent
   );
 }
 
@@ -911,9 +1148,7 @@ function updateClock(){
 updateClock();
 setInterval(updateClock,1000);
 
-/* ====================================
-   CINEMATIC SYSTEM REBOOT
-==================================== */
+/* CINEMATIC REBOOT */
 (function startReboot(){
   const boot=document.getElementById("md-boot");
   const typed=document.getElementById("boot-typed");
@@ -921,7 +1156,6 @@ setInterval(updateClock,1000);
   const bottom=document.getElementById("boot-bottom");
 
   const failed=Math.random()<0.5;
-
   const lines=[
     "> SERIAL DESIGNATION: ???",
     "> AUTO RUN COMPLETE.",
@@ -946,8 +1180,6 @@ setInterval(updateClock,1000);
     if(character<current.length){
       typed.textContent+=current[character];
       character++;
-
-      // Smooth typing with a slight variation
       setTimeout(typeNext,20+Math.random()*18);
     }else{
       typed.textContent+="\n";
@@ -967,7 +1199,6 @@ setInterval(updateClock,1000);
     bottom.innerHTML=
       "SYSTEM INTEGRITY CHECK<br>&gt; FINALIZING REBOOT...";
 
-    // Heavy glitching before the result
     setTimeout(()=>{
       boot.classList.remove("intense");
 
@@ -983,13 +1214,9 @@ setInterval(updateClock,1000);
           "SYSTEM ONLINE<br>&gt; WELCOME BACK_";
       }
 
-      // Display the result before desktop appears
       setTimeout(()=>{
         boot.style.opacity="0";
-
-        setTimeout(()=>{
-          boot.remove();
-        },900);
+        setTimeout(()=>boot.remove(),900);
       },2700);
     },2300);
   }
