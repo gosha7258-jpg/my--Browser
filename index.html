@@ -859,6 +859,40 @@ textarea {
 @media(prefers-reduced-motion:reduce){#launch-glitch{display:none!important}}
 
 .window.app-awaiting-glitch{visibility:hidden!important;animation:none!important}
+
+/* New apps use the existing Gosha's Browser styling */
+#fsItems .card, #runningApps .card {background:#15131e;border:1px solid #ffe65c33;}
+#noteList {margin:9px 0;max-height:100px;overflow:auto;}
+#musicList {max-height:180px;overflow:auto;margin-top:10px;}
+
+/* GOSHA'S BROWSER — POLISHED GLASS WINDOW SYSTEM */
+:root{--panel:rgba(13,15,25,.79);--border:#ffe65c55;--ui-muted:#b9bfd0}
+.window{background:rgba(11,13,23,.79);border:1px solid #ffffff2b;border-radius:var(--gosha-radius,15px);backdrop-filter:blur(var(--gosha-blur,24px)) saturate(140%);-webkit-backdrop-filter:blur(var(--gosha-blur,24px)) saturate(140%);box-shadow:0 24px 80px #000c, inset 0 1px #ffffff1a}
+.window.window-active{border-color:#ffe65cbb;box-shadow:0 24px 80px #000c,0 0 22px #ffe65c22,inset 0 1px #ffe65c3b}
+.titlebar{background:linear-gradient(100deg,#171722c9,#2420398c);font-size:13px;letter-spacing:.6px;border-bottom:1px solid #ffffff1e}
+.window-content{background:transparent;font-size:14px;line-height:1.5;gap:13px}
+.window-content h2{font-size:23px;letter-spacing:.3px}
+.window-content h3{font-size:17px}
+.window-content .muted{font-size:13px;color:#bec4d1}
+.window-content .card,.window-content .result{background:#171b28a8;border:1px solid #ffe65c2d;border-radius:13px}
+.window-content .btn,.window-content .primary,.window-controls button{transition:background .17s,border-color .17s,box-shadow .17s,transform .17s;min-height:35px}
+.window-content .btn:hover,.window-controls button:hover{background:#ffe65c22;border-color:#ffe65c99;box-shadow:0 0 0 2px #ffe65c14}
+.window-content .primary:hover{background:#fff1a3;box-shadow:0 0 15px #ffe65c55;transform:translateY(-1px)}
+.window-content .field,.window-content textarea,.window-content select{background:#101523c9;border:1px solid #ffffff3b;border-radius:10px;transition:border-color .17s,box-shadow .17s;font-size:14px}
+.window-content .field:focus,.window-content textarea:focus,.window-content select:focus{border-color:#ffe65c;box-shadow:0 0 0 3px #ffe65c24}
+.window-content select{appearance:auto;cursor:pointer}
+.window-statusbar{height:28px;min-height:28px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#0b1019b8;border-top:1px solid #ffffff20;color:#c5c9d4;font:11px/1.2 Consolas,monospace}
+.window-statusbar .status-online{color:#ffe65c}
+.app-shell{display:flex;flex:1;min-height:0;gap:0;margin:-16px;overflow:hidden}
+.app-sidebar{flex:0 0 172px;width:172px;background:linear-gradient(170deg,#171724d9,#0d111dbb);border-right:1px solid #ffe65c29;padding:15px 10px;display:flex;flex-direction:column;gap:6px;overflow:auto}
+.app-sidebar-title{font:700 11px/1.4 Consolas,monospace;letter-spacing:1.2px;color:#ffe65c;padding:7px 9px 11px;overflow-wrap:anywhere}
+.app-sidebar button{width:100%;padding:10px 11px;text-align:left;background:transparent;border:1px solid transparent;border-radius:9px;color:#d7d8e3;font:13px Arial,sans-serif;cursor:pointer;transition:background .16s,border-color .16s}
+.app-sidebar button:hover,.app-sidebar button.selected{background:#ffe65c1c;border-color:#ffe65c44;color:#fff0a8}
+.app-main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;gap:12px;overflow:auto;padding:17px}
+.app-main .browser-page{min-height:230px}
+.app-sidebar .sidebar-foot{margin-top:auto;padding:10px 9px;color:#a9afc2;font:10px Consolas,monospace}
+@media(max-width:640px){.app-sidebar{flex-basis:116px;width:116px;padding:10px 5px}.app-sidebar button{font-size:11px;padding:9px 6px}.app-sidebar-title{font-size:10px}.app-main{padding:11px}}
+@media(prefers-reduced-motion:reduce){.window-content .btn,.window-content .primary,.window-controls button,.app-sidebar button{transition:none}}
 </style>
 </head>
 
@@ -922,12 +956,16 @@ const WORKER_URL =
 
 const APPS = [
   ["browser", "Browser"],
-  ["files", "Files"],
+  ["files", "File Explorer"],
+  ["music", "Music Player"],
+  ["notesapp", "Notes"],
+  ["tasks", "Task Manager"],
   ["editor", "Text Editor"],
   ["terminal", "Terminal"],
   ["calculator", "Calculator"],
   ["cloaking", "Cloaking"],
   ["about", "About"],
+  ["settings", "Settings"],
   ["minesweeper", "Minesweeper"],
   ["snake", "Snake"],
   ["game2048", "2048"]
@@ -935,11 +973,15 @@ const APPS = [
 
 const ICONS = {
   browser: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"/>',
+  music: '<path d="M9 18V5l12-2v13M9 9l12-2"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+  notesapp: '<path d="M5 3h14v18H5zM8 8h8M8 12h8M8 16h6"/>',
+  tasks: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M6 16l4-5 3 3 5-7"/>',
   files: '<path d="M3 7V5h7l2 3h9v11H3z"/>',
   editor: '<path d="M5 3h10l4 4v14H5zM15 3v5h4M8 12h8M8 16h7"/>',
   terminal: '<rect x="2" y="3" width="20" height="18" rx="2"/><path d="m6 8 4 4-4 4M12 16h6"/>',
   calculator: '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 11h2M14 11h2M8 15h2M14 15h2M8 19h8"/>',
   cloaking: '<path d="M12 3 3 7v5c0 6 4 9 9 10 5-1 9-4 9-10V7zM8 12l3 3 5-6"/>',
+  settings: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>',
   about: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7v1"/>',
   minesweeper: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/><circle cx="12" cy="12" r="2"/>',
   snake: '<path d="M3 6h12a4 4 0 0 1 0 8H9a4 4 0 0 0 0 8h8"/><circle cx="18" cy="6" r="1"/>',
@@ -1064,6 +1106,8 @@ function makeWindow(id, title) {
   );
 
   if (existing) {
+    document.querySelectorAll('.window.window-active').forEach(w=>w.classList.remove('window-active'));
+    existing.classList.add('window-active');
     existing.style.zIndex = ++topZ;
     existing.classList.add('window-focus');
     setTimeout(()=>existing.classList.remove('window-focus'),210);
@@ -1110,20 +1154,24 @@ function makeWindow(id, title) {
         left: win.style.left,
         top: win.style.top,
         width: win.style.width,
-        height: win.style.height
+        height: win.style.height,
+        maxWidth: win.style.maxWidth,
+        maxHeight: win.style.maxHeight
       };
 
       win.style.left = "0";
       win.style.top = "0";
       win.style.width = "100vw";
-      win.style.height = "calc(100vh - 80px)";
+      win.style.height = "calc(100dvh - 80px)";
       win.style.maxWidth = "none";
+      win.style.maxHeight = "none";
     } else {
       win.style.left = savedSize.left;
       win.style.top = savedSize.top;
       win.style.width = savedSize.width;
       win.style.height = savedSize.height;
-      win.style.maxWidth = "96vw";
+      win.style.maxWidth = savedSize.maxWidth;
+      win.style.maxHeight = savedSize.maxHeight;
       savedSize = null;
     }
   };
@@ -1145,12 +1193,19 @@ function makeWindow(id, title) {
   const area = document.createElement("div");
   area.className = "window-content";
 
-  win.append(bar, area);
+  const statusBar = document.createElement("div");
+  statusBar.className = "window-statusbar";
+  statusBar.innerHTML = '<span class="status-online">● SYSTEM ONLINE</span><span>GOSHA // v1.0 · LOCAL</span>';
+  win.append(bar, area, statusBar);
   document.body.appendChild(win);
 
-  win.addEventListener("pointerdown", () => {
+  function activateWindow(){
+    document.querySelectorAll('.window.window-active').forEach(w=>w.classList.remove('window-active'));
+    win.classList.add('window-active');
     win.style.zIndex = ++topZ;
-  });
+  }
+  win.addEventListener("pointerdown", activateWindow);
+  activateWindow();
 
   let dragging = false;
   let sx = 0, sy = 0, ox = 0, oy = 0;
@@ -1183,7 +1238,16 @@ function makeWindow(id, title) {
     )) + "px";
   });
 
-  bar.addEventListener("pointerup", () => {
+  bar.addEventListener("pointerup", event => {
+    if(dragging && !savedSize){
+      const threshold=24;
+      if(event.clientX < threshold || event.clientX > innerWidth-threshold){
+        const left=event.clientX < threshold;
+        win.style.left=left?'0px':'50vw';win.style.top='0px';win.style.width='50vw';win.style.height='calc(100dvh - 80px)';win.style.maxWidth='none';win.style.maxHeight='none';
+      } else if(event.clientY < threshold){
+        win.style.left='0px';win.style.top='0px';win.style.width='100vw';win.style.height='calc(100dvh - 80px)';win.style.maxWidth='none';win.style.maxHeight='none';
+      }
+    }
     dragging = false;
     win.classList.remove("window-dragging");
   });
@@ -1290,6 +1354,48 @@ function launchAppGlitch(targetWindow, onComplete) {
   launchGlitchFrame=requestAnimationFrame(draw);
 }
 
+/* Navigation sidebars keep existing app controls and listeners intact. */
+function addAppSidebar(area,id){
+ const configs={
+  files:[['⌂  Root','fsHome'],['＋  New folder','fsFolder'],['＋  Text file','fsFile'],['⇧  Import text','fsImport']],
+  browser:[['⌂  Home','homeBtn'],['←  Back','backBtn'],['→  Forward','forwardBtn'],['⟳  Refresh','refreshBtn']],
+  music:[['♫  Library',null],['⇧  Add music','musicPick'],['◀  Previous','musicPrev'],['▶  Next','musicNext']],
+  settings:[['◈  Appearance','settingsAppearance'],['▤  Interface','settingsInterface'],['ⓘ  About','settingsAbout']]
+ };
+ if(!configs[id])return;
+ const shell=document.createElement('div');shell.className='app-shell';
+ const sidebar=document.createElement('nav');sidebar.className='app-sidebar';sidebar.setAttribute('aria-label',id+' navigation');
+ const label=document.createElement('div');label.className='app-sidebar-title';label.textContent='// '+id.toUpperCase();sidebar.append(label);
+ const main=document.createElement('div');main.className='app-main';
+ while(area.firstChild)main.append(area.firstChild);
+ configs[id].forEach(([text,target],i)=>{
+  const button=document.createElement('button');button.type='button';button.textContent=text;
+  if(i===0)button.classList.add('selected');
+  button.addEventListener('click',()=>{
+   sidebar.querySelectorAll('button').forEach(b=>b.classList.remove('selected'));
+   button.classList.add('selected');
+   if(target==='musicPick'){main.querySelector('#musicPick')?.click();return}
+   if(target&&target.startsWith('settings')){main.querySelector('#'+target)?.scrollIntoView({behavior:'smooth',block:'start'});return}
+   if(target)main.querySelector('#'+target)?.click();
+  });
+  sidebar.append(button);
+ });
+ const foot=document.createElement('div');foot.className='sidebar-foot';foot.textContent='GOSHA // ONLINE';sidebar.append(foot);
+ shell.append(sidebar,main);area.append(shell);
+}
+function settingsApp(area){
+ area.innerHTML=`<h2>SETTINGS</h2><p class="muted">Customize the interface without changing the startup sequence.</p>
+ <div class="card" id="settingsAppearance"><h3>APPEARANCE</h3><label for="settingsBlur">Window glass blur</label><input class="field" id="settingsBlur" type="range" min="0" max="35" value="24"><p class="muted">Changes the blur behind app windows.</p></div>
+ <div class="card" id="settingsInterface"><h3>INTERFACE</h3><label for="settingsCorners">Window corner radius</label><input class="field" id="settingsCorners" type="range" min="8" max="22" value="15"><p class="muted">Adjust the shape of app windows.</p></div>
+ <div class="card" id="settingsAbout"><h3>ABOUT</h3><p>Gosha's Browser · UI v1.0</p><p class="muted">Your original desktop, apps, and boot animation remain intact.</p></div>`;
+ const blur=area.querySelector('#settingsBlur'),corners=area.querySelector('#settingsCorners');
+ blur.value=localStorage.getItem('gosha-glass-blur')||'24';corners.value=localStorage.getItem('gosha-corner-radius')||'15';
+ const apply=()=>{document.documentElement.style.setProperty('--gosha-blur',blur.value+'px');document.documentElement.style.setProperty('--gosha-radius',corners.value+'px')};
+ blur.oninput=()=>{localStorage.setItem('gosha-glass-blur',blur.value);apply()};
+ corners.oninput=()=>{localStorage.setItem('gosha-corner-radius',corners.value);apply()};apply();
+}
+try{document.documentElement.style.setProperty('--gosha-blur',(localStorage.getItem('gosha-glass-blur')||'24')+'px');document.documentElement.style.setProperty('--gosha-radius',(localStorage.getItem('gosha-corner-radius')||'15')+'px')}catch{}
+
 function openApp(id) {
   const name = APPS.find(app => app[0] === id)?.[1];
   if (!name) return;
@@ -1299,8 +1405,12 @@ function openApp(id) {
   newWindow.classList.add("app-awaiting-glitch");
   window.dispatchEvent(new CustomEvent('mybrowser-action',{detail:{type:'open',app:id}}));
 
+  if (id === "settings") settingsApp(area);
   if (id === "browser") browserApp(area);
   if (id === "files") filesApp(area);
+  if (id === "music") musicApp(area);
+  if (id === "notesapp") notesApp(area);
+  if (id === "tasks") taskManagerApp(area);
   if (id === "editor") editorApp(area);
   if (id === "terminal") terminalApp(area);
   if (id === "calculator") calculatorApp(area);
@@ -1309,6 +1419,7 @@ function openApp(id) {
   if (id === "minesweeper") minesweeperApp(area);
   if (id === "snake") snakeApp(area);
   if (id === "game2048") game2048App(area);
+  addAppSidebar(area,id);
   launchAppGlitch(newWindow, () => newWindow.classList.remove("app-awaiting-glitch"));
 }
 
@@ -1335,7 +1446,7 @@ function browserApp(area) {
     <div class="browser-page" id="browserPage"></div>
 
     <div class="muted" id="browserStatus">
-      MYBROWSER // READY
+      GOSHA // READY
     </div>
   `;
 
@@ -1633,30 +1744,49 @@ function browserApp(area) {
   showHome();
 }
 
-/* FILE MANAGER */
+/* FILE EXPLORER — folders and text files stored locally */
+const FS_KEY = 'gosha-secret-files-v1';
+function readFS(){try {const x=JSON.parse(localStorage.getItem(FS_KEY));if(x&&Array.isArray(x.folders)&&Array.isArray(x.files))return x;}catch{}return {folders:['Documents','Downloads'],files:[]};}
+function saveFS(fs){try{localStorage.setItem(FS_KEY,JSON.stringify(fs));return true;}catch{return false;}}
+function filesApp(area){
+  let fs=readFS(), folder='';
+  area.innerHTML=`<h2>FILE EXPLORER</h2><div class="row" style="flex-wrap:wrap;gap:7px"><button class="btn" id="fsHome">⌂ ROOT</button><button class="btn" id="fsFolder">+ FOLDER</button><button class="btn" id="fsFile">+ TEXT FILE</button><button class="btn" id="fsImport">IMPORT .TXT</button><input type="file" id="fsPick" accept=".txt,text/plain" hidden></div><p class="muted" id="fsPath"></p><div id="fsItems"></div><div id="fsEdit" style="display:none"><input class="field" id="fsName" placeholder="File name"><textarea id="fsText" style="width:100%;min-height:160px" placeholder="Write text..."></textarea><div class="row"><button class="primary" id="fsSave">SAVE</button><button class="btn" id="fsCancel">CANCEL</button></div></div>`;
+  const q=id=>area.querySelector('#'+id), items=q('fsItems');let editIndex=-1;
+  function render(){q('fsPath').textContent='ROOT'+(folder?' / '+folder:'');items.replaceChildren();
+    const entries=[...(folder?[]:fs.folders.map((name,i)=>({kind:'folder',name,i}))),...fs.files.map((f,i)=>({...f,kind:'file',i})).filter(f=>f.folder===folder)];
+    if(!entries.length)items.innerHTML='<p class="muted">This folder is empty.</p>';
+    entries.forEach(entry=>{const el=document.createElement('div');el.className='card';el.style.cssText='display:flex;align-items:center;gap:10px;margin:7px 0;flex-wrap:wrap';const name=document.createElement('span');name.textContent=(entry.kind==='folder'?'📁 ':'📄 ')+entry.name;name.style.cssText='flex:1;min-width:120px;cursor:pointer';name.onclick=()=>{if(entry.kind==='folder'){folder=entry.name;render();}else edit(entry.i)};const open=document.createElement('button');open.className='btn';open.textContent='OPEN';open.onclick=name.onclick;const del=document.createElement('button');del.className='btn';del.textContent='DELETE';del.onclick=()=>{if(!confirm('Delete '+entry.name+'?'))return;if(entry.kind==='folder'){fs.files=fs.files.filter(f=>f.folder!==entry.name);fs.folders.splice(entry.i,1);}else fs.files.splice(entry.i,1);saveFS(fs);render();};el.append(name,open,del);items.append(el);});}
+  function edit(i){editIndex=i;q('fsEdit').style.display='block';q('fsName').value=i<0?'Untitled.txt':fs.files[i].name;q('fsText').value=i<0?'':fs.files[i].text;q('fsText').focus();}
+  q('fsHome').onclick=()=>{folder='';render()};q('fsFolder').onclick=()=>{const name=prompt('New folder name:')?.trim();if(!name)return;if(fs.folders.includes(name)){alert('Folder already exists');return;}fs.folders.push(name);if(!saveFS(fs))alert('Browser storage is full');render()};q('fsFile').onclick=()=>edit(-1);
+  q('fsCancel').onclick=()=>q('fsEdit').style.display='none';q('fsSave').onclick=()=>{const name=q('fsName').value.trim()||'Untitled.txt',text=q('fsText').value;if(editIndex<0)fs.files.push({folder,name,text});else Object.assign(fs.files[editIndex],{name,text});if(!saveFS(fs))alert('Could not save: browser storage may be full');q('fsEdit').style.display='none';render()};
+  q('fsImport').onclick=()=>q('fsPick').click();q('fsPick').onchange=async e=>{for(const file of e.target.files){if(file.size>500000){alert('Text files must be under 500 KB');continue;}fs.files.push({folder,name:file.name,text:await file.text()});}if(!saveFS(fs))alert('Could not save imported files');render();e.target.value='';};render();
+}
 
-function filesApp(area) {
-  area.innerHTML = `
-    <h2>FILE MANAGER</h2>
-    <p class="muted">
-      Choose files from your device to inspect them.
-    </p>
-    <input type="file" id="filePicker" class="field" multiple>
-    <div id="fileList"></div>
-  `;
+/* MUSIC PLAYER — user-selected local audio, never uploaded */
+function musicApp(area){
+ area.innerHTML=`<h2>MUSIC PLAYER</h2><p class="muted">Choose audio from your device. Music stays on your device; select files again after refreshing.</p><input class="field" id="musicPick" type="file" accept="audio/*" multiple><div id="musicList"></div><audio id="musicAudio" controls style="width:100%;margin-top:12px"></audio><div class="row"><button class="btn" id="musicPrev">◀ PREVIOUS</button><button class="btn" id="musicNext">NEXT ▶</button></div>`;
+ const pick=area.querySelector('#musicPick'),list=area.querySelector('#musicList'),audio=area.querySelector('#musicAudio');let tracks=[],idx=-1;
+ const play=i=>{if(!tracks.length)return;idx=(i+tracks.length)%tracks.length;audio.src=tracks[idx].url;audio.play().catch(()=>{});render();};
+ function render(){list.replaceChildren();tracks.forEach((t,i)=>{const b=document.createElement('button');b.className='btn';b.style.cssText='display:block;margin:7px 0;width:100%;text-align:left';b.textContent=(i===idx?'▶ ':'♫ ')+t.name;b.onclick=()=>play(i);list.append(b);});}
+ pick.onchange=()=>{tracks.forEach(t=>URL.revokeObjectURL(t.url));tracks=[...pick.files].filter(f=>f.type.startsWith('audio/')).map(f=>({name:f.name,url:URL.createObjectURL(f)}));idx=-1;render();if(tracks.length)play(0)};
+ area.querySelector('#musicPrev').onclick=()=>play(idx-1);area.querySelector('#musicNext').onclick=()=>play(idx+1);audio.onended=()=>play(idx+1);
+ const observer=new MutationObserver(()=>{if(!area.isConnected){audio.pause();tracks.forEach(t=>URL.revokeObjectURL(t.url));observer.disconnect();}});observer.observe(document.body,{childList:true});
+}
 
-  area.querySelector("#filePicker").onchange = event => {
-    const list = area.querySelector("#fileList");
-    list.replaceChildren();
+/* PERSISTENT NOTES */
+function notesApp(area){
+ const key='gosha-secret-notes-v1';let notes=[];try{notes=JSON.parse(localStorage.getItem(key))||[];if(!Array.isArray(notes))notes=[]}catch{}
+ area.innerHTML=`<h2>NOTES</h2><div class="row"><button class="primary" id="noteNew">+ NEW NOTE</button><span class="muted" id="noteStatus">Saved locally</span></div><div id="noteList"></div><input class="field" id="noteTitle" placeholder="Note title"><textarea id="noteBody" style="width:100%;min-height:175px" placeholder="Start writing..."></textarea><div class="row"><button class="primary" id="noteSave">SAVE NOTE</button><button class="btn" id="noteDelete">DELETE</button></div>`;
+ const q=id=>area.querySelector('#'+id);let current=-1;
+ function persist(){try{localStorage.setItem(key,JSON.stringify(notes));q('noteStatus').textContent='Saved locally';}catch{q('noteStatus').textContent='Storage full';}}
+ function render(){q('noteList').replaceChildren();notes.forEach((n,i)=>{const b=document.createElement('button');b.className='btn';b.style.margin='5px';b.textContent=n.title||'Untitled';b.onclick=()=>{current=i;q('noteTitle').value=n.title;q('noteBody').value=n.body;};q('noteList').append(b);});}
+ q('noteNew').onclick=()=>{current=-1;q('noteTitle').value='';q('noteBody').value='';q('noteBody').focus()};q('noteSave').onclick=()=>{const n={title:q('noteTitle').value.trim()||'Untitled',body:q('noteBody').value,updated:Date.now()};if(current<0){notes.push(n);current=notes.length-1;}else notes[current]=n;persist();render()};q('noteDelete').onclick=()=>{if(current<0)return;if(!confirm('Delete this note?'))return;notes.splice(current,1);persist();q('noteNew').click();render()};render();
+}
 
-    for (const file of event.target.files) {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.textContent =
-        file.name + " — " + file.size + " bytes";
-      list.appendChild(card);
-    }
-  };
+/* TASK MANAGER */
+function taskManagerApp(area){
+ area.innerHTML=`<h2>TASK MANAGER</h2><p class="muted">Running applications in Gosha's Browser (not your computer's system processes).</p><div id="runningApps"></div><button class="btn" id="refreshTasks">REFRESH</button>`;
+ const render=()=>{const list=area.querySelector('#runningApps');list.replaceChildren();document.querySelectorAll('.window:not([data-closing="true"])').forEach(win=>{const el=document.createElement('div');el.className='card';el.style.cssText='display:flex;align-items:center;gap:12px;margin:8px 0';const label=document.createElement('span');label.style.flex='1';label.textContent=APPS.find(a=>a[0]===win.dataset.app)?.[1]||win.dataset.app;const focus=document.createElement('button');focus.className='btn';focus.textContent='FOCUS';focus.onclick=()=>{win.style.zIndex=++topZ};const kill=document.createElement('button');kill.className='btn';kill.textContent='FORCE CLOSE';kill.onclick=()=>{if(win===area.closest('.window')){win.querySelector('.window-controls .close')?.click();return;}win.querySelector('.window-controls .close')?.click();setTimeout(render,600)};el.append(label,focus,kill);list.append(el)});};area.querySelector('#refreshTasks').onclick=render;render();
 }
 
 /* TEXT EDITOR */
@@ -2553,6 +2683,21 @@ restoreTab();
   scheduleGlitch();
 })();
 
+
+/* Keyboard shortcuts — only for Gosha's Browser app windows */
+document.addEventListener('keydown',event=>{
+  const wins=[...document.querySelectorAll('.window:not([data-closing="true"])')];
+  if(!wins.length)return;
+  const front=()=>wins.reduce((a,b)=>Number(a.style.zIndex)>Number(b.style.zIndex)?a:b);
+  if(event.altKey && event.key==='Tab'){
+    event.preventDefault();
+    const sorted=wins.sort((a,b)=>Number(b.style.zIndex)-Number(a.style.zIndex));
+    const next=sorted[1]||sorted[0];next.style.zIndex=++topZ;next.focus();
+  }
+  if(event.ctrlKey && !event.shiftKey && event.key.toLowerCase()==='w'){
+    event.preventDefault();front().querySelector('.window-controls .close')?.click();
+  }
+});
 </script>
 </body>
 </html>
