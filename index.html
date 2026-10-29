@@ -907,8 +907,8 @@ textarea {
 
 /* YOUR CLOUDFLARE WORKER */
 
-const ACTIVE_WORKER_URL =
-  "https://mybrowser-active-workerjs.gosha7258.workers.dev";
+const WORKER_URL =
+  "https://mybrowser-search.gosha7258.workers.dev/";
 
 /* APPLICATIONS */
 
@@ -1576,13 +1576,54 @@ function editorApp(area) {
   };
 }
 
+/* LIVE VISITOR PRESENCE
+   Set this to your deployed Cloudflare presence Worker URL.
+   Requires the separate mybrowser-active-worker.js backend.
+*/
+const ACTIVE_WORKER_URL = "https://mybrowser-active-workerjs.gosha7258.workers.dev";
+const ACTIVE_SESSION_ID = (() => {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
+})();
+
+async function updateActivePresence() {
+  if (ACTIVE_WORKER_URL.includes("YOUR-SUBDOMAIN")) return;
+  try {
+    await fetch(ACTIVE_WORKER_URL + "/heartbeat", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({session: ACTIVE_SESSION_ID}),
+      cache: "no-store"
+    });
+  } catch (error) { console.warn("Presence update failed", error); }
+}
+updateActivePresence();
+setInterval(updateActivePresence, 30000);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) updateActivePresence();
+});
+
+async function fetchActiveCount() {
+  if (ACTIVE_WORKER_URL.includes("YOUR-SUBDOMAIN")) {
+    return "Not configured. Deploy the Cloudflare presence Worker and set ACTIVE_WORKER_URL.";
+  }
+  const response = await fetch(ACTIVE_WORKER_URL + "/active", {cache:"no-store"});
+  if (!response.ok) throw new Error("Visitor service returned " + response.status);
+  const data = await response.json();
+  if (typeof data.online !== "number") throw new Error("Invalid visitor count response");
+  return "ONLINE RIGHT NOW: " + data.online + " active session" + (data.online === 1 ? "" : "s") +
+    "\\n(Approximate; active within the last 120 seconds.)";
+}
+
 /* SIMULATED TERMINAL */
 
 function terminalApp(area) {
   area.innerHTML = `
     <h2>TERMINAL</h2>
-    <div class="terminal-output" id="output">MYBROWSER TERMINAL v1.0
+    <div class="terminal-output" id="output">MYBROWSER TERMINAL v1.1
 Type HELP for commands.
+Type ACTIVE to see current online sessions.
 
 </div>
     <input class="field" id="command"
@@ -1592,7 +1633,7 @@ Type HELP for commands.
   const output = area.querySelector("#output");
   const input = area.querySelector("#command");
 
-  input.onkeydown = event => {
+  input.onkeydown = async event => {
     if (event.key !== "Enter") return;
 
     const command = input.value.trim();
@@ -1608,7 +1649,7 @@ Type HELP for commands.
 
     if (cmd === "help") {
       answer =
-        "HELP, DATE, TIME, ABOUT, APPS, CLEAR, REBOOT, ECHO";
+        "HELP, DATE, TIME, ABOUT, APPS, ACTIVE, CLEAR, REBOOT, ECHO";
     } else if (cmd === "date") {
       answer = new Date().toDateString();
     } else if (cmd === "time") {
@@ -1617,6 +1658,10 @@ Type HELP for commands.
       answer = "MyBrowser // Custom Web Desktop";
     } else if (cmd === "apps") {
       answer = APPS.map(app => app[1]).join(", ");
+    } else if (cmd === "active") {
+      answer = "Checking live visitors...";
+      try { answer = await fetchActiveCount(); }
+      catch (error) { answer = "Could not retrieve active visitors: " + error.message; }
     } else if (cmd === "reboot") {
       location.reload();
       return;
