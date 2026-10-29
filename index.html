@@ -829,6 +829,19 @@ textarea {
   filter: drop-shadow(0 0 9px #ffe65c);
 }
 
+
+/* CYN + UZI: unobtrusive typewriter dialogue and subtle glitch overlays */
+#solver-dialogue{position:fixed;z-index:50000;max-width:min(380px,75vw);min-width:110px;pointer-events:none;white-space:pre-wrap;overflow-wrap:anywhere;font:600 clamp(12px,1.25vw,16px)/1.5 "Share Tech Mono",Consolas,monospace;opacity:0;transition:opacity .35s ease;text-shadow:0 0 8px currentColor,0 0 18px currentColor;filter:drop-shadow(0 1px 2px #000)}
+#solver-dialogue.cyn{color:#ffe65c}#solver-dialogue.uzi{color:#d49aff}#solver-dialogue.system{color:#e9ca5e;font-size:12px}
+#solver-glitch{position:fixed;inset:0;z-index:49999;pointer-events:none;overflow:hidden;opacity:0}
+#solver-glitch.active{opacity:1}
+#solver-glitch .solver-line{position:absolute;left:0;width:100%;height:3px;background:linear-gradient(90deg,transparent,#ffdf5666 20%,#a65aff77 50%,transparent);box-shadow:0 0 7px #b65bff55;transform:translateX(0)}
+#solver-glitch.active .solver-line{animation:solver-line-tear .22s steps(3,end) both}
+#solver-glitch .solver-line:nth-child(1){top:18%}#solver-glitch .solver-line:nth-child(2){top:47%;height:6px;animation-delay:.03s}#solver-glitch .solver-line:nth-child(3){top:76%;height:2px;animation-delay:.06s}
+#solver-glitch.active::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 10px,#a75cff0a 11px,#ffe65c0b 12px);animation:solver-line-tear .18s steps(3,end)}
+@keyframes solver-line-tear{0%{transform:translateX(-13px)}40%{transform:translateX(14px)}80%{transform:translateX(-7px)}100%{transform:translateX(0)}}
+@media(prefers-reduced-motion:reduce){#solver-glitch.active .solver-line,#solver-glitch.active::before{animation:none}#solver-dialogue{transition:none}}
+
 </style>
 </head>
 
@@ -2125,6 +2138,194 @@ restoreTab();
   desktop.querySelectorAll(".desktop-icon").forEach(icon => {
     icon.addEventListener("pointerdown", () => clearSelected());
   });
+})();
+
+
+/* RANDOM CYN/UZI CONVERSATIONS — no fixed dialogue rhythm */
+(function installSolverDialogue(){
+  const pairs = [
+    ['<GIGGLE> Your desktop looks delicious.','Could you NOT eat the computer?!'],
+    ['<TILT HEAD> I found your files.','Put those back. Right now.'],
+    ['Silly little cursor. Running away.','It is called a mouse pointer, genius.'],
+    ['Oopsie. I rearranged some thoughts.','Please tell me you mean YOUR thoughts.'],
+    ['The yellow is very pretty today.','Purple is obviously better.'],
+    ['<WAVE> Hello again, little machine.','Why are you talking to the computer?'],
+    ['I have made a tiny improvement.','That sounds like a threat.'],
+    ['<GIGGLE> The system likes me.','The system is terrified of you.'],
+    ['I see an interesting little button.','Do not press it. Seriously.'],
+    ['The memory is making funny noises.','That is called a failing computer!'],
+    ['<TILT HEAD> Are you having fun?','I was, until you showed up.'],
+    ['What a delightful malfunction.','You are the malfunction.'],
+    ['I can fix this. Probably.','No. Absolutely not. Move.'],
+    ['<HAPPY EXPRESSION> We are friends now.','We are literally not.'],
+    ['Your wallpaper has excellent taste.','Okay, that one I agree with.'],
+    ['The little windows are hiding things.','They are apps. That is what apps do.'],
+    ['I hear a tiny processor thinking.','That is more thinking than you are doing.'],
+    ['Oops. Was that important?','YES. That was important!'],
+    ['<AWKWARD PAUSE> I borrowed some code.','You mean stole. You stole code.'],
+    ['Let us reboot everything for fun.','Do not you dare.'],
+    ['This computer is full of surprises.','Most of them are your fault.'],
+    ['<GIGGLE> Did you miss me?','Not even a little.'],
+    ['Your settings are very curious.','Stay OUT of the settings.'],
+    ['The screen is doing a little dance.','It is glitching, Cyn. Glitching.'],
+    ['I made a small yellow friend.','Why does that sound horrifying?'],
+    ['The keyboard is telling secrets.','It is just typing!'],
+    ['<TILT HEAD> I am helping.','Your help is a disaster.'],
+    ['Another beautiful error.','That is not a compliment!'],
+    ['I shall be very quiet now.','Finally. Thank you.'],
+    ['<GIGGLE> Just kidding.','Of course you were.'],
+    ['Everything is under control.','That is the least believable thing ever.'],
+    ['There is something behind this window.','It is probably another window.'],
+    ['I like your little games.','Do not touch my high scores.'],
+    ['The calculator knows too much.','It knows arithmetic, Cyn.'],
+    ['A little chaos makes things interesting.','It also makes things BROKEN.'],
+    ['I have found the recycle bin.','Back away from the recycle bin.'],
+    ['<SILLY> Look what I can do.','I am not watching this.'],
+    ['Your screen blinked at me.','That was you. You did that.'],
+    ['I think the terminal is shy.','It is a terminal, not a person.'],
+    ['The files are having a meeting.','No, they are not.'],
+    ['What an adorable error message.','Why are you like this?'],
+    ['<SOFT GIGGLE> I remember everything.','Cool. Remember to leave me alone.'],
+    ['I wonder what this code tastes like.','STOP TRYING TO EAT CODE.'],
+    ['A surprise is approaching.','I hate that sentence.'],
+    ['The computer seems sleepy.','It is not sleepy. It is lagging.'],
+    ['<TILT HEAD> You look worried.','Because you keep doing stuff!'],
+    ['I have prepared a new experiment.','Absolutely not. Experiment canceled.'],
+    ['Such a fascinating little glitch.','Can we have ONE normal minute?'],
+    ['I am being perfectly normal.','You are speaking in angle brackets.'],
+    ['<GIGGLE> This is going wonderfully.','That is what worries me.'],
+    ['The machine says hello.','Tell it I want my desktop back.'],
+    ['Let us make the screen sparkle.','No more screen effects!'],
+    ['Oh. That was unexpected.','For once, we agree.'],
+    ['I see you are very busy.','Then maybe stop interrupting?'],
+    ['Your computer is my new hobby.','Find a different hobby.']
+  ];
+  const soloUzi = [
+    'Bite me!','Why is everything yellow?!','I could code this better in my sleep.',
+    'Okay, that glitch was kind of cool.','Seriously? Another error?',
+    'Nobody touch anything.','Great. The computer is haunted.',
+    'I did NOT break that.','Who wrote this spaghetti code?',
+    'I need a debugger. And patience.','Purple would look better here.',
+    'Why does the cursor keep moving?','I should build my own operating system.',
+    'That was totally intentional.','This is getting ridiculous.',
+    'Do not look at me.','Wait. Did that file just move?',
+    'Can I get five minutes of peace?','Okay. That was impressive.',
+    'Ugh. I hate popups.','This is fine. Probably.',
+    'I am literally trying to work.','Please tell me that saved.',
+    'Wow. Another mysterious process.','Not suspicious at all. Sure.',
+    'I have a plan. Sort of.','Stop messing with my windows!',
+    'If this crashes, I am blaming Cyn.','Why is the terminal looking at me?',
+    'The purple text is the good text.','That was embarrassing.',
+    'I did not authorize that.','Could this thing be any weirder?',
+    'Okay, nobody panic. Except maybe me.','I am surrounded by bad programming.',
+    'Who keeps changing the wallpaper?','I meant to do that. Obviously.',
+    'This is why we test our code.','Nope. Not dealing with that.',
+    'One normal reboot. That is all I ask.',
+    'My code would never do that. Probably.',
+    'The taskbar is judging me.','I swear the computer is listening.',
+    'I have seen worse bugs. Barely.','Someone tell Cyn to stop.',
+    'That was not part of the plan.','Ugh. Whatever. Moving on.',
+    'This screen needs more purple.','I am not impressed. Okay, a little.',
+    'Who invited the weird yellow code?','At least the games still work.',
+    'I need a break from this nonsense.'
+  ];
+  const systemLines = [
+    '[SOLVER] 0x0010010\n> CORE ONLINE_',
+    '> CHECKING MEMORY...\n> STATUS: UNKNOWN_',
+    'const solver = 0x7F3A;\nexecute(core);',
+    '[SYS] SIGNAL DETECTED\n> 0101101011',
+    'ERROR::0xDEAD\n> RECOVERY COMPLETE_',
+    'N://CORE/ACTIVE\n> SYNCING...',
+    '> REBUILDING INDEX\n> PROCESS COMPLETE_',
+    '[WARN] UNKNOWN ENTITY\n> CONNECTION STABLE_',
+    'if (system.active) {\n  return "HELLO";\n}',
+    '0xFF 0x0A 0x19\n> ACCESS GRANTED_',
+    '[MONITOR] anomaly_detected\n> ignoring...',
+    '> THREAD 07 READY\n> WAITING FOR INPUT_'
+  ];
+  const overlay = document.createElement('div');
+  overlay.id = 'solver-glitch';
+  overlay.setAttribute('aria-hidden','true');
+  overlay.innerHTML = '<div class="solver-line"></div><div class="solver-line"></div><div class="solver-line"></div>';
+  const dialogue = document.createElement('div');
+  dialogue.id = 'solver-dialogue';
+  dialogue.setAttribute('aria-hidden','true');
+  document.body.append(overlay,dialogue);
+
+  const random=(a,b)=>a+Math.random()*(b-a);
+  const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+  const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+  let pairDeck=[],uziDeck=[],systemDeck=[];
+  let previousPair=null,previousUzi=null,previousSystem=null;
+  function draw(kind){
+    const source=kind==='pair'?pairs:kind==='uzi'?soloUzi:systemLines;
+    let deck=kind==='pair'?pairDeck:kind==='uzi'?uziDeck:systemDeck;
+    if(!deck.length){deck=shuffle([...source]);const previous=kind==='pair'?previousPair:kind==='uzi'?previousUzi:previousSystem;if(deck.length>1&&deck[deck.length-1]===previous){[deck[0],deck[deck.length-1]]=[deck[deck.length-1],deck[0]];}if(kind==='pair')pairDeck=deck;else if(kind==='uzi')uziDeck=deck;else systemDeck=deck;}
+    const item=deck.pop();if(kind==='pair')previousPair=item;else if(kind==='uzi')previousUzi=item;else previousSystem=item;return item;
+  }
+  let glitchTimer=null;
+  function glitch(){
+    if(document.hidden || document.getElementById('md-boot'))return;
+    overlay.classList.remove('active');
+    void overlay.offsetWidth;
+    overlay.classList.add('active');
+    clearTimeout(glitchTimer);
+    glitchTimer=setTimeout(()=>overlay.classList.remove('active'),220);
+  }
+  let busy=false;
+  async function say(kind,line){
+    if(document.hidden || document.getElementById('md-boot'))return;
+    if(kind==='uzi')glitch();
+    dialogue.className=kind;
+    dialogue.textContent='';
+    dialogue.style.opacity='0';
+    const maxLeft=Math.max(12,innerWidth-Math.min(380,innerWidth*.75)-20);
+    const maxTop=Math.max(60,innerHeight-190);
+    dialogue.style.left=Math.round(random(12,maxLeft))+'px';
+    dialogue.style.top=Math.round(random(55,maxTop))+'px';
+    dialogue.style.opacity='1';
+    for(let i=0;i<line.length;i++){
+      dialogue.textContent+=line[i];
+      await wait(line[i]==='\n'?55:random(7,16));
+    }
+    await wait(random(1700,2700));
+    dialogue.style.opacity='0';
+    await wait(400);
+  }
+  async function event(){
+    if(busy || document.hidden || document.getElementById('md-boot'))return;
+    busy=true;
+    try{
+      const roll=Math.random();
+      if(roll<.56){
+        const [cyn,reply]=draw('pair');
+        await say('cyn',cyn);
+        if(Math.random()<.60){
+          await wait(random(650,2200));
+          await say('uzi',reply);
+        }
+      }else if(roll<.88){
+        await say('uzi',draw('uzi'));
+      }else{
+        await say('system',draw('system'));
+      }
+    }finally{busy=false;}
+  }
+  function scheduleDialogue(){
+    setTimeout(async()=>{
+      if(!busy)await event();
+      scheduleDialogue();
+    },random(9000,34000));
+  }
+  function scheduleGlitch(){
+    setTimeout(()=>{
+      glitch();
+      scheduleGlitch();
+    },random(3000,6000));
+  }
+  // Both schedules are independent; no audio or destructive system effects.
+  scheduleDialogue();
+  scheduleGlitch();
 })();
 
 </script>
