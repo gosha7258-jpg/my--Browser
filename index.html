@@ -852,12 +852,20 @@ textarea {
 .window-content { scroll-behavior:smooth; }
 @media(prefers-reduced-motion:reduce){.window {animation:none;transition:none}.window.window-closing{transition:none!important}}
 
+
+/* APP LAUNCH — FULL-SCREEN YELLOW / PURPLE SIGNAL TEAR */
+#launch-glitch{position:fixed;left:0;top:0;width:1px;height:1px;z-index:2147483000;pointer-events:none;opacity:0;visibility:hidden;mix-blend-mode:screen}
+#launch-glitch.active{opacity:1;visibility:visible}
+@media(prefers-reduced-motion:reduce){#launch-glitch{display:none!important}}
+
+.window.app-awaiting-glitch{visibility:hidden!important;animation:none!important}
 </style>
 </head>
 
 <body>
 
 <div id="desktop"></div>
+<canvas id="launch-glitch" aria-hidden="true"></canvas>
 
 <div id="taskbar">
   <strong style="color:var(--yellow);font-size:12px">Gosha's Browser</strong>
@@ -1125,8 +1133,10 @@ function makeWindow(id, title) {
   close.textContent = "✕";
   close.onclick = () => {
     window.dispatchEvent(new CustomEvent('mybrowser-action',{detail:{type:'close',app:id}}));
-    win.classList.add('window-closing');
-    setTimeout(()=>win.remove(),170);
+    if (win.dataset.closing === 'true') return;
+    win.dataset.closing = 'true';
+    win.classList.add('app-awaiting-glitch');
+    launchAppGlitch(win, () => win.remove());
   };
 
   controls.append(maximize, close);
@@ -1186,12 +1196,107 @@ function makeWindow(id, title) {
   return area;
 }
 
+
+/* Fragmented launch/close glitch: transparent, irregular fragments with no rectangular mask. */
+const launchGlitchCanvas = document.getElementById('launch-glitch');
+const launchGlitchCtx = launchGlitchCanvas.getContext('2d', {alpha:true});
+let launchGlitchFrame = 0;
+let launchGlitchFinish = null;
+function launchAppGlitch(targetWindow, onComplete) {
+  if (launchGlitchFinish) {
+    const previous = launchGlitchFinish;
+    launchGlitchFinish = null;
+    previous();
+  }
+  cancelAnimationFrame(launchGlitchFrame);
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    launchGlitchCanvas.classList.remove('active');
+    onComplete?.();
+    return;
+  }
+  const rect = targetWindow.getBoundingClientRect();
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const dpr = Math.min(devicePixelRatio || 1, 1.5);
+  launchGlitchCanvas.width = Math.ceil(vw*dpr);
+  launchGlitchCanvas.height = Math.ceil(vh*dpr);
+  Object.assign(launchGlitchCanvas.style, {
+    left:'0px', top:'0px', width:vw+'px', height:vh+'px'
+  });
+  launchGlitchCtx.setTransform(dpr,0,0,dpr,0,0);
+  launchGlitchCanvas.classList.add('active');
+  let finished = false;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    launchGlitchCanvas.classList.remove('active');
+    launchGlitchCtx.clearRect(0,0,vw,vh);
+    onComplete?.();
+  };
+  launchGlitchFinish = finish;
+  const started = performance.now();
+  const palette = ['#ffe83a','#ffe83a','#fff37a','#f5c500','#ba46ff','#a02dff','#7922d5','#f13a58'];
+  const pick = a => a[Math.floor(Math.random()*a.length)];
+  const random = (min,max) => min + Math.random()*(max-min);
+  const fragments = [];
+  // Each fragment has its own size, location, lifetime and movement.
+  // A few spill outside the future window, so no rectangle is visible.
+  for(let i=0;i<240;i++){
+    const r=Math.random();
+    const width = r<.32 ? random(2,15) : r<.73 ? random(16,85) : random(90,Math.max(110,rect.width*.75));
+    const height = r<.48 ? random(1,5) : r<.83 ? random(6,18) : random(19,55);
+    fragments.push({
+      x:random(rect.left-65,rect.right+25),
+      y:random(rect.top-55,rect.bottom+35),
+      w:width,h:height,
+      color:pick(palette),
+      alpha:random(.35,.98),
+      delay:random(0,210),
+      life:random(75,240),
+      drift:random(-75,75),
+      type:Math.random()
+    });
+  }
+  function draw(now){
+    const elapsed=now-started, duration=510;
+    if(elapsed>=duration){ launchGlitchFinish=null; finish(); return; }
+    launchGlitchCtx.clearRect(0,0,vw,vh);
+    for(const f of fragments){
+      const age=elapsed-f.delay;
+      if(age<0 || age>f.life) continue;
+      const t=age/f.life;
+      const strength=Math.min(1,t*5,(1-t)*5);
+      launchGlitchCtx.globalAlpha=f.alpha*Math.max(0,strength);
+      launchGlitchCtx.fillStyle=f.color;
+      const jitter=(Math.random()-.5)*14;
+      const x=f.x+f.drift*t+jitter;
+      const y=f.y+(Math.random()-.5)*5;
+      launchGlitchCtx.fillRect(x,y,f.w,f.h);
+      if(f.type>.82){
+        launchGlitchCtx.fillStyle='#0b0710';
+        launchGlitchCtx.fillRect(x+random(0,f.w*.6),y,random(2,Math.max(3,f.w*.25)),f.h);
+      }
+    }
+    // Sparse individual code fragments, not a rectangular background.
+    launchGlitchCtx.font='bold 11px Consolas, monospace';
+    for(let i=0;i<5;i++){
+      if(Math.random()>.42) continue;
+      launchGlitchCtx.globalAlpha=random(.2,.7);
+      launchGlitchCtx.fillStyle=pick(palette);
+      launchGlitchCtx.fillText(pick(['0x7F','// ERR','101101','▓▒░','[NULL]']),random(rect.left-25,rect.right),random(rect.top-15,rect.bottom+15));
+    }
+    launchGlitchCtx.globalAlpha=1;
+    launchGlitchFrame=requestAnimationFrame(draw);
+  }
+  launchGlitchFrame=requestAnimationFrame(draw);
+}
+
 function openApp(id) {
   const name = APPS.find(app => app[0] === id)?.[1];
   if (!name) return;
-
   const area = makeWindow(id, name);
   if (!area) return;
+  const newWindow = area.closest(".window");
+  newWindow.classList.add("app-awaiting-glitch");
   window.dispatchEvent(new CustomEvent('mybrowser-action',{detail:{type:'open',app:id}}));
 
   if (id === "browser") browserApp(area);
@@ -1204,6 +1309,7 @@ function openApp(id) {
   if (id === "minesweeper") minesweeperApp(area);
   if (id === "snake") snakeApp(area);
   if (id === "game2048") game2048App(area);
+  launchAppGlitch(newWindow, () => newWindow.classList.remove("app-awaiting-glitch"));
 }
 
 /* BROWSER WITH TAVILY AND INTERNAL WEBSITE VIEWER */
