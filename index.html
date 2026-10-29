@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -842,6 +843,15 @@ textarea {
 @keyframes solver-line-tear{0%{transform:translateX(-13px)}40%{transform:translateX(14px)}80%{transform:translateX(-7px)}100%{transform:translateX(0)}}
 @media(prefers-reduced-motion:reduce){#solver-glitch.active .solver-line,#solver-glitch.active::before{animation:none}#solver-dialogue{transition:none}}
 
+
+/* Smooth app switching, resizing and close animations */
+.window { animation: windowAppear .19s cubic-bezier(.2,.8,.2,1) both; transition: left .19s cubic-bezier(.2,.8,.2,1), top .19s cubic-bezier(.2,.8,.2,1), width .19s cubic-bezier(.2,.8,.2,1), height .19s cubic-bezier(.2,.8,.2,1), box-shadow .16s ease, opacity .16s ease; will-change: transform; }
+.window.window-dragging { transition: none !important; }
+.window.window-focus { box-shadow: 0 25px 75px #000d,0 0 27px #ffe65c66; }
+.window.window-closing { opacity:0; transform:scale(.975); pointer-events:none; transition: opacity .16s ease, transform .16s ease !important; }
+.window-content { scroll-behavior:smooth; }
+@media(prefers-reduced-motion:reduce){.window {animation:none;transition:none}.window.window-closing{transition:none!important}}
+
 </style>
 </head>
 
@@ -1047,6 +1057,9 @@ function makeWindow(id, title) {
 
   if (existing) {
     existing.style.zIndex = ++topZ;
+    existing.classList.add('window-focus');
+    setTimeout(()=>existing.classList.remove('window-focus'),210);
+    window.dispatchEvent(new CustomEvent('mybrowser-action',{detail:{type:'focus',app:id}}));
     return null;
   }
 
@@ -1083,6 +1096,7 @@ function makeWindow(id, title) {
   let savedSize = null;
 
   maximize.onclick = () => {
+    window.dispatchEvent(new CustomEvent('mybrowser-action',{detail:{type:'resize',app:id}}));
     if (!savedSize) {
       savedSize = {
         left: win.style.left,
@@ -1109,7 +1123,11 @@ function makeWindow(id, title) {
   const close = document.createElement("button");
   close.className = "close";
   close.textContent = "✕";
-  close.onclick = () => win.remove();
+  close.onclick = () => {
+    window.dispatchEvent(new CustomEvent('mybrowser-action',{detail:{type:'close',app:id}}));
+    win.classList.add('window-closing');
+    setTimeout(()=>win.remove(),170);
+  };
 
   controls.append(maximize, close);
   bar.append(heading, controls);
@@ -1131,6 +1149,7 @@ function makeWindow(id, title) {
     if (event.target.closest("button")) return;
 
     dragging = true;
+    win.classList.add("window-dragging");
 
     sx = event.clientX;
     sy = event.clientY;
@@ -1156,10 +1175,12 @@ function makeWindow(id, title) {
 
   bar.addEventListener("pointerup", () => {
     dragging = false;
+    win.classList.remove("window-dragging");
   });
 
   bar.addEventListener("pointercancel", () => {
     dragging = false;
+    win.classList.remove("window-dragging");
   });
 
   return area;
@@ -1171,6 +1192,7 @@ function openApp(id) {
 
   const area = makeWindow(id, name);
   if (!area) return;
+  window.dispatchEvent(new CustomEvent('mybrowser-action',{detail:{type:'open',app:id}}));
 
   if (id === "browser") browserApp(area);
   if (id === "files") filesApp(area);
@@ -1933,9 +1955,9 @@ function minesweeperApp(area) {
   function stopTimer(){if(timer){clearInterval(timer);timer=null;}}
   function neighbors(x,y){const out=[];for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;let nx=x+dx,ny=y+dy;if(nx>=0&&ny>=0&&nx<width&&ny<height)out.push(ny*width+nx);}return out;}
   function updateInfo(){info.textContent=`Mines: ${mines-flags}  |  Time: ${seconds}s`;}
-  function newGame(){stopTimer();let l=level.value;width=l==='easy'?9:l==='medium'?12:16;height=width;mines=l==='easy'?10:l==='medium'?22:40;started=false;ended=false;flags=0;seconds=0;flagMode=false;flagButton.textContent='Flag mode: OFF';message.textContent='Reveal squares. First click is safe.';board=Array.from({length:width*height},()=>({mine:false,count:0,open:false,flag:false}));render();updateInfo();}
+  function newGame(){window.dispatchEvent(new CustomEvent('mybrowser-action',{detail:{type:'start',app:'minesweeper'}}));stopTimer();let l=level.value;width=l==='easy'?9:l==='medium'?12:16;height=width;mines=l==='easy'?10:l==='medium'?22:40;started=false;ended=false;flags=0;seconds=0;flagMode=false;flagButton.textContent='Flag mode: OFF';message.textContent='Reveal squares. First click is safe.';board=Array.from({length:width*height},()=>({mine:false,count:0,open:false,flag:false}));render();updateInfo();}
   function placeMines(safeIndex){const safe=new Set([safeIndex,...neighbors(safeIndex%width,Math.floor(safeIndex/width))]);let choices=board.map((_,i)=>i).filter(i=>!safe.has(i));for(let i=choices.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[choices[i],choices[j]]=[choices[j],choices[i]];}for(const i of choices.slice(0,mines))board[i].mine=true;board.forEach((cell,i)=>{cell.count=neighbors(i%width,Math.floor(i/width)).filter(n=>board[n].mine).length;});}
-  function finish(won){ended=true;stopTimer();message.textContent=won?'YOU WIN! All safe squares cleared.':'GAME OVER — You hit a mine.';if(won)board.forEach(c=>{if(c.mine)c.flag=true;});render();}
+  function finish(won){window.dispatchEvent(new CustomEvent('mybrowser-action',{detail:{type:won?'win':'lose',app:'minesweeper'}}));ended=true;stopTimer();message.textContent=won?'YOU WIN! All safe squares cleared.':'GAME OVER — You hit a mine.';if(won)board.forEach(c=>{if(c.mine)c.flag=true;});render();}
   function reveal(index){if(ended||board[index].flag||board[index].open)return;if(!started){placeMines(index);started=true;timer=setInterval(()=>{seconds++;updateInfo();},1000);}if(board[index].mine){board[index].open=true;board.forEach(c=>{if(c.mine)c.open=true;});finish(false);return;}const queue=[index];while(queue.length){const i=queue.pop(),c=board[i];if(c.open||c.flag||c.mine)continue;c.open=true;if(c.count===0)for(const n of neighbors(i%width,Math.floor(i/width)))if(!board[n].open&&!board[n].flag)queue.push(n);}if(board.every(c=>c.mine||c.open)){finish(true);return;}render();}
   function flag(index){if(ended||board[index].open)return;board[index].flag=!board[index].flag;flags+=board[index].flag?1:-1;render();}
   function render(){grid.replaceChildren();grid.style.gridTemplateColumns=`repeat(${width},minmax(24px,32px))`;board.forEach((cell,i)=>{const b=document.createElement('button');b.className='game-cell'+(cell.open?' revealed':'')+(cell.flag?' flagged':'')+(cell.open&&cell.mine?' mine':'');b.style.width='32px';b.style.height='32px';b.type='button';if(cell.open&&cell.mine)b.textContent='✹';else if(cell.flag)b.textContent='⚑';else if(cell.open&&cell.count){b.textContent=cell.count;b.dataset.number=String(cell.count);}b.addEventListener('click',()=>{if(flagMode)flag(i);else reveal(i);});b.addEventListener('contextmenu',e=>{e.preventDefault();flag(i);});grid.appendChild(b);});updateInfo();}
@@ -1949,8 +1971,8 @@ function snakeApp(area){
   function randomFood(){const free=[];for(let y=0;y<size;y++)for(let x=0;x<size;x++)if(!snake.some(p=>p.x===x&&p.y===y))free.push({x,y});return free.length?free[Math.floor(Math.random()*free.length)]:null;}
   function draw(){ctx.fillStyle='#0b1016';ctx.fillRect(0,0,400,400);ctx.strokeStyle='#ffe65c10';for(let i=0;i<=size;i++){ctx.beginPath();ctx.moveTo(i*unit,0);ctx.lineTo(i*unit,400);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i*unit);ctx.lineTo(400,i*unit);ctx.stroke();}if(food){ctx.fillStyle='#ff7068';ctx.fillRect(food.x*unit+3,food.y*unit+3,unit-6,unit-6);}snake.forEach((p,i)=>{ctx.fillStyle=i===0?'#fff19b':'#ffe65c';ctx.fillRect(p.x*unit+2,p.y*unit+2,unit-4,unit-4);});}
   function stop(){if(interval)clearInterval(interval);interval=null;running=false;}
-  function tick(){if(!area.isConnected){stop();return;}if(paused)return;dir=nextDir;const head={x:snake[0].x+dir.x,y:snake[0].y+dir.y};const eating=food&&head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if(head.x<0||head.y<0||head.x>=size||head.y>=size||body.some(p=>p.x===head.x&&p.y===head.y)){stop();message.textContent='GAME OVER — Press START / RESTART to try again.';return;}snake.unshift(head);if(eating){score++;info.textContent='Score: '+score;food=randomFood();if(!food){stop();message.textContent='YOU WIN! Board filled.';}}else snake.pop();draw();}
-  function start(){stop();snake=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];dir={x:1,y:0};nextDir={x:1,y:0};score=0;food=randomFood();paused=false;running=true;info.textContent='Score: 0';message.textContent='Use arrow keys or WASD. Click the board to focus.';area.querySelector('#snakePause').textContent='PAUSE';draw();interval=setInterval(tick,125);canvas.focus();}
+  function tick(){if(!area.isConnected){stop();return;}if(paused)return;dir=nextDir;const head={x:snake[0].x+dir.x,y:snake[0].y+dir.y};const eating=food&&head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if(head.x<0||head.y<0||head.x>=size||head.y>=size||body.some(p=>p.x===head.x&&p.y===head.y)){stop();window.dispatchEvent(new CustomEvent('mybrowser-action',{detail:{type:'lose',app:'snake',score}}));message.textContent='GAME OVER — Press START / RESTART to try again.';return;}snake.unshift(head);if(eating){score++;if(score===5||score===10||score===20)window.dispatchEvent(new CustomEvent('mybrowser-action',{detail:{type:'score',app:'snake',score}}));info.textContent='Score: '+score;food=randomFood();if(!food){stop();window.dispatchEvent(new CustomEvent('mybrowser-action',{detail:{type:'win',app:'snake',score}}));message.textContent='YOU WIN! Board filled.';}}else snake.pop();draw();}
+  function start(){window.dispatchEvent(new CustomEvent('mybrowser-action',{detail:{type:'start',app:'snake'}}));stop();snake=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];dir={x:1,y:0};nextDir={x:1,y:0};score=0;food=randomFood();paused=false;running=true;info.textContent='Score: 0';message.textContent='Use arrow keys or WASD. Click the board to focus.';area.querySelector('#snakePause').textContent='PAUSE';draw();interval=setInterval(tick,125);canvas.focus();}
   function turn(name){const d={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}}[name];if(!d||d.x===-dir.x&&d.y===-dir.y)return;nextDir=d;}
   area.addEventListener('keydown',e=>{const key=e.key.toLowerCase();const map={arrowup:'up',w:'up',arrowdown:'down',s:'down',arrowleft:'left',a:'left',arrowright:'right',d:'right'};if(map[key]){e.preventDefault();turn(map[key]);}});
   area.querySelectorAll('[data-dir]').forEach(b=>b.onclick=()=>{turn(b.dataset.dir);canvas.focus();});area.querySelector('#snakeStart').onclick=start;area.querySelector('#snakePause').onclick=()=>{if(!running)return;paused=!paused;area.querySelector('#snakePause').textContent=paused?'RESUME':'PAUSE';canvas.focus();};
@@ -1963,10 +1985,10 @@ function game2048App(area){
   const boardEl=area.querySelector('#game2048Board'),scoreEl=area.querySelector('#game2048Score'),bestEl=area.querySelector('#game2048Best'),message=area.querySelector('#game2048Message');let grid,score=0,won=false,over=false;let best=Number(localStorage.getItem('mybrowser-2048-best')||0);
   function spawn(){const free=[];for(let i=0;i<16;i++)if(!grid[i])free.push(i);if(!free.length)return;const index=free[Math.floor(Math.random()*free.length)];grid[index]=Math.random()<.9?2:4;}
   function render(){boardEl.replaceChildren();grid.forEach(n=>{const cell=document.createElement('div');cell.className='game-2048-tile';cell.dataset.value=String(Math.min(n,2048));cell.style.aspectRatio='1';cell.textContent=n||'';boardEl.appendChild(cell);});scoreEl.textContent='Score: '+score;bestEl.textContent='Best: '+best;}
-  function start(){grid=Array(16).fill(0);score=0;won=false;over=false;spawn();spawn();message.textContent='Combine matching numbers to reach 2048.';render();boardEl.focus();}
+  function start(){window.dispatchEvent(new CustomEvent('mybrowser-action',{detail:{type:'start',app:'game2048'}}));grid=Array(16).fill(0);score=0;won=false;over=false;spawn();spawn();message.textContent='Combine matching numbers to reach 2048.';render();boardEl.focus();}
   function slide(values){const numbers=values.filter(Boolean);const result=[];for(let i=0;i<numbers.length;i++){if(numbers[i]===numbers[i+1]){const n=numbers[i]*2;result.push(n);score+=n;i++;}else result.push(numbers[i]);}while(result.length<4)result.push(0);return result;}
   function canMove(){if(grid.includes(0))return true;for(let y=0;y<4;y++)for(let x=0;x<4;x++){const i=y*4+x;if(x<3&&grid[i]===grid[i+1])return true;if(y<3&&grid[i]===grid[i+4])return true;}return false;}
-  function move(direction){if(over)return;const old=grid.slice();for(let line=0;line<4;line++){const indices=[];for(let n=0;n<4;n++){let x,y;if(direction==='left'){x=n;y=line;}if(direction==='right'){x=3-n;y=line;}if(direction==='up'){x=line;y=n;}if(direction==='down'){x=line;y=3-n;}indices.push(y*4+x);}const result=slide(indices.map(i=>grid[i]));indices.forEach((i,j)=>grid[i]=result[j]);}if(grid.every((v,i)=>v===old[i]))return;spawn();if(score>best){best=score;localStorage.setItem('mybrowser-2048-best',String(best));}if(!won&&grid.some(n=>n>=2048)){won=true;message.textContent='YOU REACHED 2048! Keep playing if you want.';}if(!canMove()){over=true;message.textContent='GAME OVER — No moves left.';}render();}
+  function move(direction){if(over)return;const old=grid.slice();for(let line=0;line<4;line++){const indices=[];for(let n=0;n<4;n++){let x,y;if(direction==='left'){x=n;y=line;}if(direction==='right'){x=3-n;y=line;}if(direction==='up'){x=line;y=n;}if(direction==='down'){x=line;y=3-n;}indices.push(y*4+x);}const result=slide(indices.map(i=>grid[i]));indices.forEach((i,j)=>grid[i]=result[j]);}if(grid.every((v,i)=>v===old[i]))return;spawn();if(score>best){best=score;localStorage.setItem('mybrowser-2048-best',String(best));}if(!won&&grid.some(n=>n>=2048)){won=true;window.dispatchEvent(new CustomEvent('mybrowser-action',{detail:{type:'win',app:'game2048',score}}));message.textContent='YOU REACHED 2048! Keep playing if you want.';}if(!canMove()){over=true;window.dispatchEvent(new CustomEvent('mybrowser-action',{detail:{type:'lose',app:'game2048',score}}));message.textContent='GAME OVER — No moves left.';}render();}
   area.addEventListener('keydown',e=>{const map={arrowup:'up',w:'up',arrowdown:'down',s:'down',arrowleft:'left',a:'left',arrowright:'right',d:'right'};const d=map[e.key.toLowerCase()];if(d){e.preventDefault();move(d);}});area.querySelectorAll('[data-dir]').forEach(b=>b.onclick=()=>{move(b.dataset.dir);boardEl.focus();});area.querySelector('#game2048New').onclick=start;start();
 }
 
@@ -2243,6 +2265,35 @@ restoreTab();
     '[MONITOR] anomaly_detected\n> ignoring...',
     '> THREAD 07 READY\n> WAITING FOR INPUT_'
   ];
+  /* Context-aware multi-turn conversations, shuffled for variety */
+  const appNames={browser:'Browser',files:'Files',editor:'Text Editor',terminal:'Terminal',calculator:'Calculator',cloaking:'Cloaking',about:'About',minesweeper:'Minesweeper',snake:'Snake',game2048:'2048'};
+  const interactions={
+    browser:[['<TILT HEAD> The internet is a very large room.','Yeah, and you are not invited to every website.','<GIGGLE> But I brought snacks.'],['Shall we look for something interesting?','Define interesting. Actually, do not.'],['So many little links to explore.','Try not to break any of them.']],
+    files:[['<GIGGLE> So many secrets in these folders.','Stop snooping, Cyn.','<INNOCENT EXPRESSION> Just browsing.'],['Your files are organized. How delightful.','Hands off the files.'],['What is inside this little folder?','That is none of your business!']],
+    editor:[['Words, words, delightful words.','It is a text editor, not a buffet.'],['Shall we write a little story?','As long as you do not rewrite it behind my back.']],
+    terminal:[['<TILT HEAD> Commands are such powerful little words.','Do not type anything, Cyn.','<SAD EXPRESSION> Not even hello?'],['I have discovered the command line.','Congratulations. Please leave it alone.']],
+    calculator:[['The numbers are making friends.','It is addition, Cyn.'],['Two plus two. Four delightful little things.','Wow. You discovered math.']],
+    cloaking:[['A new disguise. How exciting.','You are not fooling anyone, Cyn.'],['A different name for the same little window.','Yeah, that is literally the feature.']],
+    about:[['You wish to learn about this machine?','Maybe read the actual information for once.'],['A little autobiography for the computer.','Please do not give it a personality.']],
+    minesweeper:[['<GIGGLE> The squares are hiding surprises.','Please do not give hints.'],['Choose carefully. Some squares are very grumpy.','That is the point of Minesweeper, Cyn.']],
+    snake:[['The little snake is hungry. Relatable.','Do not make this weird.'],['Such an adorable wiggly creature.','Just let them play the game.']],
+    game2048:[['All these numbers want to be together.','It is called merging tiles.'],['Two becomes four. How very magical.','That is how the game works.']]
+  };
+  const outcomes={
+    win:[['<HAPPY EXPRESSION> A magnificent victory.','Okay, that was actually awesome.','<GIGGLE> I helped by watching.'],['The human has won. How delightful.','YES! Nice one!'],['All the little obstacles have been defeated.','Not bad. Not bad at all.']],
+    lose:[['<TILT HEAD> That did not go as planned.','Yeah, thanks for the observation.'],['Oopsie. The game disagreed with you.','Just try again. You have got this.'],['<GIGGLE> An unexpected ending.','Cyn, stop narrating the loss.']],
+    start:[['Another game begins. How exciting.','All right. Focus time.'],['<GIGGLE> Round two, perhaps?','Shhh. Let them play.']],
+    score:[['The little snake grows stronger.','Okay, that is a pretty good score.'],['More points for our tiny friend.','Keep going!']],
+    close:[['Goodbye, little window.','Finally, some peace.'],['Oh. It has gone away.','Yeah, that is what closing means.']],
+    focus:[['Back to this window again.','It is called multitasking.'],['A familiar little place.','Let them work, Cyn.']],
+    resize:[['The window is growing.','Yep. That is maximize.'],['Such a big little window.','That sentence makes no sense.']]
+  };
+  const eventDecks=new Map();
+  function drawInteraction(key,options){
+    let deck=eventDecks.get(key);
+    if(!deck||!deck.length){deck=options.map((_,i)=>i);for(let i=deck.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}eventDecks.set(key,deck);}
+    return options[deck.pop()];
+  }
   const overlay = document.createElement('div');
   overlay.id = 'solver-glitch';
   overlay.setAttribute('aria-hidden','true');
@@ -2311,6 +2362,29 @@ restoreTab();
       }
     }finally{busy=false;}
   }
+  // Real user actions drive these reactions. No invented wins or scores.
+  const recentActions=new Map();
+  window.addEventListener('mybrowser-action',async e=>{
+    const d=e.detail||{};
+    if(!appNames[d.app]||document.hidden||document.getElementById('md-boot'))return;
+    const key=d.type+':'+d.app,now=Date.now();
+    if(now-(recentActions.get(key)||0)<(d.type==='focus'?18000:7500))return;
+    recentActions.set(key,now);
+    // Keep interactions occasional, and avoid interrupting another exchange.
+    const chance={open:.85,close:.40,focus:.18,resize:.22,start:.68,score:.75,win:1,lose:1};
+    if(Math.random()>(chance[d.type]??.3)||busy)return;
+    const options=d.type==='open'?interactions[d.app]:outcomes[d.type];
+    if(!options||!options.length)return;
+    const lines=drawInteraction(key,options);
+    busy=true;
+    try{
+      for(let i=0;i<lines.length;i++){
+        if(i>0&&Math.random()<.19)break;
+        await say(i%2===0?'cyn':'uzi',lines[i]);
+        if(i<lines.length-1)await wait(random(350,1050));
+      }
+    }finally{busy=false;}
+  });
   function scheduleDialogue(){
     setTimeout(async()=>{
       if(!busy)await event();
