@@ -6,454 +6,518 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MyBrowser // Desktop</title>
 <link id="tabIcon" rel="icon" href="data:,">
+
 <style>
 :root {
-  --yellow:#ffe65c;
-  --gold:#ffc400;
-  --panel:#0c0e15f5;
-}
-* {box-sizing:border-box}
-html,body {margin:0;width:100%;height:100%}
-body {
-  overflow:hidden;
-  font-family:Arial,sans-serif;
-  color:white;
-  background:#09090d
-    url("https://wallpapercave.com/wp/wp15347483.png")
-    center/cover no-repeat fixed;
-}
-body::before {
-  content:"";
-  position:fixed;
-  inset:0;
-  background:linear-gradient(110deg,#0009,#0002,#0008);
-  pointer-events:none;
-}
-button,input,textarea {font:inherit}
-button {cursor:pointer}
-button:focus-visible,input:focus-visible,
-.app:focus-visible {
-  outline:2px solid var(--yellow);
-  outline-offset:2px;
+  --yellow: #ffe65c;
+  --gold: #ffc400;
+  --panel: #0c0e15f5;
 }
 
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  color: white;
+  background: #09090d
+    url("https://wallpapercave.com/wp/wp15347483.png")
+    center / cover no-repeat fixed;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(110deg, #0009, #0002, #0008);
+  pointer-events: none;
+}
+
+button, input, textarea, select {
+  font: inherit;
+}
+
+button { cursor: pointer; }
+
 /* DESKTOP */
+
 #desktop {
-  position:fixed;
-  inset:0 0 83px 0;
-  pointer-events:none;
+  position: fixed;
+  inset: 0 0 83px 0;
+  pointer-events: none;
 }
+
 .app {
-  position:absolute;
-  width:94px;
-  height:96px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  background:#0a0b1055;
-  border:1px solid #ffe65c30;
-  border-radius:12px;
-  cursor:grab;
-  touch-action:none;
-  user-select:none;
-  pointer-events:auto;
-  transition:background .2s,box-shadow .2s,transform .2s;
+  position: absolute;
+  width: 94px;
+  height: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #0a0b1055;
+  border: 1px solid #ffe65c30;
+  border-radius: 12px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  pointer-events: auto;
+  transition: background .2s, box-shadow .2s, transform .2s;
 }
+
 .app:hover {
-  background:#ffe65c18;
-  border-color:var(--yellow);
-  box-shadow:0 0 18px #ffe65c66;
-  transform:translateY(-3px);
+  background: #ffe65c18;
+  border-color: var(--yellow);
+  box-shadow: 0 0 18px #ffe65c66;
+  transform: translateY(-3px);
 }
+
 .app.dragging {
-  cursor:grabbing;
-  transform:scale(1.08);
-  background:#ffe65c25;
-  box-shadow:0 0 28px #ffe65caa;
-  z-index:100;
-  transition:none;
+  cursor: grabbing;
+  transform: scale(1.08);
+  background: #ffe65c25;
+  box-shadow: 0 0 28px #ffe65caa;
+  z-index: 100;
+  transition: none;
 }
+
 .app svg {
-  width:38px;
-  height:38px;
-  fill:none;
-  stroke:var(--yellow);
-  stroke-width:1.8;
-  stroke-linecap:round;
-  stroke-linejoin:round;
-  filter:
-    drop-shadow(0 0 6px #ffe65c)
-    drop-shadow(0 0 14px #ffc400);
+  width: 38px;
+  height: 38px;
+  fill: none;
+  stroke: var(--yellow);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 6px #ffe65c)
+          drop-shadow(0 0 14px #ffc400);
 }
+
 .app span {
-  font-size:11px;
-  text-align:center;
-  text-shadow:0 0 9px #ffe65c;
+  font-size: 11px;
+  text-align: center;
+  text-shadow: 0 0 9px #ffe65c;
 }
 
 /* TASKBAR */
+
 #dock {
-  position:fixed;
-  bottom:15px;
-  left:50%;
-  transform:translateX(-50%);
-  display:flex;
-  align-items:center;
-  gap:6px;
-  padding:9px 12px;
-  max-width:98vw;
-  background:#090b10ef;
-  border:1px solid #ffe65c99;
-  border-radius:15px;
-  box-shadow:0 0 26px #ffc40044;
-  backdrop-filter:blur(18px);
-  z-index:9000;
+  position: fixed;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 12px;
+  max-width: 98vw;
+  background: #090b10ef;
+  border: 1px solid #ffe65c99;
+  border-radius: 15px;
+  box-shadow: 0 0 26px #ffc40044;
+  backdrop-filter: blur(18px);
+  z-index: 9000;
 }
-#dockButtons {display:flex;gap:4px}
-.dock-label,#clock {
-  color:var(--yellow);
-  font:10px monospace;
-  white-space:nowrap;
+
+#dockButtons {
+  display: flex;
+  gap: 4px;
 }
+
+.dock-label, #clock {
+  color: var(--yellow);
+  font: 10px monospace;
+  white-space: nowrap;
+}
+
 .dock-button {
-  width:38px;
-  height:38px;
-  display:grid;
-  place-items:center;
-  border:0;
-  border-radius:9px;
-  background:transparent;
-  color:var(--yellow);
-  transition:background .2s,transform .2s;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--yellow);
 }
+
 .dock-button:hover {
-  background:#ffe65c22;
-  transform:translateY(-4px);
+  background: #ffe65c22;
+  transform: translateY(-4px);
 }
+
 .dock-button svg {
-  width:23px;
-  height:23px;
-  fill:none;
-  stroke:currentColor;
-  stroke-width:1.8;
-  stroke-linecap:round;
-  stroke-linejoin:round;
+  width: 23px;
+  height: 23px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 /* WINDOWS */
+
 .window {
-  position:fixed;
-  width:750px;
-  height:510px;
-  max-width:96vw;
-  max-height:calc(100vh - 105px);
-  display:flex;
-  flex-direction:column;
-  overflow:hidden;
-  background:var(--panel);
-  border:1px solid #ffe65c77;
-  border-radius:13px;
-  box-shadow:0 25px 70px #000b,0 0 25px #ffc40033;
-  backdrop-filter:blur(20px);
-  animation:windowOpen .25s ease both;
+  position: fixed;
+  width: 750px;
+  height: 510px;
+  max-width: 96vw;
+  max-height: calc(100vh - 105px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--panel);
+  border: 1px solid #ffe65c77;
+  border-radius: 13px;
+  box-shadow: 0 25px 70px #000b, 0 0 25px #ffc40033;
+  backdrop-filter: blur(20px);
+  animation: windowOpen .25s ease both;
 }
+
 @keyframes windowOpen {
-  from {opacity:0;transform:scale(.96) translateY(12px)}
-  to {opacity:1;transform:scale(1) translateY(0)}
+  from { opacity: 0; transform: scale(.96) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
+
 .titlebar {
-  height:46px;
-  min-height:46px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 14px;
-  background:#1b1c21;
-  border-bottom:1px solid #ffe65c35;
-  color:var(--yellow);
-  font:12px monospace;
-  letter-spacing:1px;
-  cursor:grab;
-  user-select:none;
-  touch-action:none;
+  height: 46px;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  background: #1b1c21;
+  border-bottom: 1px solid #ffe65c35;
+  color: var(--yellow);
+  font: 12px monospace;
+  letter-spacing: 1px;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
 }
+
 .titlebar button {
-  background:#ffffff15;
-  border:1px solid #ffffff30;
-  border-radius:6px;
-  padding:5px 11px;
-  color:white;
+  background: #ffffff15;
+  border: 1px solid #ffffff30;
+  border-radius: 6px;
+  padding: 5px 11px;
+  color: white;
 }
-.titlebar button:hover {background:#b52d39}
+
+.titlebar button:hover { background: #b52d39; }
+
 .content {
-  flex:1;
-  min-height:0;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  overflow:auto;
-  padding:18px;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: auto;
+  padding: 18px;
 }
+
 .content h2 {
-  margin:0;
-  color:var(--yellow);
-  font-size:18px;
+  margin: 0;
+  color: var(--yellow);
+  font-size: 18px;
 }
+
 .muted {
-  color:#b1b3bc;
-  font-size:12px;
-  line-height:1.5;
+  color: #b1b3bc;
+  font-size: 12px;
+  line-height: 1.5;
 }
-.field,textarea {
-  width:100%;
-  padding:12px;
-  background:#1a1e27;
-  border:1px solid #ffffff35;
-  border-radius:8px;
-  color:white;
+
+.field, textarea {
+  width: 100%;
+  padding: 12px;
+  background: #1a1e27;
+  border: 1px solid #ffffff35;
+  border-radius: 8px;
+  color: white;
 }
-textarea {flex:1;resize:none;min-height:140px}
+
+textarea {
+  flex: 1;
+  resize: none;
+  min-height: 140px;
+}
+
 .action {
-  padding:11px 14px;
-  background:#ffffff12;
-  border:1px solid #ffffff35;
-  border-radius:8px;
-  color:white;
+  padding: 11px 14px;
+  background: #ffffff12;
+  border: 1px solid #ffffff35;
+  border-radius: 8px;
+  color: white;
 }
+
 .action:hover {
-  border-color:var(--yellow);
-  background:#ffe65c18;
+  border-color: var(--yellow);
+  background: #ffe65c18;
 }
+
 .primary {
-  padding:12px;
-  border:0;
-  border-radius:8px;
-  background:var(--yellow);
-  color:#15130a;
-  font-weight:bold;
+  padding: 12px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--yellow);
+  color: #15130a;
+  font-weight: bold;
 }
-.primary:hover {background:#fff3a4}
-.toolbar {display:flex;gap:8px}
-.toolbar input {flex:1;min-width:0}
+
+.primary:hover { background: #fff3a4; }
+
+.toolbar {
+  display: flex;
+  gap: 8px;
+}
+
+.toolbar input {
+  flex: 1;
+  min-width: 0;
+}
+
 iframe {
-  flex:1;
-  width:100%;
-  min-height:140px;
-  border:0;
-  background:white;
-  border-radius:8px;
+  flex: 1;
+  width: 100%;
+  min-height: 140px;
+  border: 0;
+  background: white;
+  border-radius: 8px;
 }
+
 .terminal-output {
-  flex:1;
-  overflow:auto;
-  white-space:pre-wrap;
-  color:var(--yellow);
-  font:14px monospace;
+  flex: 1;
+  overflow: auto;
+  white-space: pre-wrap;
+  color: var(--yellow);
+  font: 14px monospace;
 }
+
 .calc {
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:9px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 9px;
 }
+
 .calc button {
-  padding:16px;
-  background:#ffffff14;
-  border:1px solid #ffffff28;
-  border-radius:8px;
-  color:white;
-  font-size:20px;
-}
-.calc button:hover {
-  border-color:var(--yellow);
-  background:#ffe65c20;
+  padding: 16px;
+  background: #ffffff14;
+  border: 1px solid #ffffff28;
+  border-radius: 8px;
+  color: white;
+  font-size: 20px;
 }
 
 /* CLOAKING */
+
 .cloak-panel {
-  background:#11141b;
-  border:1px solid #ffe65c55;
-  border-radius:12px;
-  padding:18px;
+  background: #11141b;
+  border: 1px solid #ffe65c55;
+  border-radius: 12px;
+  padding: 18px;
 }
+
 .cloak-heading {
-  color:var(--yellow);
-  font-size:17px;
-  font-weight:bold;
-  letter-spacing:1px;
+  color: var(--yellow);
+  font-size: 17px;
+  font-weight: bold;
+  letter-spacing: 1px;
 }
+
 .cloak-label {
-  display:block;
-  margin:18px 0 9px;
-  color:#f2d977;
-  font:11px monospace;
-  letter-spacing:1px;
+  display: block;
+  margin: 18px 0 9px;
+  color: #f2d977;
+  font: 11px monospace;
+  letter-spacing: 1px;
 }
+
 .cloak-preview-wrap {
-  background:#252a34;
-  border-radius:10px;
-  padding:12px 12px 0;
+  background: #252a34;
+  border-radius: 10px;
+  padding: 12px 12px 0;
 }
+
 .cloak-preview {
-  display:flex;
-  align-items:center;
-  gap:10px;
-  width:min(320px,100%);
-  padding:12px;
-  background:#3b414e;
-  border-top:2px solid var(--yellow);
-  border-radius:9px 9px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(320px, 100%);
+  padding: 12px;
+  background: #3b414e;
+  border-top: 2px solid var(--yellow);
+  border-radius: 9px 9px 0 0;
 }
+
 .cloak-preview img {
-  width:20px;
-  height:20px;
-  object-fit:contain;
+  width: 20px;
+  height: 20px;
 }
+
 #previewTitle {
-  flex:1;
-  min-width:0;
-  overflow:hidden;
-  white-space:nowrap;
-  text-overflow:ellipsis;
-  font-size:13px;
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 13px;
 }
+
 .cloak-grid {
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:9px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
 }
+
 .cloak-preset {
-  min-height:83px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:9px;
-  padding:8px;
-  background:#1b1f29;
-  border:1px solid #ffffff25;
-  border-radius:9px;
-  color:white;
-  transition:transform .2s,box-shadow .2s;
+  min-height: 83px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 8px;
+  background: #1b1f29;
+  border: 1px solid #ffffff25;
+  border-radius: 9px;
+  color: white;
 }
-.cloak-preset:hover,.cloak-preset.selected {
-  transform:translateY(-2px);
-  border-color:var(--yellow);
-  box-shadow:0 0 15px #ffe65c55;
+
+.cloak-preset:hover, .cloak-preset.selected {
+  border-color: var(--yellow);
+  box-shadow: 0 0 15px #ffe65c55;
 }
+
 .cloak-preset img {
-  width:30px;
-  height:30px;
-  filter:drop-shadow(0 0 7px #ffe65c77);
+  width: 30px;
+  height: 30px;
 }
+
 .cloak-preset span {
-  font-size:11px;
-  text-align:center;
+  font-size: 11px;
+  text-align: center;
 }
+
 .cloak-actions {
-  display:flex;
-  gap:10px;
-  margin-top:18px;
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
 }
-.cloak-actions button {flex:1}
+
+.cloak-actions button { flex: 1; }
+
 #cloakStatus {
-  min-height:16px;
-  color:var(--yellow);
-  font-size:12px;
+  min-height: 16px;
+  color: var(--yellow);
+  font-size: 12px;
 }
 
 /* REBOOT */
+
 #boot {
-  position:fixed;
-  inset:0;
-  z-index:999999;
-  background:#050507;
-  color:var(--yellow);
-  overflow:hidden;
-  font-family:monospace;
-  transition:opacity .8s;
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: #050507;
+  color: var(--yellow);
+  overflow: hidden;
+  font-family: monospace;
+  transition: opacity .8s;
 }
+
 #boot::before {
-  content:"";
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  background:
-    repeating-linear-gradient(
-      0deg,#0005 0px,#0005 1px,
-      transparent 2px,transparent 4px
-    ),
-    radial-gradient(ellipse,transparent 30%,#000b);
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg, #0005 0px, #0005 1px,
+    transparent 2px, transparent 4px
+  ), radial-gradient(ellipse, transparent 30%, #000b);
 }
+
 .boot-logs {
-  position:absolute;
-  top:22px;
-  left:22px;
-  white-space:pre-wrap;
-  font-size:13px;
-  line-height:1.7;
-  text-shadow:0 0 9px #ffc400;
+  position: absolute;
+  top: 22px;
+  left: 22px;
+  white-space: pre-wrap;
+  font-size: 13px;
+  line-height: 1.7;
+  text-shadow: 0 0 9px #ffc400;
 }
+
 .boot-center {
-  position:absolute;
-  inset:0;
-  display:grid;
-  place-items:center;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
 }
+
 .boot-main {
-  position:relative;
-  text-align:center;
-  color:#fff5ac;
-  font:bold clamp(20px,5vw,76px) monospace;
-  letter-spacing:3px;
-  text-shadow:
-    0 0 6px white,
-    0 0 18px #ffe000,
-    0 0 55px #ffb900;
-  animation:flicker 2s infinite;
+  position: relative;
+  text-align: center;
+  color: #fff5ac;
+  font: bold clamp(20px, 5vw, 76px) monospace;
+  letter-spacing: 3px;
+  text-shadow: 0 0 6px white, 0 0 18px #ffe000, 0 0 55px #ffb900;
+  animation: flicker 2s infinite;
 }
+
 .boot-main::before {
-  content:attr(data-text);
-  position:absolute;
-  inset:0;
-  color:var(--yellow);
-  text-shadow:-8px 0 #ffae00;
-  animation:glitch 1.3s infinite;
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  color: var(--yellow);
+  text-shadow: -8px 0 #ffae00;
+  animation: glitch 1.3s infinite;
 }
+
 .boot-bottom {
-  position:absolute;
-  right:22px;
-  bottom:25px;
-  text-align:right;
-  font-size:12px;
-  line-height:1.6;
-  color:#e8c64d;
+  position: absolute;
+  right: 22px;
+  bottom: 25px;
+  text-align: right;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #e8c64d;
 }
-#boot.failed {background:#150306}
+
+#boot.failed { background: #150306; }
+
 #boot.failed .boot-main {
-  color:#ff8181;
-  text-shadow:0 0 12px red,0 0 40px red;
+  color: #ff8181;
+  text-shadow: 0 0 12px red, 0 0 40px red;
 }
+
 @keyframes flicker {
-  0%,88%,93%,100% {opacity:1}
-  89%,95% {opacity:.5}
+  0%, 88%, 93%, 100% { opacity: 1; }
+  89%, 95% { opacity: .5; }
 }
+
 @keyframes glitch {
-  0%,75%,100% {opacity:0}
-  78% {opacity:1;transform:translateX(-8px)}
-  83% {opacity:0;transform:translateX(8px)}
+  0%, 75%, 100% { opacity: 0; }
+  78% { opacity: 1; transform: translateX(-8px); }
+  83% { opacity: 0; transform: translateX(8px); }
 }
+
 @media(max-width:650px) {
-  .dock-label {display:none}
-  #dock {gap:2px;padding:7px}
-  .dock-button {width:34px}
-  .boot-main {font-size:clamp(16px,5vw,33px)}
+  .dock-label { display: none; }
+  #dock { gap: 2px; padding: 7px; }
+  .dock-button { width: 34px; }
 }
 </style>
 </head>
 
 <body>
+
 <div id="desktop"></div>
 <div id="windows"></div>
 
@@ -467,7 +531,7 @@ iframe {
   <div class="boot-logs" id="bootLogs"></div>
   <div class="boot-center">
     <div class="boot-main" id="bootMain"
-         data-text="REBOOTING...">REBOOTING...</div>
+      data-text="REBOOTING...">REBOOTING...</div>
   </div>
   <div class="boot-bottom" id="bootBottom">
     DATA RESTORATION IN PROGRESS
@@ -477,356 +541,375 @@ iframe {
 <script>
 "use strict";
 
-/* SYSTEM ICONS */
-const icons={
-  browser:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"/>',
-  files:'<path d="M3 6h7l3 3h8v11H3z"/>',
-  notes:'<path d="M5 3h11l4 4v14H5zM8 12h9M8 16h9"/>',
-  terminal:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m6 9 4 3-4 3M12 16h6"/>',
-  calculator:'<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 11h2M14 11h2M8 15h2M14 15h2"/>',
-  tabs:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20M7 7h4"/>',
-  about:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>'
+/* ICONS */
+
+const icons = {
+  browser: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"/>',
+  files: '<path d="M3 6h7l3 3h8v11H3z"/>',
+  notes: '<path d="M5 3h11l4 4v14H5zM8 12h9M8 16h9"/>',
+  terminal: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m6 9 4 3-4 3M12 16h6"/>',
+  calculator: '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 11h2M14 11h2M8 15h2M14 15h2"/>',
+  tabs: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20M7 7h4"/>',
+  about: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>'
 };
 
-function svg(id){
-  return '<svg viewBox="0 0 24 24">'+icons[id]+'</svg>';
+function svg(id) {
+  return '<svg viewBox="0 0 24 24">' + icons[id] + '</svg>';
 }
 
-const apps=[
-  ["browser","Browser"],
-  ["files","Files"],
-  ["notes","Text Editor"],
-  ["terminal","Terminal"],
-  ["calculator","Calculator"],
-  ["tabs","Cloaking"],
-  ["about","About"]
+const apps = [
+  ["browser", "Browser"],
+  ["files", "Files"],
+  ["notes", "Text Editor"],
+  ["terminal", "Terminal"],
+  ["calculator", "Calculator"],
+  ["tabs", "Cloaking"],
+  ["about", "About"]
 ];
 
-/* DRAGGABLE DESKTOP */
-const desktop=document.getElementById("desktop");
-const layoutKey="mybrowser-layout-v3";
-let positions={};
+/* DESKTOP */
+
+const desktop = document.getElementById("desktop");
+const layoutKey = "mybrowser-layout-v3";
+let positions = {};
 
 try {
-  positions=JSON.parse(localStorage.getItem(layoutKey))||{};
-}catch(e){}
+  positions = JSON.parse(localStorage.getItem(layoutKey)) || {};
+} catch(e) {}
 
-function clamp(v,min,max){
-  return Math.max(min,Math.min(max,v));
+function clamp(v, min, max) {
+  return Math.max(min, Math.min(max, v));
 }
 
-apps.forEach(([id,name],index)=>{
-  const app=document.createElement("div");
-  app.className="app";
-  app.tabIndex=0;
-  app.setAttribute("role","button");
-  app.setAttribute("aria-label","Open "+name);
-  app.innerHTML=svg(id)+"<span></span>";
-  app.querySelector("span").textContent=name;
+apps.forEach(([id, name], index) => {
+  const app = document.createElement("div");
+  app.className = "app";
+  app.tabIndex = 0;
+  app.setAttribute("role", "button");
+  app.innerHTML = svg(id) + "<span></span>";
+  app.querySelector("span").textContent = name;
   desktop.appendChild(app);
 
-  const cols=Math.max(1,Math.min(
-    4,Math.floor((innerWidth-20)/105)
+  const cols = Math.max(1, Math.min(
+    4, Math.floor((innerWidth - 20) / 105)
   ));
-  const fallback={
-    x:18+(index%cols)*105,
-    y:20+Math.floor(index/cols)*105
-  };
-  const pos=positions[id]||fallback;
 
-  function move(x,y){
-    app.style.left=clamp(
-      x,0,Math.max(0,desktop.clientWidth-app.offsetWidth)
-    )+"px";
-    app.style.top=clamp(
-      y,0,Math.max(0,desktop.clientHeight-app.offsetHeight)
-    )+"px";
+  const fallback = {
+    x: 18 + (index % cols) * 105,
+    y: 20 + Math.floor(index / cols) * 105
+  };
+
+  const pos = positions[id] || fallback;
+
+  function move(x, y) {
+    app.style.left = clamp(
+      x, 0, Math.max(0, desktop.clientWidth - app.offsetWidth)
+    ) + "px";
+
+    app.style.top = clamp(
+      y, 0, Math.max(0, desktop.clientHeight - app.offsetHeight)
+    ) + "px";
   }
 
-  move(pos.x,pos.y);
+  move(pos.x, pos.y);
 
-  let active=false,moved=false,suppress=false;
-  let sx=0,sy=0,ox=0,oy=0;
+  let active = false;
+  let moved = false;
+  let suppress = false;
+  let sx = 0, sy = 0, ox = 0, oy = 0;
 
-  app.addEventListener("pointerdown",e=>{
-    if(e.button!==0)return;
-    active=true;
-    moved=false;
-    sx=e.clientX;
-    sy=e.clientY;
-    ox=app.offsetLeft;
-    oy=app.offsetTop;
+  app.addEventListener("pointerdown", e => {
+    if (e.button !== 0) return;
+    active = true;
+    moved = false;
+    sx = e.clientX;
+    sy = e.clientY;
+    ox = app.offsetLeft;
+    oy = app.offsetTop;
     app.setPointerCapture(e.pointerId);
   });
 
-  app.addEventListener("pointermove",e=>{
-    if(!active)return;
-    const dx=e.clientX-sx;
-    const dy=e.clientY-sy;
+  app.addEventListener("pointermove", e => {
+    if (!active) return;
 
-    if(Math.hypot(dx,dy)>5){
-      moved=true;
+    const dx = e.clientX - sx;
+    const dy = e.clientY - sy;
+
+    if (Math.hypot(dx, dy) > 5) {
+      moved = true;
       app.classList.add("dragging");
     }
-    if(moved)move(ox+dx,oy+dy);
+
+    if (moved) move(ox + dx, oy + dy);
   });
 
-  function finish(){
-    if(!active)return;
-    active=false;
+  function finish() {
+    if (!active) return;
+    active = false;
     app.classList.remove("dragging");
 
-    if(moved){
-      positions[id]={
-        x:app.offsetLeft,
-        y:app.offsetTop
+    if (moved) {
+      positions[id] = {
+        x: app.offsetLeft,
+        y: app.offsetTop
       };
-      localStorage.setItem(
-        layoutKey,JSON.stringify(positions)
-      );
-      suppress=true;
+      localStorage.setItem(layoutKey, JSON.stringify(positions));
+      suppress = true;
     }
   }
 
-  app.addEventListener("pointerup",finish);
-  app.addEventListener("pointercancel",finish);
+  app.addEventListener("pointerup", finish);
+  app.addEventListener("pointercancel", finish);
 
-  app.addEventListener("click",()=>{
-    if(suppress){
-      suppress=false;
+  app.addEventListener("click", () => {
+    if (suppress) {
+      suppress = false;
       return;
     }
     openApp(id);
   });
 
-  app.addEventListener("keydown",e=>{
-    if(e.key==="Enter"||e.key===" "){
+  app.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       openApp(id);
     }
   });
 
-  const dockButton=document.createElement("button");
-  dockButton.className="dock-button";
-  dockButton.title=name;
-  dockButton.setAttribute("aria-label",name);
-  dockButton.innerHTML=svg(id);
-  dockButton.onclick=()=>openApp(id);
+  const dockButton = document.createElement("button");
+  dockButton.className = "dock-button";
+  dockButton.title = name;
+  dockButton.innerHTML = svg(id);
+  dockButton.onclick = () => openApp(id);
   document.getElementById("dockButtons").appendChild(dockButton);
 });
 
 /* TAB ICONS */
-const iconShapes={
-  system:'<circle cx="32" cy="32" r="22"/><path d="M10 32h44M32 10c-13 12-13 32 0 44M32 10c13 12 13 32 0 44"/>',
-  study:'<path d="M7 23 32 11l25 12-25 12zM17 30v13c10 8 20 8 30 0V30"/>',
-  learning:'<path d="M8 14c10-4 18-3 24 2 6-5 14-6 24-2v35c-10-4-18-3-24 2-6-5-14-6-24-2zM32 16v35"/>',
-  documents:'<path d="M16 7h23l10 10v40H16zM39 7v11h10M23 29h19M23 38h19"/>',
-  core:'<circle cx="32" cy="32" r="12"/><circle cx="32" cy="32" r="23" stroke-dasharray="6 6"/>'
+
+const iconShapes = {
+  system: '<circle cx="32" cy="32" r="22"/><path d="M10 32h44M32 10c-13 12-13 32 0 44M32 10c13 12 13 32 0 44"/>',
+  study: '<path d="M7 23 32 11l25 12-25 12zM17 30v13c10 8 20 8 30 0V30"/>',
+  learning: '<path d="M8 14c10-4 18-3 24 2 6-5 14-6 24-2v35c-10-4-18-3-24 2-6-5-14-6-24-2zM32 16v35"/>',
+  documents: '<path d="M16 7h23l10 10v40H16zM39 7v11h10M23 29h19M23 38h19"/>',
+  core: '<circle cx="32" cy="32" r="12"/><circle cx="32" cy="32" r="23" stroke-dasharray="6 6"/>'
 };
 
-function localIcon(type){
-  const shape=iconShapes[type]||iconShapes.system;
-  const image=
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">'+
-    '<rect width="64" height="64" rx="13" fill="#12141a"/>'+
-    '<g fill="none" stroke="#ffe65c" stroke-width="3.5" '+
-    'stroke-linecap="round" stroke-linejoin="round">'+
-    shape+'</g></svg>';
-  return "data:image/svg+xml,"+encodeURIComponent(image);
+function localIcon(type) {
+  const shape = iconShapes[type] || iconShapes.system;
+  const image =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">' +
+    '<rect width="64" height="64" rx="13" fill="#12141a"/>' +
+    '<g fill="none" stroke="#ffe65c" stroke-width="3.5" ' +
+    'stroke-linecap="round" stroke-linejoin="round">' +
+    shape + '</g></svg>';
+
+  return "data:image/svg+xml," + encodeURIComponent(image);
 }
 
-const defaultCloak={
-  title:"MyBrowser // Desktop",
-  icon:localIcon("system")
+const defaultCloak = {
+  title: "MyBrowser // Desktop",
+  icon: localIcon("system")
 };
 
-function getCloak(){
+function getCloak() {
   try {
-    const saved=JSON.parse(
-      localStorage.getItem("mybrowser-cloak")
-    );
-    if(saved&&typeof saved.title==="string"){
-      return saved;
-    }
-  }catch(e){}
+    const saved = JSON.parse(localStorage.getItem("mybrowser-cloak"));
+    if (saved && typeof saved.title === "string") return saved;
+  } catch(e) {}
   return {...defaultCloak};
 }
 
-function applyCloak(choice){
-  document.title=choice.title;
-  document.getElementById("tabIcon").href=choice.icon;
-  localStorage.setItem(
-    "mybrowser-cloak",JSON.stringify(choice)
-  );
+function applyCloak(choice) {
+  document.title = choice.title;
+  document.getElementById("tabIcon").href = choice.icon;
+  localStorage.setItem("mybrowser-cloak", JSON.stringify(choice));
 }
 
 applyCloak(getCloak());
 
 /* WINDOWS */
-let z=10;
-let windowCount=0;
 
-const titles={
-  browser:"BROWSER",
-  files:"FILE MANAGER",
-  notes:"TEXT EDITOR",
-  terminal:"SYSTEM TERMINAL",
-  calculator:"CALCULATOR",
-  tabs:"CLOAKING / TAB CONTROL",
-  about:"ABOUT MYBROWSER"
+let z = 10;
+let windowCount = 0;
+
+const titles = {
+  browser: "BROWSER / DUCKDUCKGO",
+  files: "FILE MANAGER",
+  notes: "TEXT EDITOR",
+  terminal: "SYSTEM TERMINAL",
+  calculator: "CALCULATOR",
+  tabs: "CLOAKING / TAB CONTROL",
+  about: "ABOUT MYBROWSER"
 };
 
-function openApp(id){
-  const w=document.createElement("div");
-  w.className="window";
-  w.style.zIndex=++z;
+function openApp(id) {
+  const w = document.createElement("div");
+  w.className = "window";
+  w.style.zIndex = ++z;
 
-  const offset=windowCount++%6;
-  const width=Math.min(750,innerWidth*.96);
-  w.style.left=Math.max(
-    4,(innerWidth-width)/2+offset*16
-  )+"px";
-  w.style.top=Math.min(
-    55+offset*17,Math.max(4,innerHeight-125)
-  )+"px";
+  const offset = windowCount++ % 6;
+  const width = Math.min(750, innerWidth * .96);
 
-  const bar=document.createElement("div");
-  bar.className="titlebar";
+  w.style.left = Math.max(
+    4, (innerWidth - width) / 2 + offset * 16
+  ) + "px";
 
-  const label=document.createElement("strong");
-  label.textContent=titles[id];
+  w.style.top = Math.min(
+    55 + offset * 17, Math.max(4, innerHeight - 125)
+  ) + "px";
 
-  const close=document.createElement("button");
-  close.textContent="×";
-  close.onclick=()=>w.remove();
+  const bar = document.createElement("div");
+  bar.className = "titlebar";
 
-  bar.append(label,close);
+  const label = document.createElement("strong");
+  label.textContent = titles[id];
 
-  const area=document.createElement("div");
-  area.className="content";
-  w.append(bar,area);
+  const close = document.createElement("button");
+  close.textContent = "×";
+  close.onclick = () => w.remove();
+
+  bar.append(label, close);
+
+  const area = document.createElement("div");
+  area.className = "content";
+
+  w.append(bar, area);
   document.getElementById("windows").appendChild(w);
 
-  w.addEventListener("pointerdown",()=>{
-    w.style.zIndex=++z;
+  w.addEventListener("pointerdown", () => {
+    w.style.zIndex = ++z;
   });
 
-  let dragging=false,dx=0,dy=0;
+  let dragging = false, dx = 0, dy = 0;
 
-  bar.addEventListener("pointerdown",e=>{
-    if(e.target.closest("button"))return;
-    dragging=true;
-    dx=e.clientX-w.offsetLeft;
-    dy=e.clientY-w.offsetTop;
+  bar.addEventListener("pointerdown", e => {
+    if (e.target.closest("button")) return;
+    dragging = true;
+    dx = e.clientX - w.offsetLeft;
+    dy = e.clientY - w.offsetTop;
     bar.setPointerCapture(e.pointerId);
   });
 
-  bar.addEventListener("pointermove",e=>{
-    if(!dragging)return;
-    w.style.left=clamp(
-      e.clientX-dx,0,Math.max(0,innerWidth-100)
-    )+"px";
-    w.style.top=clamp(
-      e.clientY-dy,0,Math.max(0,innerHeight-80)
-    )+"px";
+  bar.addEventListener("pointermove", e => {
+    if (!dragging) return;
+
+    w.style.left = clamp(
+      e.clientX - dx, 0, Math.max(0, innerWidth - 100)
+    ) + "px";
+
+    w.style.top = clamp(
+      e.clientY - dy, 0, Math.max(0, innerHeight - 80)
+    ) + "px";
   });
 
-  bar.addEventListener("pointerup",()=>dragging=false);
-  bar.addEventListener("pointercancel",()=>dragging=false);
+  bar.addEventListener("pointerup", () => dragging = false);
+  bar.addEventListener("pointercancel", () => dragging = false);
 
-  const handlers={
-    browser:browserApp,
-    files:filesApp,
-    notes:notesApp,
-    terminal:terminalApp,
-    calculator:calculatorApp,
-    tabs:cloakingApp,
-    about:aboutApp
+  const handlers = {
+    browser: browserApp,
+    files: filesApp,
+    notes: notesApp,
+    terminal: terminalApp,
+    calculator: calculatorApp,
+    tabs: cloakingApp,
+    about: aboutApp
   };
 
   handlers[id](area);
 }
 
-/* BROWSER */
-function browserApp(area){
-  area.innerHTML=`
+/* DUCKDUCKGO BROWSER */
+
+function browserApp(area) {
+  area.innerHTML = `
     <div class="toolbar">
       <input class="field" id="address"
-        placeholder="Search or enter a URL">
+        placeholder="Search DuckDuckGo or enter a website">
       <button class="action" id="go">GO</button>
     </div>
+
     <p class="muted">
-      Some websites cannot be displayed inside an iframe.
+      Search engine: DuckDuckGo.
+      Some websites do not allow iframe embedding.
     </p>
-    <iframe title="Browser" src="about:blank"></iframe>
+
+    <iframe
+      title="DuckDuckGo Browser"
+      src="https://duckduckgo.com/"
+      referrerpolicy="no-referrer">
+    </iframe>
   `;
 
-  const address=area.querySelector("#address");
-  const frame=area.querySelector("iframe");
+  const address = area.querySelector("#address");
+  const frame = area.querySelector("iframe");
 
-  function go(){
-    const value=address.value.trim();
-    if(!value)return;
+  function go() {
+    const value = address.value.trim();
+    if (!value) return;
 
-    if(/^https?:\/\//i.test(value)){
-      frame.src=value;
-    }else if(value.includes(".")&&!value.includes(" ")){
-      frame.src="https://"+value;
-    }else{
-      frame.src="https://www.google.com/search?q="+
+    if (/^https?:\/\//i.test(value)) {
+      frame.src = value;
+    } else if (value.includes(".") && !value.includes(" ")) {
+      frame.src = "https://" + value;
+    } else {
+      frame.src = "https://duckduckgo.com/?q=" +
         encodeURIComponent(value);
     }
   }
 
-  area.querySelector("#go").onclick=go;
-  address.onkeydown=e=>{
-    if(e.key==="Enter")go();
-  };
+  area.querySelector("#go").onclick = go;
+
+  address.addEventListener("keydown", e => {
+    if (e.key === "Enter") go();
+  });
 }
 
 /* FILES */
-function filesApp(area){
-  area.innerHTML=`
+
+function filesApp(area) {
+  area.innerHTML = `
     <h2>FILE MANAGER</h2>
-    <p class="muted">
-      Choose a file from your device.
-    </p>
+    <p class="muted">Choose a file from your device.</p>
     <button class="action" id="choose">CHOOSE FILE</button>
     <p id="fileName"></p>
   `;
 
-  area.querySelector("#choose").onclick=()=>{
-    const input=document.createElement("input");
-    input.type="file";
-    input.onchange=()=>{
-      area.querySelector("#fileName").textContent=
-        input.files[0]?.name||"No file selected";
+  area.querySelector("#choose").onclick = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+
+    input.onchange = () => {
+      area.querySelector("#fileName").textContent =
+        input.files[0]?.name || "No file selected";
     };
+
     input.click();
   };
 }
 
 /* TEXT EDITOR */
-function notesApp(area){
-  area.innerHTML=`
+
+function notesApp(area) {
+  area.innerHTML = `
     <h2>TEXT EDITOR</h2>
     <textarea placeholder="Write your notes..."></textarea>
     <button class="action" id="save">SAVE NOTES</button>
     <p class="muted" id="status"></p>
   `;
 
-  const input=area.querySelector("textarea");
-  input.value=localStorage.getItem("mybrowser-notes")||"";
+  const input = area.querySelector("textarea");
+  input.value = localStorage.getItem("mybrowser-notes") || "";
 
-  area.querySelector("#save").onclick=()=>{
-    localStorage.setItem("mybrowser-notes",input.value);
-    area.querySelector("#status").textContent="Saved.";
+  area.querySelector("#save").onclick = () => {
+    localStorage.setItem("mybrowser-notes", input.value);
+    area.querySelector("#status").textContent = "Saved.";
   };
 }
 
 /* TERMINAL */
-function terminalApp(area){
-  area.innerHTML=`
+
+function terminalApp(area) {
+  area.innerHTML = `
     <div class="terminal-output">MYBROWSER TERMINAL
 SIMULATION MODE ACTIVE
 Type HELP for commands.
@@ -835,77 +918,83 @@ Type HELP for commands.
     <input class="field" placeholder="Enter command">
   `;
 
-  const output=area.querySelector(".terminal-output");
-  const input=area.querySelector("input");
+  const output = area.querySelector(".terminal-output");
+  const input = area.querySelector("input");
 
-  input.onkeydown=e=>{
-    if(e.key!=="Enter")return;
+  input.onkeydown = e => {
+    if (e.key !== "Enter") return;
 
-    const command=input.value.trim();
-    const lower=command.toLowerCase();
-    input.value="";
+    const command = input.value.trim();
+    const lower = command.toLowerCase();
+    input.value = "";
 
-    if(lower==="clear"){
-      output.textContent="";
+    if (lower === "clear") {
+      output.textContent = "";
       return;
     }
 
-    const answers={
-      help:"HELP, DATE, STATUS, WHOAMI, CLEAR",
-      date:new Date().toString(),
-      status:"SYSTEM ONLINE",
-      whoami:"mybrowser-user"
+    const answers = {
+      help: "HELP, DATE, STATUS, WHOAMI, CLEAR",
+      date: new Date().toString(),
+      status: "SYSTEM ONLINE",
+      whoami: "mybrowser-user"
     };
 
-    const answer=answers[lower]||"Unknown command";
-    output.textContent+="> "+command+"\n"+answer+"\n\n";
-    output.scrollTop=output.scrollHeight;
+    const answer = answers[lower] || "Unknown command";
+
+    output.textContent +=
+      "> " + command + "\n" + answer + "\n\n";
+
+    output.scrollTop = output.scrollHeight;
   };
 }
 
 /* CALCULATOR */
-function calculatorApp(area){
-  area.innerHTML=`
+
+function calculatorApp(area) {
+  area.innerHTML = `
     <h2>CALCULATOR</h2>
     <input class="field" readonly value="0">
     <div class="calc"></div>
   `;
 
-  const display=area.querySelector("input");
-  const grid=area.querySelector(".calc");
-  let expression="";
+  const display = area.querySelector("input");
+  const grid = area.querySelector(".calc");
+  let expression = "";
 
-  for(const key of [
+  for (const key of [
     "7","8","9","/",
     "4","5","6","*",
     "1","2","3","-",
     "C","0","=","+"
-  ]){
-    const b=document.createElement("button");
-    b.textContent=key;
+  ]) {
+    const b = document.createElement("button");
+    b.textContent = key;
 
-    b.onclick=()=>{
-      if(key==="C"){
-        expression="";
-      }else if(key==="="){
+    b.onclick = () => {
+      if (key === "C") {
+        expression = "";
+      } else if (key === "=") {
         try {
-          if(!/^[0-9+\-*/. ()]+$/.test(expression)){
+          if (!/^[0-9+\-*/. ()]+$/.test(expression)) {
             throw Error();
           }
-          const value=Function(
-            '"use strict";return ('+expression+')'
+
+          const value = Function(
+            '"use strict";return (' + expression + ')'
           )();
-          if(!Number.isFinite(value))throw Error();
-          expression=String(value);
-        }catch(e){
-          expression="Error";
+
+          if (!Number.isFinite(value)) throw Error();
+          expression = String(value);
+        } catch(e) {
+          expression = "Error";
         }
-      }else{
-        if(expression==="Error")expression="";
-        expression+=key;
+      } else {
+        if (expression === "Error") expression = "";
+        expression += key;
       }
 
-      display.value=expression||"0";
+      display.value = expression || "0";
     };
 
     grid.appendChild(b);
@@ -913,12 +1002,11 @@ function calculatorApp(area){
 }
 
 /* CLOAKING */
-function cloakingApp(area){
-  area.innerHTML=`
+
+function cloakingApp(area) {
+  area.innerHTML = `
     <div class="cloak-panel">
-      <div class="cloak-heading">
-        BASIC TAB CLOAKING
-      </div>
+      <div class="cloak-heading">BASIC TAB CLOAKING</div>
 
       <p class="muted">
         Choose a preset or enter your own title and favicon.
@@ -957,143 +1045,146 @@ function cloakingApp(area){
     </div>
   `;
 
-  const presets=[
+  const presets = [
     {
-      name:"MyBrowser",
-      title:"MyBrowser // Desktop",
-      icon:localIcon("system")
+      name: "MyBrowser",
+      title: "MyBrowser // Desktop",
+      icon: localIcon("system")
     },
     {
-      name:"Study Workspace",
-      title:"Study Workspace",
-      icon:localIcon("study")
+      name: "Study Workspace",
+      title: "Study Workspace",
+      icon: localIcon("study")
     },
     {
-      name:"Learning Hub",
-      title:"Learning Hub",
-      icon:localIcon("learning")
+      name: "Learning Hub",
+      title: "Learning Hub",
+      icon: localIcon("learning")
     },
     {
-      name:"Documents",
-      title:"Documents",
-      icon:localIcon("documents")
+      name: "Documents",
+      title: "Documents",
+      icon: localIcon("documents")
     },
     {
-      name:"System Core",
-      title:"System Core",
-      icon:localIcon("core")
+      name: "System Core",
+      title: "System Core",
+      icon: localIcon("core")
     }
   ];
 
-  const title=area.querySelector("#cloakTitle");
-  const icon=area.querySelector("#cloakIcon");
-  const previewTitle=area.querySelector("#previewTitle");
-  const previewIcon=area.querySelector("#previewIcon");
-  const status=area.querySelector("#cloakStatus");
+  const title = area.querySelector("#cloakTitle");
+  const icon = area.querySelector("#cloakIcon");
+  const previewTitle = area.querySelector("#previewTitle");
+  const previewIcon = area.querySelector("#previewIcon");
+  const status = area.querySelector("#cloakStatus");
 
-  const current=getCloak();
-  let selectedIcon=current.icon;
+  const current = getCloak();
+  let selectedIcon = current.icon;
 
-  title.value=current.title;
-  icon.value=current.icon.startsWith("https://")
-    ?current.icon
-    :"https://";
+  title.value = current.title;
 
-  function updatePreview(){
-    previewTitle.textContent=title.value||"MyBrowser";
-    const typed=icon.value.trim();
-    previewIcon.src=
-      typed&&typed!=="https://"
-        ?typed
-        :selectedIcon;
+  icon.value = current.icon.startsWith("https://")
+    ? current.icon
+    : "https://";
+
+  function updatePreview() {
+    previewTitle.textContent = title.value || "MyBrowser";
+
+    const typed = icon.value.trim();
+
+    previewIcon.src =
+      typed && typed !== "https://"
+        ? typed
+        : selectedIcon;
   }
 
-  function selectPreset(p,button){
-    title.value=p.title;
-    selectedIcon=p.icon;
-    icon.value="https://";
+  function selectPreset(p, button) {
+    title.value = p.title;
+    selectedIcon = p.icon;
+    icon.value = "https://";
 
     area.querySelectorAll(".cloak-preset")
-      .forEach(b=>b.classList.remove("selected"));
+      .forEach(b => b.classList.remove("selected"));
 
     button.classList.add("selected");
-    status.textContent="";
+    status.textContent = "";
     updatePreview();
   }
 
-  presets.forEach(p=>{
-    const button=document.createElement("button");
-    button.className="cloak-preset";
+  presets.forEach(p => {
+    const button = document.createElement("button");
+    button.className = "cloak-preset";
 
-    const img=document.createElement("img");
-    img.src=p.icon;
-    img.alt="";
+    const img = document.createElement("img");
+    img.src = p.icon;
+    img.alt = "";
 
-    const name=document.createElement("span");
-    name.textContent=p.name;
+    const name = document.createElement("span");
+    name.textContent = p.name;
 
-    button.append(img,name);
-    button.onclick=()=>selectPreset(p,button);
+    button.append(img, name);
+    button.onclick = () => selectPreset(p, button);
 
     area.querySelector("#presets").appendChild(button);
   });
 
-  title.addEventListener("input",updatePreview);
-  icon.addEventListener("input",updatePreview);
+  title.addEventListener("input", updatePreview);
+  icon.addEventListener("input", updatePreview);
 
-  // Keep https:// at the beginning of the URL field.
-  icon.addEventListener("blur",()=>{
-    const value=icon.value.trim();
+  icon.addEventListener("blur", () => {
+    const value = icon.value.trim();
 
-    if(!value){
-      icon.value="https://";
-    }else if(!/^https?:\/\//i.test(value)){
-      icon.value="https://"+value;
+    if (!value) {
+      icon.value = "https://";
+    } else if (!/^https?:\/\//i.test(value)) {
+      icon.value = "https://" + value;
     }
+
     updatePreview();
   });
 
-  area.querySelector("#apply").onclick=()=>{
-    let favicon=icon.value.trim();
+  area.querySelector("#apply").onclick = () => {
+    let favicon = icon.value.trim();
 
-    if(!favicon||favicon==="https://"){
-      favicon=selectedIcon;
-    }else{
-      if(!/^https?:\/\//i.test(favicon)){
-        favicon="https://"+favicon;
+    if (!favicon || favicon === "https://") {
+      favicon = selectedIcon;
+    } else {
+      if (!/^https?:\/\//i.test(favicon)) {
+        favicon = "https://" + favicon;
       }
 
       try {
-        const parsed=new URL(favicon);
-        if(parsed.protocol!=="https:")throw Error();
-      }catch(e){
-        status.textContent="Enter a valid HTTPS favicon URL.";
+        const parsed = new URL(favicon);
+        if (parsed.protocol !== "https:") throw Error();
+      } catch(e) {
+        status.textContent = "Enter a valid HTTPS favicon URL.";
         return;
       }
     }
 
-    const choice={
-      title:title.value.trim()||defaultCloak.title,
-      icon:favicon
+    const choice = {
+      title: title.value.trim() || defaultCloak.title,
+      icon: favicon
     };
 
     applyCloak(choice);
-    selectedIcon=choice.icon;
-    status.textContent="Cloak applied successfully.";
+    selectedIcon = choice.icon;
+    status.textContent = "Cloak applied successfully.";
     updatePreview();
   };
 
-  area.querySelector("#reset").onclick=()=>{
-    title.value=defaultCloak.title;
-    icon.value="https://";
-    selectedIcon=defaultCloak.icon;
+  area.querySelector("#reset").onclick = () => {
+    title.value = defaultCloak.title;
+    icon.value = "https://";
+    selectedIcon = defaultCloak.icon;
 
     applyCloak(defaultCloak);
 
     area.querySelectorAll(".cloak-preset")
-      .forEach(b=>b.classList.remove("selected"));
+      .forEach(b => b.classList.remove("selected"));
 
-    status.textContent="Original appearance restored.";
+    status.textContent = "Original appearance restored.";
     updatePreview();
   };
 
@@ -1101,40 +1192,43 @@ function cloakingApp(area){
 }
 
 /* ABOUT */
-function aboutApp(area){
-  area.innerHTML=`
+
+function aboutApp(area) {
+  area.innerHTML = `
     <h2>MYBROWSER</h2>
     <p>Custom desktop interface</p>
     <p class="muted">
       Features draggable icons, saved positions,
       glowing apps, movable windows, a terminal,
-      calculator, text editor and tab customization.
+      calculator, text editor, DuckDuckGo browser
+      and tab customization.
     </p>
-    <p style="color:#ffe65c">
-      SYSTEM STATUS: ONLINE
-    </p>
+    <p style="color:#ffe65c">SYSTEM STATUS: ONLINE</p>
   `;
 }
 
 /* CLOCK */
-function updateClock(){
-  document.getElementById("clock").textContent=
-    new Date().toLocaleTimeString([],{
-      hour:"numeric",
-      minute:"2-digit"
+
+function updateClock() {
+  document.getElementById("clock").textContent =
+    new Date().toLocaleTimeString([], {
+      hour: "numeric",
+      minute: "2-digit"
     });
 }
+
 updateClock();
-setInterval(updateClock,1000);
+setInterval(updateClock, 1000);
 
 /* REBOOT */
-(function reboot(){
-  const logs=document.getElementById("bootLogs");
-  const main=document.getElementById("bootMain");
-  const bottom=document.getElementById("bootBottom");
-  const boot=document.getElementById("boot");
 
-  const lines=[
+(function reboot() {
+  const logs = document.getElementById("bootLogs");
+  const main = document.getElementById("bootMain");
+  const bottom = document.getElementById("bootBottom");
+  const boot = document.getElementById("boot");
+
+  const lines = [
     "> SERIAL DESIGNATION: ???",
     "> INITIALIZING ABSOLUTE SOLVER...",
     "> LOADING CORE MODULES...",
@@ -1143,48 +1237,50 @@ setInterval(updateClock,1000);
     "> REBOOTING, PLEASE WAIT..."
   ];
 
-  let i=0,j=0;
+  let i = 0, j = 0;
 
-  function type(){
-    if(i===lines.length){
-      setTimeout(finish,900);
+  function type() {
+    if (i === lines.length) {
+      setTimeout(finish, 900);
       return;
     }
 
-    if(j<lines[i].length){
-      logs.textContent+=lines[i][j++];
-      setTimeout(type,19+Math.random()*17);
-    }else{
-      logs.textContent+="\n";
+    if (j < lines[i].length) {
+      logs.textContent += lines[i][j++];
+      setTimeout(type, 19 + Math.random() * 17);
+    } else {
+      logs.textContent += "\n";
       i++;
-      j=0;
-      setTimeout(type,160);
+      j = 0;
+      setTimeout(type, 160);
     }
   }
 
-  function finish(){
-    const failed=Math.random()<0.5;
-    const message=failed
-      ?"REBOOT FAILED X D"
-      :"REBOOT SUCCESSFUL : )";
+  function finish() {
+    const failed = Math.random() < 0.5;
 
-    main.textContent=message;
-    main.dataset.text=message;
+    const message = failed
+      ? "REBOOT FAILED X D"
+      : "REBOOT SUCCESSFUL : )";
 
-    if(failed)boot.classList.add("failed");
+    main.textContent = message;
+    main.dataset.text = message;
 
-    bottom.textContent=failed
-      ?"CRITICAL SYSTEM ERROR"
-      :"SYSTEM ONLINE // WELCOME BACK";
+    if (failed) boot.classList.add("failed");
 
-    setTimeout(()=>{
-      boot.style.opacity="0";
-      setTimeout(()=>boot.remove(),850);
-    },2300);
+    bottom.textContent = failed
+      ? "CRITICAL SYSTEM ERROR"
+      : "SYSTEM ONLINE // WELCOME BACK";
+
+    setTimeout(() => {
+      boot.style.opacity = "0";
+      setTimeout(() => boot.remove(), 850);
+    }, 2300);
   }
 
-  setTimeout(type,450);
+  setTimeout(type, 450);
 })();
 </script>
+
 </body>
 </html>
