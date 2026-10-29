@@ -6,440 +6,250 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MyBrowser</title>
 <link id="tabIcon" rel="icon" href="data:,">
-
 <style>
 :root {
-  --yellow: #ffe65c;
-  --gold: #ffc400;
-  --panel: #101219f5;
-  --border: #ffe65c77;
+  --yellow:#ffe65c;
+  --gold:#ffc400;
+  --panel:#101219f5;
+  --border:#ffe65c77;
 }
-
-* { box-sizing: border-box; }
-
-html, body {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+* { box-sizing:border-box; }
+html,body {
+  margin:0;width:100%;height:100%;overflow:hidden;
 }
-
 body {
-  color: white;
-  font-family: Arial, sans-serif;
-  background: #090a10
-    url("https://wallpapercave.com/wp/wp15347483.png")
-    center / cover no-repeat fixed;
+  color:white;font-family:Arial,sans-serif;
+  background:#090a10 url("https://wallpapercave.com/wp/wp15347483.png")
+  center/cover no-repeat fixed;
 }
-
 body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(120deg, #000a, #0002, #0009);
-  pointer-events: none;
+  content:"";position:fixed;inset:0;
+  background:linear-gradient(120deg,#000a,#0002,#0009);
+  pointer-events:none;
 }
-
-button, input, textarea, select { font: inherit; }
-button { cursor: pointer; }
-button:hover { filter: brightness(1.14); }
-button:disabled { opacity: .4; cursor: not-allowed; }
-
-h2 {
-  color: var(--yellow);
-  font-size: 19px;
-  margin: 0;
-}
-
-h3 { color: var(--yellow); }
-
+button,input,textarea,select { font:inherit; }
+button { cursor:pointer; }
+button:hover { filter:brightness(1.14); }
+button:disabled { opacity:.4;cursor:not-allowed; }
+h2 { color:var(--yellow);font-size:19px;margin:0; }
+h3 { color:var(--yellow); }
 .muted {
-  color: #b1b5c2;
-  font-size: 12px;
-  line-height: 1.5;
+  color:#b1b5c2;font-size:12px;line-height:1.5;
 }
-
-.field, textarea, select {
-  width: 100%;
-  min-width: 0;
-  padding: 11px;
-  color: white;
-  background: #1b202a;
-  border: 1px solid #ffffff40;
-  border-radius: 8px;
-  outline: none;
+.field,textarea,select {
+  width:100%;min-width:0;padding:11px;color:white;
+  background:#1b202a;border:1px solid #ffffff40;
+  border-radius:8px;outline:none;
 }
-
-.field:focus, textarea:focus, select:focus {
-  border-color: var(--yellow);
+.field:focus,textarea:focus,select:focus {
+  border-color:var(--yellow);
 }
-
-textarea {
-  flex: 1;
-  min-height: 130px;
-  resize: none;
-}
-
+textarea { flex:1;min-height:130px;resize:none; }
 .btn {
-  padding: 10px 13px;
-  color: white;
-  background: #ffffff13;
-  border: 1px solid #ffffff38;
-  border-radius: 8px;
+  padding:10px 13px;color:white;background:#ffffff13;
+  border:1px solid #ffffff38;border-radius:8px;
 }
-
 .primary {
-  padding: 10px 15px;
-  color: #171717;
-  background: var(--yellow);
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
+  padding:10px 15px;color:#171717;
+  background:var(--yellow);border:none;
+  border-radius:8px;font-weight:bold;
 }
-
-.row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
+.row { display:flex;align-items:center;gap:8px; }
 .card {
-  padding: 15px;
-  background: #161a23;
-  border: 1px solid #ffe65c40;
-  border-radius: 10px;
+  padding:15px;background:#161a23;
+  border:1px solid #ffe65c40;border-radius:10px;
 }
 
 /* DESKTOP */
-
 #desktop {
-  position: fixed;
-  inset: 0 0 82px;
-  pointer-events: none;
+  position:fixed;inset:0 0 82px;pointer-events:none;
 }
-
 .desktop-icon {
-  position: absolute;
-  width: 94px;
-  height: 94px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  background: #090a1090;
-  border: 1px solid #ffe65c35;
-  border-radius: 12px;
-  cursor: grab;
-  user-select: none;
-  touch-action: none;
-  pointer-events: auto;
+  position:absolute;width:94px;height:94px;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:9px;
+  background:#090a1090;border:1px solid #ffe65c35;
+  border-radius:12px;cursor:grab;user-select:none;
+  touch-action:none;pointer-events:auto;
 }
-
-.desktop-icon:hover,
-.desktop-icon.dragging {
-  background: #ffe65c25;
-  border-color: var(--yellow);
-  box-shadow: 0 0 20px #ffc40066;
+.desktop-icon:hover,.desktop-icon.dragging {
+  background:#ffe65c25;border-color:var(--yellow);
+  box-shadow:0 0 20px #ffc40066;
 }
-
 .desktop-icon svg {
-  width: 36px;
-  height: 36px;
-  fill: none;
-  stroke: var(--yellow);
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  filter: drop-shadow(0 0 7px #ffc400);
+  width:36px;height:36px;fill:none;
+  stroke:var(--yellow);stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 0 7px #ffc400);
 }
-
 .desktop-icon span {
-  font-size: 11px;
-  text-align: center;
-  text-shadow: 0 0 7px black;
+  font-size:11px;text-align:center;
+  text-shadow:0 0 7px black;
 }
 
 /* TASKBAR */
-
 #taskbar {
-  position: fixed;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  max-width: 98vw;
-  padding: 9px 13px;
-  background: #080a10f0;
-  border: 1px solid var(--border);
-  border-radius: 15px;
-  box-shadow: 0 0 25px #ffc40044;
-  z-index: 9000;
+  position:fixed;bottom:12px;left:50%;
+  transform:translateX(-50%);
+  display:flex;align-items:center;gap:8px;
+  max-width:98vw;padding:9px 13px;
+  background:#080a10f0;border:1px solid var(--border);
+  border-radius:15px;box-shadow:0 0 25px #ffc40044;
+  z-index:9000;
 }
-
-#taskApps {
-  display: flex;
-  gap: 3px;
-}
-
+#taskApps { display:flex;gap:3px; }
 .task-button {
-  width: 37px;
-  height: 37px;
-  display: grid;
-  place-items: center;
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  color: var(--yellow);
+  width:37px;height:37px;display:grid;
+  place-items:center;background:transparent;
+  border:none;border-radius:8px;color:var(--yellow);
 }
-
-.task-button:hover { background: #ffe65c25; }
-
+.task-button:hover { background:#ffe65c25; }
 .task-button svg {
-  width: 23px;
-  height: 23px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
+  width:23px;height:23px;fill:none;
+  stroke:currentColor;stroke-width:1.8;
 }
-
 #clock {
-  color: var(--yellow);
-  font: 11px monospace;
-  white-space: nowrap;
+  color:var(--yellow);font:11px monospace;
+  white-space:nowrap;
 }
 
 /* WINDOWS */
-
 .window {
-  position: fixed;
-  width: 790px;
-  height: 540px;
-  max-width: 96vw;
-  max-height: calc(100vh - 100px);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 13px;
-  box-shadow: 0 25px 70px #000c, 0 0 25px #ffc40033;
-  backdrop-filter: blur(16px);
-  animation: windowAppear .2s ease;
+  position:fixed;width:790px;height:540px;
+  max-width:96vw;max-height:calc(100vh - 100px);
+  display:flex;flex-direction:column;overflow:hidden;
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:13px;
+  box-shadow:0 25px 70px #000c,0 0 25px #ffc40033;
+  backdrop-filter:blur(16px);
+  animation:windowAppear .2s ease;
 }
-
 @keyframes windowAppear {
-  from { opacity: 0; transform: scale(.97); }
-  to { opacity: 1; transform: scale(1); }
+  from { opacity:0;transform:scale(.97); }
+  to { opacity:1;transform:scale(1); }
 }
-
 .titlebar {
-  height: 46px;
-  min-height: 46px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 13px;
-  background: #1b1d24;
-  border-bottom: 1px solid #ffe65c44;
-  color: var(--yellow);
-  font: 12px monospace;
-  letter-spacing: 1px;
-  cursor: grab;
-  user-select: none;
-  touch-action: none;
+  height:46px;min-height:46px;
+  display:flex;align-items:center;
+  justify-content:space-between;padding:0 13px;
+  background:#1b1d24;border-bottom:1px solid #ffe65c44;
+  color:var(--yellow);font:12px monospace;
+  letter-spacing:1px;cursor:grab;
+  user-select:none;touch-action:none;
 }
-
-.window-controls {
-  display: flex;
-  gap: 6px;
-}
-
+.window-controls { display:flex;gap:6px; }
 .window-controls button {
-  padding: 5px 10px;
-  background: #ffffff18;
-  border: 1px solid #ffffff38;
-  border-radius: 6px;
-  color: white;
+  padding:5px 10px;background:#ffffff18;
+  border:1px solid #ffffff38;
+  border-radius:6px;color:white;
 }
-
-.window-controls .close:hover {
-  background: #a72e3b;
-}
-
+.window-controls .close:hover { background:#a72e3b; }
 .window-content {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px;
-  overflow: auto;
+  flex:1;min-height:0;display:flex;
+  flex-direction:column;gap:12px;
+  padding:16px;overflow:auto;
 }
 
 /* BROWSER */
-
 .browser-toolbar {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
+  display:flex;align-items:center;
+  flex-wrap:wrap;gap:6px;
 }
-
 .browser-toolbar .field {
-  flex: 1;
-  min-width: 170px;
+  flex:1;min-width:170px;
 }
-
 .browser-page {
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
-  background: #0b0e14;
-  border: 1px solid #ffe65c44;
-  border-radius: 10px;
+  flex:1;min-height:0;overflow:auto;
+  background:#0b0e14;border:1px solid #ffe65c44;
+  border-radius:10px;
 }
-
 .browser-home {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 15px;
-  padding: 25px;
-  text-align: center;
-  background: radial-gradient(circle, #ffe65c13, #0b0e14);
+  min-height:100%;display:flex;
+  flex-direction:column;align-items:center;
+  justify-content:center;gap:15px;
+  padding:25px;text-align:center;
+  background:radial-gradient(circle,#ffe65c13,#0b0e14);
 }
-
 .browser-home h1 {
-  margin: 0;
-  color: var(--yellow);
-  font-size: clamp(26px, 5vw, 43px);
-  letter-spacing: 4px;
-  text-shadow: 0 0 20px #ffc40088;
+  margin:0;color:var(--yellow);
+  font-size:clamp(26px,5vw,43px);
+  letter-spacing:4px;
+  text-shadow:0 0 20px #ffc40088;
 }
-
 .result {
-  margin: 12px;
-  padding: 15px;
-  background: #161b24;
-  border: 1px solid #ffe65c44;
-  border-radius: 10px;
+  margin:12px;padding:15px;background:#161b24;
+  border:1px solid #ffe65c44;border-radius:10px;
 }
-
-.result h3 {
-  margin: 0 0 7px;
-  font-size: 15px;
-}
-
-.result p {
-  font-size: 13px;
-  line-height: 1.5;
-}
-
+.result h3 { margin:0 0 7px;font-size:15px; }
+.result p { font-size:13px;line-height:1.5; }
 .result-url {
-  color: #aeb5c4;
-  font-size: 11px;
-  overflow-wrap: anywhere;
+  color:#aeb5c4;font-size:11px;
+  overflow-wrap:anywhere;
 }
-
 .website-frame {
-  display: block;
-  width: 100%;
-  height: 100%;
-  min-height: 300px;
-  border: 0;
-  background: white;
+  display:block;width:100%;height:100%;
+  min-height:300px;border:0;background:white;
+}
+.read-content {
+  white-space:pre-wrap;overflow-wrap:anywhere;
+  line-height:1.6;font-size:13px;
+  padding:16px;color:#e9e9ee;
 }
 
 /* TERMINAL */
-
 .terminal-output {
-  flex: 1;
-  overflow: auto;
-  white-space: pre-wrap;
-  color: var(--yellow);
-  font: 13px/1.6 monospace;
+  flex:1;overflow:auto;white-space:pre-wrap;
+  color:var(--yellow);font:13px/1.6 monospace;
 }
 
 /* CALCULATOR */
-
 .calculator-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:8px;
 }
-
 .calculator-grid button {
-  padding: 15px 4px;
-  background: #ffffff15;
-  color: white;
-  border: 1px solid #ffffff33;
-  border-radius: 8px;
-  font-size: 19px;
+  padding:15px 4px;background:#ffffff15;
+  color:white;border:1px solid #ffffff33;
+  border-radius:8px;font-size:19px;
 }
 
 /* REBOOT */
-
 #boot {
-  position: fixed;
-  inset: 0;
-  z-index: 20000;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  padding: 20px;
-  background: #050608;
-  color: var(--yellow);
-  text-align: center;
-  font: 16px monospace;
+  position:fixed;inset:0;z-index:20000;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:18px;padding:20px;background:#050608;
+  color:var(--yellow);text-align:center;
+  font:16px monospace;
 }
-
 #boot h1 {
-  font-size: clamp(28px, 7vw, 55px);
-  letter-spacing: 5px;
-  text-shadow: 0 0 25px #ffc400;
+  font-size:clamp(28px,7vw,55px);
+  letter-spacing:5px;text-shadow:0 0 25px #ffc400;
 }
-
 #bootTrack {
-  width: min(380px, 80vw);
-  height: 10px;
-  border: 1px solid var(--yellow);
+  width:min(380px,80vw);height:10px;
+  border:1px solid var(--yellow);
 }
-
 #bootFill {
-  width: 0;
-  height: 100%;
-  background: var(--yellow);
-  box-shadow: 0 0 15px #ffc400;
+  width:0;height:100%;background:var(--yellow);
+  box-shadow:0 0 15px #ffc400;
 }
-
-#boot.glitch {
-  animation: glitch .12s infinite;
-}
-
+#boot.glitch { animation:glitch .12s infinite; }
 @keyframes glitch {
-  0%, 100% { transform: translate(0); }
-  30% { transform: translate(3px, -2px); }
-  60% { transform: translate(-3px, 2px); }
+  0%,100% { transform:translate(0); }
+  30% { transform:translate(3px,-2px); }
+  60% { transform:translate(-3px,2px); }
 }
-
-@media (max-width: 600px) {
-  #taskbar { gap: 4px; padding: 7px; }
-  .task-button { width: 31px; height: 34px; }
-  .task-button svg { width: 19px; }
-  .window-content { padding: 10px; }
-  .desktop-icon { width: 79px; height: 82px; }
-  .browser-toolbar .btn { padding: 8px; }
+@media(max-width:600px) {
+  #taskbar { gap:4px;padding:7px; }
+  .task-button { width:31px;height:34px; }
+  .task-button svg { width:19px; }
+  .window-content { padding:10px; }
+  .desktop-icon { width:79px;height:82px; }
+  .browser-toolbar .btn { padding:8px; }
 }
 </style>
 </head>
-
 <body>
 
 <div id="desktop"></div>
@@ -459,31 +269,29 @@ textarea {
 <script>
 "use strict";
 
-/* YOUR CLOUDFLARE WORKER */
-
+/* YOUR EXISTING CLOUDFLARE WORKER */
 const WORKER_URL =
   "https://mybrowser-search.gosha7258.workers.dev/";
 
 /* APPLICATIONS */
-
 const APPS = [
-  ["browser", "Browser"],
-  ["files", "Files"],
-  ["editor", "Text Editor"],
-  ["terminal", "Terminal"],
-  ["calculator", "Calculator"],
-  ["cloaking", "Cloaking"],
-  ["about", "About"]
+  ["browser","Browser"],
+  ["files","Files"],
+  ["editor","Text Editor"],
+  ["terminal","Terminal"],
+  ["calculator","Calculator"],
+  ["cloaking","Cloaking"],
+  ["about","About"]
 ];
 
 const ICONS = {
-  browser: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"/>',
-  files: '<path d="M3 7V5h7l2 3h9v11H3z"/>',
-  editor: '<path d="M5 3h10l4 4v14H5zM15 3v5h4M8 12h8M8 16h7"/>',
-  terminal: '<rect x="2" y="3" width="20" height="18" rx="2"/><path d="m6 8 4 4-4 4M12 16h6"/>',
-  calculator: '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 11h2M14 11h2M8 15h2M14 15h2M8 19h8"/>',
-  cloaking: '<path d="M12 3 3 7v5c0 6 4 9 9 10 5-1 9-4 9-10V7zM8 12l3 3 5-6"/>',
-  about: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7v1"/>'
+  browser:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"/>',
+  files:'<path d="M3 7V5h7l2 3h9v11H3z"/>',
+  editor:'<path d="M5 3h10l4 4v14H5zM15 3v5h4M8 12h8M8 16h7"/>',
+  terminal:'<rect x="2" y="3" width="20" height="18" rx="2"/><path d="m6 8 4 4-4 4M12 16h6"/>',
+  calculator:'<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 11h2M14 11h2M8 15h2M14 15h2M8 19h8"/>',
+  cloaking:'<path d="M12 3 3 7v5c0 6 4 9 9 10 5-1 9-4 9-10V7zM8 12l3 3 5-6"/>',
+  about:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7v1"/>'
 };
 
 function iconSVG(id) {
@@ -492,7 +300,6 @@ function iconSVG(id) {
 
 const desktop = document.getElementById("desktop");
 const taskApps = document.getElementById("taskApps");
-
 let topZ = 20;
 let windowCount = 0;
 let positions = {};
@@ -501,7 +308,7 @@ try {
   positions = JSON.parse(
     localStorage.getItem("mybrowser-layout-v3") || "{}"
   );
-} catch (error) {
+} catch {
   positions = {};
 }
 
@@ -512,243 +319,197 @@ function savePositions() {
   );
 }
 
-/* CREATE DESKTOP ICONS */
-
-APPS.forEach(([id, name], index) => {
+/* DESKTOP ICONS */
+APPS.forEach(([id,name],index) => {
   const element = document.createElement("div");
   element.className = "desktop-icon";
   element.innerHTML = iconSVG(id) + "<span>" + name + "</span>";
 
   const fallback = {
-    x: 20 + (index % 3) * 106,
-    y: 20 + Math.floor(index / 3) * 106
+    x:20 + (index % 3)*106,
+    y:20 + Math.floor(index/3)*106
   };
-
   const pos = positions[id] || fallback;
-
   element.style.left = pos.x + "px";
   element.style.top = pos.y + "px";
-
   desktop.appendChild(element);
 
-  let sx = 0, sy = 0, ox = 0, oy = 0;
-  let moved = false;
+  let sx=0,sy=0,ox=0,oy=0,moved=false;
 
-  element.addEventListener("pointerdown", event => {
-    if (event.button !== 0) return;
-
+  element.addEventListener("pointerdown",event => {
+    if(event.button !== 0) return;
     element.setPointerCapture(event.pointerId);
-
-    sx = event.clientX;
-    sy = event.clientY;
-    ox = element.offsetLeft;
-    oy = element.offsetTop;
-    moved = false;
-
+    sx=event.clientX;
+    sy=event.clientY;
+    ox=element.offsetLeft;
+    oy=element.offsetTop;
+    moved=false;
     element.classList.add("dragging");
   });
 
-  element.addEventListener("pointermove", event => {
-    if (!element.hasPointerCapture(event.pointerId)) return;
+  element.addEventListener("pointermove",event => {
+    if(!element.hasPointerCapture(event.pointerId)) return;
+    const dx=event.clientX-sx;
+    const dy=event.clientY-sy;
+    if(Math.abs(dx)+Math.abs(dy)>6) moved=true;
+    if(!moved) return;
 
-    const dx = event.clientX - sx;
-    const dy = event.clientY - sy;
-
-    if (Math.abs(dx) + Math.abs(dy) > 6) {
-      moved = true;
-    }
-
-    if (!moved) return;
-
-    const x = Math.max(0, Math.min(
-      innerWidth - element.offsetWidth,
-      ox + dx
+    const x=Math.max(0,Math.min(
+      innerWidth-element.offsetWidth,ox+dx
     ));
-
-    const y = Math.max(0, Math.min(
-      innerHeight - 100 - element.offsetHeight,
-      oy + dy
+    const y=Math.max(0,Math.min(
+      innerHeight-100-element.offsetHeight,oy+dy
     ));
-
-    element.style.left = x + "px";
-    element.style.top = y + "px";
+    element.style.left=x+"px";
+    element.style.top=y+"px";
   });
 
-  element.addEventListener("pointerup", () => {
+  element.addEventListener("pointerup",() => {
     element.classList.remove("dragging");
-
-    positions[id] = {
-      x: element.offsetLeft,
-      y: element.offsetTop
+    positions[id]={
+      x:element.offsetLeft,
+      y:element.offsetTop
     };
-
     savePositions();
-
-    if (!moved) openApp(id);
+    if(!moved) openApp(id);
   });
 
-  const taskButton = document.createElement("button");
-  taskButton.className = "task-button";
-  taskButton.title = name;
-  taskButton.innerHTML = iconSVG(id);
-  taskButton.onclick = () => openApp(id);
-
+  const taskButton=document.createElement("button");
+  taskButton.className="task-button";
+  taskButton.title=name;
+  taskButton.innerHTML=iconSVG(id);
+  taskButton.onclick=()=>openApp(id);
   taskApps.appendChild(taskButton);
 });
 
 /* WINDOW MANAGER */
-
-function makeWindow(id, title) {
-  const existing = document.querySelector(
-    '.window[data-app="' + id + '"]'
+function makeWindow(id,title) {
+  const existing=document.querySelector(
+    '.window[data-app="'+id+'"]'
   );
-
-  if (existing) {
-    existing.style.zIndex = ++topZ;
+  if(existing) {
+    existing.style.zIndex=++topZ;
     return null;
   }
 
-  const win = document.createElement("div");
-  win.className = "window";
-  win.dataset.app = id;
+  const win=document.createElement("div");
+  win.className="window";
+  win.dataset.app=id;
+  win.style.left=Math.max(5,Math.min(
+    innerWidth-300,100+windowCount*26
+  ))+"px";
+  win.style.top=Math.max(5,Math.min(
+    innerHeight-200,50+windowCount*22
+  ))+"px";
+  win.style.zIndex=++topZ;
+  windowCount=(windowCount+1)%9;
 
-  win.style.left = Math.max(5, Math.min(
-    innerWidth - 300,
-    100 + windowCount * 26
-  )) + "px";
+  const bar=document.createElement("div");
+  bar.className="titlebar";
 
-  win.style.top = Math.max(5, Math.min(
-    innerHeight - 200,
-    50 + windowCount * 22
-  )) + "px";
+  const heading=document.createElement("span");
+  heading.textContent="◆ "+title.toUpperCase();
 
-  win.style.zIndex = ++topZ;
-  windowCount = (windowCount + 1) % 9;
+  const controls=document.createElement("div");
+  controls.className="window-controls";
 
-  const bar = document.createElement("div");
-  bar.className = "titlebar";
+  const maximize=document.createElement("button");
+  maximize.textContent="□";
+  maximize.title="Maximize";
+  let savedSize=null;
 
-  const heading = document.createElement("span");
-  heading.textContent = "◆ " + title.toUpperCase();
-
-  const controls = document.createElement("div");
-  controls.className = "window-controls";
-
-  const maximize = document.createElement("button");
-  maximize.textContent = "□";
-  maximize.title = "Maximize";
-
-  let savedSize = null;
-
-  maximize.onclick = () => {
-    if (!savedSize) {
-      savedSize = {
-        left: win.style.left,
-        top: win.style.top,
-        width: win.style.width,
-        height: win.style.height
+  maximize.onclick=()=>{
+    if(!savedSize) {
+      savedSize={
+        left:win.style.left,
+        top:win.style.top,
+        width:win.style.width,
+        height:win.style.height
       };
-
-      win.style.left = "0";
-      win.style.top = "0";
-      win.style.width = "100vw";
-      win.style.height = "calc(100vh - 80px)";
-      win.style.maxWidth = "none";
+      win.style.left="0";
+      win.style.top="0";
+      win.style.width="100vw";
+      win.style.height="calc(100vh - 80px)";
+      win.style.maxWidth="none";
     } else {
-      win.style.left = savedSize.left;
-      win.style.top = savedSize.top;
-      win.style.width = savedSize.width;
-      win.style.height = savedSize.height;
-      win.style.maxWidth = "96vw";
-      savedSize = null;
+      win.style.left=savedSize.left;
+      win.style.top=savedSize.top;
+      win.style.width=savedSize.width;
+      win.style.height=savedSize.height;
+      win.style.maxWidth="96vw";
+      savedSize=null;
     }
   };
 
-  const close = document.createElement("button");
-  close.className = "close";
-  close.textContent = "✕";
-  close.onclick = () => win.remove();
+  const close=document.createElement("button");
+  close.className="close";
+  close.textContent="✕";
+  close.onclick=()=>win.remove();
 
-  controls.append(maximize, close);
-  bar.append(heading, controls);
+  controls.append(maximize,close);
+  bar.append(heading,controls);
 
-  const area = document.createElement("div");
-  area.className = "window-content";
-
-  win.append(bar, area);
+  const area=document.createElement("div");
+  area.className="window-content";
+  win.append(bar,area);
   document.body.appendChild(win);
 
-  win.addEventListener("pointerdown", () => {
-    win.style.zIndex = ++topZ;
+  win.addEventListener("pointerdown",()=>{
+    win.style.zIndex=++topZ;
   });
 
-  let dragging = false;
-  let sx = 0, sy = 0, ox = 0, oy = 0;
+  let dragging=false,sx=0,sy=0,ox=0,oy=0;
 
-  bar.addEventListener("pointerdown", event => {
-    if (event.target.closest("button")) return;
-
-    dragging = true;
-
-    sx = event.clientX;
-    sy = event.clientY;
-    ox = win.offsetLeft;
-    oy = win.offsetTop;
-
+  bar.addEventListener("pointerdown",event=>{
+    if(event.target.closest("button")) return;
+    dragging=true;
+    sx=event.clientX;
+    sy=event.clientY;
+    ox=win.offsetLeft;
+    oy=win.offsetTop;
     bar.setPointerCapture(event.pointerId);
   });
 
-  bar.addEventListener("pointermove", event => {
-    if (!dragging || savedSize) return;
-
-    win.style.left = Math.max(0, Math.min(
-      innerWidth - 90,
-      ox + event.clientX - sx
-    )) + "px";
-
-    win.style.top = Math.max(0, Math.min(
-      innerHeight - 90,
-      oy + event.clientY - sy
-    )) + "px";
+  bar.addEventListener("pointermove",event=>{
+    if(!dragging || savedSize) return;
+    win.style.left=Math.max(0,Math.min(
+      innerWidth-90,ox+event.clientX-sx
+    ))+"px";
+    win.style.top=Math.max(0,Math.min(
+      innerHeight-90,oy+event.clientY-sy
+    ))+"px";
   });
 
-  bar.addEventListener("pointerup", () => {
-    dragging = false;
-  });
-
-  bar.addEventListener("pointercancel", () => {
-    dragging = false;
-  });
+  bar.addEventListener("pointerup",()=>dragging=false);
+  bar.addEventListener("pointercancel",()=>dragging=false);
 
   return area;
 }
 
 function openApp(id) {
-  const name = APPS.find(app => app[0] === id)?.[1];
-  if (!name) return;
+  const name=APPS.find(app=>app[0]===id)?.[1];
+  if(!name) return;
+  const area=makeWindow(id,name);
+  if(!area) return;
 
-  const area = makeWindow(id, name);
-  if (!area) return;
-
-  if (id === "browser") browserApp(area);
-  if (id === "files") filesApp(area);
-  if (id === "editor") editorApp(area);
-  if (id === "terminal") terminalApp(area);
-  if (id === "calculator") calculatorApp(area);
-  if (id === "cloaking") cloakingApp(area);
-  if (id === "about") aboutApp(area);
+  if(id==="browser") browserApp(area);
+  if(id==="files") filesApp(area);
+  if(id==="editor") editorApp(area);
+  if(id==="terminal") terminalApp(area);
+  if(id==="calculator") calculatorApp(area);
+  if(id==="cloaking") cloakingApp(area);
+  if(id==="about") aboutApp(area);
 }
 
-/* BROWSER WITH TAVILY AND INTERNAL WEBSITE VIEWER */
-
+/* BROWSER: TAVILY + JINA */
 function browserApp(area) {
-  let history = [];
-  let historyIndex = -1;
-  let currentURL = "";
-  let mode = "home";
-  let searchRequest = 0;
+  let history=[];
+  let historyIndex=-1;
+  let currentURL="";
+  let mode="home";
+  let requestNumber=0;
 
-  area.innerHTML = `
+  area.innerHTML=`
     <div class="browser-toolbar">
       <button class="btn" id="backBtn" title="Back">←</button>
       <button class="btn" id="forwardBtn" title="Forward">→</button>
@@ -758,247 +519,306 @@ function browserApp(area) {
         placeholder="Search the web or enter a URL">
       <button class="primary" id="goBtn">GO</button>
     </div>
-
     <div class="browser-page" id="browserPage"></div>
-
     <div class="muted" id="browserStatus">
       MYBROWSER // READY
     </div>
   `;
 
-  const page = area.querySelector("#browserPage");
-  const address = area.querySelector("#address");
-  const status = area.querySelector("#browserStatus");
-
-  const backBtn = area.querySelector("#backBtn");
-  const forwardBtn = area.querySelector("#forwardBtn");
+  const page=area.querySelector("#browserPage");
+  const address=area.querySelector("#address");
+  const status=area.querySelector("#browserStatus");
+  const backBtn=area.querySelector("#backBtn");
+  const forwardBtn=area.querySelector("#forwardBtn");
 
   function updateButtons() {
-    backBtn.disabled = historyIndex <= 0;
-    forwardBtn.disabled =
-      historyIndex >= history.length - 1;
+    backBtn.disabled=historyIndex<=0;
+    forwardBtn.disabled=historyIndex>=history.length-1;
   }
 
   function record(entry) {
-    history = history.slice(0, historyIndex + 1);
+    history=history.slice(0,historyIndex+1);
     history.push(entry);
-    historyIndex = history.length - 1;
+    historyIndex=history.length-1;
     updateButtons();
   }
 
-  function showHome(addHistory = true) {
-    searchRequest++;
-    mode = "home";
-    currentURL = "";
-    address.value = "";
-
-    page.innerHTML = `
+  function showHome(addHistory=true) {
+    requestNumber++;
+    mode="home";
+    currentURL="";
+    address.value="";
+    page.innerHTML=`
       <div class="browser-home">
         <h1>MYBROWSER</h1>
-        <p class="muted">
-          WEB SEARCH // POWERED BY TAVILY
-        </p>
+        <p class="muted">WEB SEARCH // POWERED BY TAVILY</p>
         <p class="muted">
           Search for websites or enter an address above.
         </p>
       </div>
     `;
-
-    status.textContent = "MYBROWSER // HOME";
-
-    if (addHistory) record({type: "home"});
+    status.textContent="MYBROWSER // HOME";
+    if(addHistory) record({type:"home"});
   }
 
-  async function searchWeb(query, addHistory = true) {
-    const requestId = ++searchRequest;
+  async function searchWeb(query,addHistory=true) {
+    const thisRequest=++requestNumber;
+    mode="search";
+    currentURL="";
+    address.value=query;
 
-    mode = "search";
-    currentURL = "";
-    address.value = query;
-
-    if (addHistory) {
-      record({type: "search", value: query});
+    if(addHistory) {
+      record({type:"search",value:query});
     }
 
     page.replaceChildren();
-    status.textContent = "Searching Tavily...";
+    status.textContent="Searching Tavily...";
 
-    const heading = document.createElement("h2");
-    heading.textContent = "Search results: " + query;
-    heading.style.padding = "16px";
+    const heading=document.createElement("h2");
+    heading.textContent="Search results: "+query;
+    heading.style.padding="16px";
     page.appendChild(heading);
 
     try {
-      const response = await fetch(WORKER_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({query})
+      const response=await fetch(WORKER_URL,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          action:"search",
+          query:query
+        })
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Search failed");
+      const data=await response.json();
+      if(!response.ok) {
+        throw new Error(data.error||"Search failed");
       }
+      if(thisRequest!==requestNumber) return;
 
-      if (requestId !== searchRequest) return;
+      const items=data.results||[];
+      status.textContent=items.length+" results found";
 
-      const items = data.results || [];
-
-      status.textContent = items.length + " results found";
-
-      if (!items.length) {
-        const empty = document.createElement("p");
-        empty.className = "muted";
-        empty.style.padding = "16px";
-        empty.textContent = "No results found.";
+      if(!items.length) {
+        const empty=document.createElement("p");
+        empty.className="muted";
+        empty.style.padding="16px";
+        empty.textContent="No results found.";
         page.appendChild(empty);
       }
 
-      for (const item of items) {
-        const card = document.createElement("div");
-        card.className = "result";
+      for(const item of items) {
+        const card=document.createElement("div");
+        card.className="result";
 
-        const title = document.createElement("h3");
-        title.textContent = item.title || "Untitled";
+        const title=document.createElement("h3");
+        title.textContent=item.title||"Untitled";
 
-        const urlText = document.createElement("div");
-        urlText.className = "result-url";
-        urlText.textContent = item.url || "";
+        const urlText=document.createElement("div");
+        urlText.className="result-url";
+        urlText.textContent=item.url||"";
 
-        const description = document.createElement("p");
-        description.textContent = item.description || "";
+        const description=document.createElement("p");
+        description.textContent=item.description||"";
 
-        const open = document.createElement("button");
-        open.className = "primary";
-        open.textContent = "OPEN IN MYBROWSER";
-        open.onclick = () => navigate(item.url);
+        const buttons=document.createElement("div");
+        buttons.className="row";
+        buttons.style.flexWrap="wrap";
 
-        card.append(title, urlText, description, open);
+        const open=document.createElement("button");
+        open.className="primary";
+        open.textContent="OPEN IN MYBROWSER";
+        open.onclick=()=>navigate(item.url);
+
+        const read=document.createElement("button");
+        read.className="btn";
+        read.textContent="READ PAGE";
+        read.onclick=()=>readPage(item.url);
+
+        buttons.append(open,read);
+        card.append(title,urlText,description,buttons);
         page.appendChild(card);
       }
 
-    } catch (error) {
-      if (requestId !== searchRequest) return;
-
-      status.textContent =
-        "Search failed: " + error.message +
+    } catch(error) {
+      if(thisRequest!==requestNumber) return;
+      status.textContent=
+        "Search failed: "+error.message+
         ". Check your Cloudflare Worker connection.";
     }
   }
 
-  function navigate(url, addHistory = true) {
+  function navigate(url,addHistory=true) {
     let parsed;
-
     try {
-      parsed = new URL(url);
-
-      if (!["https:", "http:"].includes(parsed.protocol)) {
+      parsed=new URL(url);
+      if(!["https:","http:"].includes(parsed.protocol)) {
         throw new Error("Unsupported URL");
       }
-    } catch (error) {
-      status.textContent = "Invalid website address.";
+    } catch {
+      status.textContent="Invalid website address.";
       return;
     }
 
-    searchRequest++;
-    mode = "website";
-    currentURL = parsed.href;
-    address.value = currentURL;
+    requestNumber++;
+    mode="website";
+    currentURL=parsed.href;
+    address.value=currentURL;
 
-    if (addHistory) {
-      record({type: "website", value: currentURL});
+    if(addHistory) {
+      record({type:"website",value:currentURL});
     }
 
     page.replaceChildren();
 
-    const frame = document.createElement("iframe");
-    frame.className = "website-frame";
-    frame.title = "MyBrowser Website Viewer";
-    frame.src = currentURL;
-    frame.referrerPolicy = "no-referrer";
-
+    const frame=document.createElement("iframe");
+    frame.className="website-frame";
+    frame.title="MyBrowser Website Viewer";
+    frame.src=currentURL;
+    frame.referrerPolicy="no-referrer";
     page.appendChild(frame);
 
-    status.textContent =
-      "Viewing " + parsed.hostname +
+    status.textContent=
+      "Viewing "+parsed.hostname+
       " — some websites may refuse embedded viewing.";
+  }
 
-    // Cross-origin security means we cannot reliably
-    // detect whether a website rejected iframe embedding.
+  async function readPage(url,addHistory=true) {
+    let parsed;
+    try {
+      parsed=new URL(url);
+      if(!["https:","http:"].includes(parsed.protocol)) {
+        throw new Error("Unsupported URL");
+      }
+    } catch {
+      status.textContent="Invalid website address.";
+      return;
+    }
+
+    const thisRequest=++requestNumber;
+    mode="read";
+    currentURL=parsed.href;
+    address.value=currentURL;
+
+    if(addHistory) {
+      record({type:"read",value:currentURL});
+    }
+
+    page.replaceChildren();
+
+    const heading=document.createElement("h2");
+    heading.textContent="READ PAGE // "+parsed.hostname;
+    heading.style.padding="16px 16px 0";
+
+    const content=document.createElement("div");
+    content.className="read-content";
+    content.textContent="Loading readable content...";
+
+    page.append(heading,content);
+    status.textContent="Reading page with Jina AI...";
+
+    try {
+      const response=await fetch(WORKER_URL,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          action:"read",
+          url:parsed.href
+        })
+      });
+
+      const data=await response.json();
+
+      if(!response.ok) {
+        throw new Error(
+          data.error||"Could not retrieve this page"
+        );
+      }
+
+      if(thisRequest!==requestNumber) return;
+
+      content.textContent=
+        data.content||"No readable content was found.";
+
+      status.textContent=
+        "READ PAGE // "+parsed.hostname;
+
+    } catch(error) {
+      if(thisRequest!==requestNumber) return;
+      content.textContent=
+        "Unable to read this page: "+error.message;
+      status.textContent="READ PAGE // FAILED";
+    }
   }
 
   function restoreHistory() {
-    const entry = history[historyIndex];
-    if (!entry) return;
+    const entry=history[historyIndex];
+    if(!entry) return;
 
-    if (entry.type === "home") {
+    if(entry.type==="home") {
       showHome(false);
-    } else if (entry.type === "search") {
-      searchWeb(entry.value, false);
-    } else if (entry.type === "website") {
-      navigate(entry.value, false);
+    } else if(entry.type==="search") {
+      searchWeb(entry.value,false);
+    } else if(entry.type==="website") {
+      navigate(entry.value,false);
+    } else if(entry.type==="read") {
+      readPage(entry.value,false);
     }
 
     updateButtons();
   }
 
   function go() {
-    const value = address.value.trim();
-    if (!value) return;
+    const value=address.value.trim();
+    if(!value) return;
 
-    if (/^https?:\/\//i.test(value)) {
+    if(/^https?:\/\//i.test(value)) {
       navigate(value);
-    } else if (
+    } else if(
       /^[^\s]+\.[a-z]{2,}(?:[/:?#].*)?$/i.test(value)
     ) {
-      navigate("https://" + value);
+      navigate("https://"+value);
     } else {
       searchWeb(value);
     }
   }
 
-  area.querySelector("#goBtn").onclick = go;
+  area.querySelector("#goBtn").onclick=go;
 
-  address.onkeydown = event => {
-    if (event.key === "Enter") go();
+  address.onkeydown=event=>{
+    if(event.key==="Enter") go();
   };
 
-  backBtn.onclick = () => {
-    if (historyIndex > 0) {
+  backBtn.onclick=()=>{
+    if(historyIndex>0) {
       historyIndex--;
       restoreHistory();
     }
   };
 
-  forwardBtn.onclick = () => {
-    if (historyIndex < history.length - 1) {
+  forwardBtn.onclick=()=>{
+    if(historyIndex<history.length-1) {
       historyIndex++;
       restoreHistory();
     }
   };
 
-  area.querySelector("#refreshBtn").onclick = () => {
-    if (mode === "website") {
-      navigate(currentURL, false);
+  area.querySelector("#refreshBtn").onclick=()=>{
+    if(mode==="website") {
+      navigate(currentURL,false);
+    } else if(mode==="read") {
+      readPage(currentURL,false);
     } else {
       restoreHistory();
     }
   };
 
-  area.querySelector("#homeBtn").onclick = () => {
-    showHome();
-  };
-
+  area.querySelector("#homeBtn").onclick=()=>showHome();
   showHome();
 }
 
 /* FILE MANAGER */
-
 function filesApp(area) {
-  area.innerHTML = `
+  area.innerHTML=`
     <h2>FILE MANAGER</h2>
     <p class="muted">
       Choose files from your device to inspect them.
@@ -1007,24 +827,23 @@ function filesApp(area) {
     <div id="fileList"></div>
   `;
 
-  area.querySelector("#filePicker").onchange = event => {
-    const list = area.querySelector("#fileList");
+  area.querySelector("#filePicker").onchange=event=>{
+    const list=area.querySelector("#fileList");
     list.replaceChildren();
 
-    for (const file of event.target.files) {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.textContent =
-        file.name + " — " + file.size + " bytes";
+    for(const file of event.target.files) {
+      const card=document.createElement("div");
+      card.className="card";
+      card.textContent=
+        file.name+" — "+file.size+" bytes";
       list.appendChild(card);
     }
   };
 }
 
 /* TEXT EDITOR */
-
 function editorApp(area) {
-  area.innerHTML = `
+  area.innerHTML=`
     <h2>TEXT EDITOR</h2>
     <p class="muted">Your notes are saved locally.</p>
     <textarea id="notes"
@@ -1035,19 +854,19 @@ function editorApp(area) {
     </div>
   `;
 
-  const notes = area.querySelector("#notes");
-  notes.value = localStorage.getItem("mybrowser-notes") || "";
+  const notes=area.querySelector("#notes");
+  notes.value=
+    localStorage.getItem("mybrowser-notes")||"";
 
-  area.querySelector("#saveNotes").onclick = () => {
-    localStorage.setItem("mybrowser-notes", notes.value);
-    area.querySelector("#saveStatus").textContent = "Saved!";
+  area.querySelector("#saveNotes").onclick=()=>{
+    localStorage.setItem("mybrowser-notes",notes.value);
+    area.querySelector("#saveStatus").textContent="Saved!";
   };
 }
 
 /* SIMULATED TERMINAL */
-
 function terminalApp(area) {
-  area.innerHTML = `
+  area.innerHTML=`
     <h2>TERMINAL</h2>
     <div class="terminal-output" id="output">MYBROWSER TERMINAL v1.0
 Type HELP for commands.
@@ -1057,188 +876,169 @@ Type HELP for commands.
       placeholder="Enter command...">
   `;
 
-  const output = area.querySelector("#output");
-  const input = area.querySelector("#command");
+  const output=area.querySelector("#output");
+  const input=area.querySelector("#command");
 
-  input.onkeydown = event => {
-    if (event.key !== "Enter") return;
+  input.onkeydown=event=>{
+    if(event.key!=="Enter") return;
 
-    const command = input.value.trim();
-    const cmd = command.toLowerCase();
-    input.value = "";
+    const command=input.value.trim();
+    const cmd=command.toLowerCase();
+    input.value="";
 
-    if (cmd === "clear") {
-      output.textContent = "";
+    if(cmd==="clear") {
+      output.textContent="";
       return;
     }
 
-    let answer = "Unknown command. Type HELP.";
+    let answer="Unknown command. Type HELP.";
 
-    if (cmd === "help") {
-      answer =
-        "HELP, DATE, TIME, ABOUT, APPS, CLEAR, REBOOT, ECHO";
-    } else if (cmd === "date") {
-      answer = new Date().toDateString();
-    } else if (cmd === "time") {
-      answer = new Date().toLocaleTimeString();
-    } else if (cmd === "about") {
-      answer = "MyBrowser // Custom Web Desktop";
-    } else if (cmd === "apps") {
-      answer = APPS.map(app => app[1]).join(", ");
-    } else if (cmd === "reboot") {
+    if(cmd==="help") {
+      answer="HELP, DATE, TIME, ABOUT, APPS, CLEAR, REBOOT, ECHO";
+    } else if(cmd==="date") {
+      answer=new Date().toDateString();
+    } else if(cmd==="time") {
+      answer=new Date().toLocaleTimeString();
+    } else if(cmd==="about") {
+      answer="MyBrowser // Custom Web Desktop";
+    } else if(cmd==="apps") {
+      answer=APPS.map(app=>app[1]).join(", ");
+    } else if(cmd==="reboot") {
       location.reload();
       return;
-    } else if (cmd.startsWith("echo ")) {
-      answer = command.slice(5);
+    } else if(cmd.startsWith("echo ")) {
+      answer=command.slice(5);
     }
 
-    output.textContent +=
-      "> " + command + "\n" + answer + "\n\n";
-
-    output.scrollTop = output.scrollHeight;
+    output.textContent+=
+      "> "+command+"\n"+answer+"\n\n";
+    output.scrollTop=output.scrollHeight;
   };
 }
 
 /* CALCULATOR */
-
 function calculatorApp(area) {
-  area.innerHTML = `
+  area.innerHTML=`
     <h2>CALCULATOR</h2>
     <input class="field" id="display" readonly value="0"
       style="font-size:25px;text-align:right">
     <div class="calculator-grid" id="keys"></div>
   `;
 
-  const display = area.querySelector("#display");
-  const keys = area.querySelector("#keys");
+  const display=area.querySelector("#display");
+  const keys=area.querySelector("#keys");
 
-  const labels = [
-    "7", "8", "9", "÷",
-    "4", "5", "6", "×",
-    "1", "2", "3", "−",
-    "C", "0", ".", "+",
-    "(", ")", "⌫", "="
+  const labels=[
+    "7","8","9","÷",
+    "4","5","6","×",
+    "1","2","3","−",
+    "C","0",".","+",
+    "(",")","⌫","="
   ];
 
-  let expression = "";
+  let expression="";
 
-  labels.forEach(label => {
-    const button = document.createElement("button");
-    button.textContent = label;
+  labels.forEach(label=>{
+    const button=document.createElement("button");
+    button.textContent=label;
 
-    button.onclick = () => {
-      if (label === "C") {
-        expression = "";
-      } else if (label === "⌫") {
-        expression = expression.slice(0, -1);
-      } else if (label === "=") {
+    button.onclick=()=>{
+      if(label==="C") {
+        expression="";
+      } else if(label==="⌫") {
+        expression=expression.slice(0,-1);
+      } else if(label==="=") {
         try {
-          const normalized = expression
-            .replaceAll("×", "*")
-            .replaceAll("÷", "/")
-            .replaceAll("−", "-");
+          const normalized=expression
+            .replaceAll("×","*")
+            .replaceAll("÷","/")
+            .replaceAll("−","-");
 
-          if (!/^[0-9+\-*/().\s]+$/.test(normalized)) {
+          if(!/^[0-9+\-*/().\s]+$/.test(normalized)) {
             throw new Error("Invalid");
           }
 
-          const tokens = normalized.match(
+          const tokens=normalized.match(
             /\d+(?:\.\d+)?|\.\d+|[()+\-*/]/g
           );
 
-          if (
+          if(
             !tokens ||
-            tokens.join("") !== normalized.replace(/\s/g, "")
+            tokens.join("")!==normalized.replace(/\s/g,"")
           ) {
             throw new Error("Invalid");
           }
 
-          let index = 0;
+          let index=0;
 
           function parseExpression() {
-            let value = parseTerm();
-
-            while (
-              tokens[index] === "+" ||
-              tokens[index] === "-"
+            let value=parseTerm();
+            while(
+              tokens[index]==="+" ||
+              tokens[index]==="-"
             ) {
-              const operator = tokens[index++];
-              const next = parseTerm();
-
-              value = operator === "+"
-                ? value + next
-                : value - next;
+              const op=tokens[index++];
+              const next=parseTerm();
+              value=op==="+"?value+next:value-next;
             }
-
             return value;
           }
 
           function parseTerm() {
-            let value = parseFactor();
-
-            while (
-              tokens[index] === "*" ||
-              tokens[index] === "/"
+            let value=parseFactor();
+            while(
+              tokens[index]==="*" ||
+              tokens[index]==="/"
             ) {
-              const operator = tokens[index++];
-              const next = parseFactor();
-
-              value = operator === "*"
-                ? value * next
-                : value / next;
+              const op=tokens[index++];
+              const next=parseFactor();
+              value=op==="*"?value*next:value/next;
             }
-
             return value;
           }
 
           function parseFactor() {
-            const token = tokens[index++];
+            const token=tokens[index++];
+            if(token==="+") return parseFactor();
+            if(token==="-") return -parseFactor();
 
-            if (token === "+") return parseFactor();
-            if (token === "-") return -parseFactor();
-
-            if (token === "(") {
-              const value = parseExpression();
-
-              if (tokens[index++] !== ")") {
+            if(token==="(") {
+              const value=parseExpression();
+              if(tokens[index++]!==")") {
                 throw new Error("Missing parenthesis");
               }
-
               return value;
             }
 
-            const value = Number(token);
-
-            if (!Number.isFinite(value)) {
+            const value=Number(token);
+            if(!Number.isFinite(value)) {
               throw new Error("Invalid number");
             }
-
             return value;
           }
 
-          const result = parseExpression();
-
-          if (
-            index !== tokens.length ||
+          const result=parseExpression();
+          if(
+            index!==tokens.length ||
             !Number.isFinite(result)
           ) {
             throw new Error("Invalid result");
           }
 
-          expression = String(
+          expression=String(
             Number(result.toPrecision(12))
           );
 
-        } catch (error) {
-          expression = "";
-          display.value = "ERROR";
+        } catch {
+          expression="";
+          display.value="ERROR";
           return;
         }
       } else {
-        expression += label;
+        expression+=label;
       }
 
-      display.value = expression || "0";
+      display.value=expression||"0";
     };
 
     keys.appendChild(button);
@@ -1246,43 +1046,40 @@ function calculatorApp(area) {
 }
 
 /* TAB CUSTOMIZATION */
+const DEFAULT_ICON="data:,";
 
-const DEFAULT_ICON = "data:,";
-
-const PRESETS = {
-  "MyBrowser": "MyBrowser",
-  "Study Workspace": "Study Workspace",
-  "Learning Hub": "Learning Hub",
-  "Documents": "Documents",
-  "System Core": "System Core"
+const PRESETS={
+  "MyBrowser":"MyBrowser",
+  "Study Workspace":"Study Workspace",
+  "Learning Hub":"Learning Hub",
+  "Documents":"Documents",
+  "System Core":"System Core"
 };
 
-function setTab(title, icon) {
-  document.title = title;
-  document.getElementById("tabIcon").href =
-    icon || DEFAULT_ICON;
+function setTab(title,icon) {
+  document.title=title;
+  document.getElementById("tabIcon").href=
+    icon||DEFAULT_ICON;
 }
 
 function restoreTab() {
   try {
-    const saved = JSON.parse(
+    const saved=JSON.parse(
       localStorage.getItem("mybrowser-cloak")
     );
-
-    if (saved && saved.title) {
-      setTab(saved.title, saved.icon);
+    if(saved&&saved.title) {
+      setTab(saved.title,saved.icon);
     }
-  } catch (error) {}
+  } catch {}
 }
 
 function cloakingApp(area) {
-  area.innerHTML = `
+  area.innerHTML=`
     <h2>TAB CUSTOMIZATION</h2>
     <p class="muted">
       Customize this tab's title and icon.
       This does not change its actual URL.
     </p>
-
     <div class="card">
       <p>Preset</p>
       <select class="field" id="preset">
@@ -1293,16 +1090,11 @@ function cloakingApp(area) {
         <option>System Core</option>
         <option>Custom</option>
       </select>
-
       <p>Tab title</p>
       <input class="field" id="customTitle">
-
       <p>Custom favicon URL</p>
-      <input class="field" id="customIcon"
-        value="https://">
-
+      <input class="field" id="customIcon" value="https://">
       <p class="muted" id="preview"></p>
-
       <div class="row" style="flex-wrap:wrap">
         <button class="primary" id="apply">
           APPLY CLOAK
@@ -1311,101 +1103,91 @@ function cloakingApp(area) {
           RESET TO DEFAULT
         </button>
       </div>
-
       <p class="muted" id="cloakStatus"></p>
     </div>
   `;
 
-  const preset = area.querySelector("#preset");
-  const title = area.querySelector("#customTitle");
-  const icon = area.querySelector("#customIcon");
-  const preview = area.querySelector("#preview");
-  const status = area.querySelector("#cloakStatus");
+  const preset=area.querySelector("#preset");
+  const title=area.querySelector("#customTitle");
+  const icon=area.querySelector("#customIcon");
+  const preview=area.querySelector("#preview");
+  const status=area.querySelector("#cloakStatus");
 
   function updatePreview() {
-    preview.textContent =
-      "Preview: " + (title.value.trim() || "Custom");
+    preview.textContent=
+      "Preview: "+(title.value.trim()||"Custom");
   }
 
-  preset.onchange = () => {
-    if (preset.value !== "Custom") {
-      title.value = PRESETS[preset.value];
-      icon.value = "https://";
+  preset.onchange=()=>{
+    if(preset.value!=="Custom") {
+      title.value=PRESETS[preset.value];
+      icon.value="https://";
     }
-
     updatePreview();
   };
 
-  title.oninput = updatePreview;
+  title.oninput=updatePreview;
   preset.onchange();
 
-  area.querySelector("#apply").onclick = () => {
-    const newTitle = title.value.trim();
-
-    if (!newTitle) {
-      status.textContent = "Enter a title.";
+  area.querySelector("#apply").onclick=()=>{
+    const newTitle=title.value.trim();
+    if(!newTitle) {
+      status.textContent="Enter a title.";
       return;
     }
 
-    let newIcon = DEFAULT_ICON;
+    let newIcon=DEFAULT_ICON;
 
-    if (icon.value.trim() !== "https://") {
+    if(icon.value.trim()!=="https://") {
       try {
-        const parsed = new URL(icon.value.trim());
-
-        if (parsed.protocol !== "https:") {
+        const parsed=new URL(icon.value.trim());
+        if(parsed.protocol!=="https:") {
           throw new Error("HTTPS required");
         }
-
-        newIcon = parsed.href;
-      } catch (error) {
-        status.textContent =
+        newIcon=parsed.href;
+      } catch {
+        status.textContent=
           "Enter a valid HTTPS favicon URL.";
         return;
       }
     }
 
-    setTab(newTitle, newIcon);
+    setTab(newTitle,newIcon);
 
     localStorage.setItem(
       "mybrowser-cloak",
       JSON.stringify({
-        title: newTitle,
-        icon: newIcon
+        title:newTitle,
+        icon:newIcon
       })
     );
 
-    status.textContent = "Cloak applied successfully.";
+    status.textContent="Cloak applied successfully.";
   };
 
-  area.querySelector("#reset").onclick = () => {
+  area.querySelector("#reset").onclick=()=>{
     localStorage.removeItem("mybrowser-cloak");
-
-    setTab("MyBrowser", DEFAULT_ICON);
-
-    preset.value = "MyBrowser";
+    setTab("MyBrowser",DEFAULT_ICON);
+    preset.value="MyBrowser";
     preset.onchange();
-
-    status.textContent = "Restored default tab.";
+    status.textContent="Restored default tab.";
   };
 }
 
 /* ABOUT */
-
 function aboutApp(area) {
-  area.innerHTML = `
+  area.innerHTML=`
     <h2>ABOUT MYBROWSER</h2>
-
     <div class="card">
       <h3>MYBROWSER // SYSTEM CORE</h3>
       <p>Custom yellow-and-black web desktop.</p>
       <p>Search provider: Tavily</p>
+      <p>Page reader: Jina AI Reader</p>
       <p>Backend: Cloudflare Workers</p>
       <p>Hosting: GitHub Pages</p>
       <p>Website viewer: Embedded iframe</p>
       <p>Version: 2.0</p>
     </div>
-
     <p class="muted">
       MyBrowser runs inside Chrome.
       Websites may block iframe embedding,
@@ -1415,65 +1197,55 @@ function aboutApp(area) {
 }
 
 /* CLOCK */
-
 function updateClock() {
-  document.getElementById("clock").textContent =
-    new Date().toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit"
+  document.getElementById("clock").textContent=
+    new Date().toLocaleTimeString([],{
+      hour:"2-digit",
+      minute:"2-digit"
     });
 }
-
 updateClock();
-setInterval(updateClock, 15000);
+setInterval(updateClock,15000);
 
 /* RANDOM REBOOT */
-
 function reboot() {
-  const boot = document.getElementById("boot");
-  const fill = document.getElementById("bootFill");
-  const text = document.getElementById("bootText");
+  const boot=document.getElementById("boot");
+  const fill=document.getElementById("bootFill");
+  const text=document.getElementById("bootText");
 
-  const failed = Math.random() < 0.5;
-  let progress = 0;
+  const failed=Math.random()<0.5;
+  let progress=0;
 
-  const timer = setInterval(() => {
-    progress = Math.min(
+  const timer=setInterval(()=>{
+    progress=Math.min(
       100,
-      progress + Math.random() * 16 + 5
+      progress+Math.random()*16+5
     );
+    fill.style.width=progress+"%";
 
-    fill.style.width = progress + "%";
-
-    if (progress < 35) {
-      text.textContent = "LOADING SYSTEM MODULES...";
-    } else if (progress < 70) {
-      text.textContent = "CONNECTING DESKTOP...";
+    if(progress<35) {
+      text.textContent="LOADING SYSTEM MODULES...";
+    } else if(progress<70) {
+      text.textContent="CONNECTING DESKTOP...";
     } else {
-      text.textContent = "FINALIZING BOOT...";
+      text.textContent="FINALIZING BOOT...";
     }
 
-    if (progress >= 100) {
+    if(progress>=100) {
       clearInterval(timer);
-
       boot.classList.add("glitch");
+      text.textContent=failed
+        ?"REBOOT FAILED X D"
+        :"REBOOT SUCCESSFUL : )";
 
-      text.textContent = failed
-        ? "REBOOT FAILED X D"
-        : "REBOOT SUCCESSFUL : )";
-
-      setTimeout(() => {
-        boot.remove();
-      }, 1100);
+      setTimeout(()=>boot.remove(),1100);
     }
-  }, 120);
+  },120);
 }
 
 /* START */
-
 restoreTab();
 reboot();
-
 </script>
 </body>
 </html>
