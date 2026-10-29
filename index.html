@@ -1,1911 +1,2131 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MyBrowser</title>
-<link id="favicon" rel="icon" href="data:,">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link id="tabIcon" rel="icon" href="data:,">
+
 <style>
-:root{--yellow:#ffe65c;--gold:#ffc400;--panel:#101219f5}
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden}
-body{
- color:white;font-family:Arial,sans-serif;
- background:#09080b url("https://wallpapercave.com/wp/wp15347483.png") center/cover no-repeat fixed
+:root {
+  --yellow: #ffe65c;
+  --gold: #ffc400;
+  --panel: #101219f5;
+  --border: #ffe65c77;
 }
-body:before{
- content:"";position:fixed;inset:0;
- background:linear-gradient(120deg,#0008,#0002,#0008);
- pointer-events:none
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
-button,input,textarea,select{font:inherit}
-button{cursor:pointer}
-button:disabled{opacity:.4;cursor:default}
-button:hover:not(:disabled){filter:brightness(1.15)}
-h2,h3{color:var(--yellow)}
-h2{font-size:19px;margin:0}
-.muted{color:#adb3c0;font-size:12px;line-height:1.5}
-.btn,.primary{
- border-radius:8px;padding:10px 12px;
- transition:background .15s,border-color .15s
+
+body {
+  color: white;
+  font-family: Arial, sans-serif;
+  background: #090a10
+    url("https://wallpapercave.com/wp/wp15347483.png")
+    center / cover no-repeat fixed;
 }
-.btn{color:white;background:#ffffff14;border:1px solid #ffffff36}
-.primary{color:#171717;background:var(--yellow);border:0;font-weight:bold}
-.field,textarea,select{
- width:100%;min-width:0;padding:10px;
- color:white;background:#1b202a;
- border:1px solid #ffffff40;border-radius:8px;outline:none
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(120deg, #000a, #0002, #0009);
+  pointer-events: none;
 }
-.field:focus,textarea:focus{border-color:var(--yellow)}
-textarea{flex:1;min-height:130px;resize:none}
-.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.card{
- padding:14px;border:1px solid #ffe65c44;
- border-radius:10px;background:#151923
+
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+button:hover { filter: brightness(1.14); }
+button:disabled { opacity: .4; cursor: not-allowed; }
+
+h2 {
+  color: var(--yellow);
+  font-size: 19px;
+  margin: 0;
+}
+
+h3 { color: var(--yellow); }
+
+.muted {
+  color: #b1b5c2;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.field, textarea, select {
+  width: 100%;
+  min-width: 0;
+  padding: 11px;
+  color: white;
+  background: #1b202a;
+  border: 1px solid #ffffff40;
+  border-radius: 8px;
+  outline: none;
+}
+
+.field:focus, textarea:focus, select:focus {
+  border-color: var(--yellow);
+}
+
+textarea {
+  flex: 1;
+  min-height: 130px;
+  resize: none;
+}
+
+.btn {
+  padding: 10px 13px;
+  color: white;
+  background: #ffffff13;
+  border: 1px solid #ffffff38;
+  border-radius: 8px;
+}
+
+.primary {
+  padding: 10px 15px;
+  color: #171717;
+  background: var(--yellow);
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card {
+  padding: 15px;
+  background: #161a23;
+  border: 1px solid #ffe65c40;
+  border-radius: 10px;
 }
 
 /* DESKTOP */
-#desktop{position:fixed;inset:0 0 80px;pointer-events:none}
-.desktop-icon{
- position:absolute;width:94px;height:94px;
- display:flex;flex-direction:column;align-items:center;
- justify-content:center;gap:8px;
- border:1px solid #ffe65c35;border-radius:12px;
- background:#090a1088;cursor:grab;user-select:none;
- touch-action:none;pointer-events:auto
+
+#desktop {
+  position: fixed;
+  inset: 0 0 82px;
+  pointer-events: auto;
+  touch-action: none;
 }
-.desktop-icon:hover,.desktop-icon.dragging{
- background:#ffe65c25;border-color:var(--yellow);
- box-shadow:0 0 20px #ffc40055
+
+.desktop-icon {
+  position: absolute;
+  width: 94px;
+  height: 94px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  background: #090a1090;
+  border: 1px solid #ffe65c35;
+  border-radius: 12px;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  pointer-events: auto;
 }
-.desktop-icon svg{
- width:36px;height:36px;fill:none;
- stroke:var(--yellow);stroke-width:1.8;
- stroke-linecap:round;stroke-linejoin:round;
- filter:drop-shadow(0 0 6px #ffc400)
+
+.desktop-icon:hover,
+.desktop-icon.dragging {
+  background: #ffe65c25;
+  border-color: var(--yellow);
+  box-shadow: 0 0 20px #ffc40066;
 }
-.desktop-icon span{
- font-size:11px;text-align:center;
- text-shadow:0 1px 5px black
+
+.desktop-icon svg {
+  width: 36px;
+  height: 36px;
+  fill: none;
+  stroke: var(--yellow);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 7px #ffc400);
+}
+
+.desktop-icon span {
+  font-size: 11px;
+  text-align: center;
+  text-shadow: 0 0 7px black;
 }
 
 /* TASKBAR */
-#taskbar{
- position:fixed;bottom:12px;left:50%;
- transform:translateX(-50%);
- display:flex;align-items:center;gap:7px;
- padding:9px 12px;max-width:98vw;
- background:#08090eeb;border:1px solid #ffe65c88;
- border-radius:14px;box-shadow:0 0 24px #ffc40033;
- backdrop-filter:blur(15px);z-index:9000
+
+#taskbar {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 98vw;
+  padding: 9px 13px;
+  background: #080a10f0;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  box-shadow: 0 0 25px #ffc40044;
+  z-index: 9000;
 }
-#taskApps{display:flex;gap:2px;overflow-x:auto}
-.task-button{
- width:36px;height:36px;min-width:36px;
- display:grid;place-items:center;
- background:transparent;border:0;
- border-radius:8px;color:var(--yellow)
+
+#taskApps {
+  display: flex;
+  gap: 3px;
 }
-.task-button:hover{background:#ffe65c24}
-.task-button svg{
- width:23px;height:23px;fill:none;
- stroke:currentColor;stroke-width:1.8;
- stroke-linecap:round;stroke-linejoin:round
+
+.task-button {
+  width: 37px;
+  height: 37px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--yellow);
 }
-#clock,.system-label{
- font:10px Orbitron,monospace;
- color:var(--yellow);white-space:nowrap
+
+.task-button:hover { background: #ffe65c25; }
+
+.task-button svg {
+  width: 23px;
+  height: 23px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+}
+
+#clock {
+  color: var(--yellow);
+  font: 11px monospace;
+  white-space: nowrap;
 }
 
 /* WINDOWS */
-.window{
- position:fixed;display:flex;flex-direction:column;
- width:790px;height:540px;
- max-width:96vw;max-height:calc(100vh - 90px);
- overflow:hidden;background:var(--panel);
- border:1px solid #ffe65c88;border-radius:13px;
- box-shadow:0 25px 70px #000c,0 0 25px #ffc40022;
- backdrop-filter:blur(16px);
- animation:windowIn .2s ease
+
+.window {
+  position: fixed;
+  width: 790px;
+  height: 540px;
+  max-width: 96vw;
+  max-height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  box-shadow: 0 25px 70px #000c, 0 0 25px #ffc40033;
+  backdrop-filter: blur(16px);
+  animation: windowAppear .2s ease;
 }
-@keyframes windowIn{
- from{opacity:0;transform:scale(.97)}
- to{opacity:1;transform:scale(1)}
+
+@keyframes windowAppear {
+  from { opacity: 0; transform: scale(.97); }
+  to { opacity: 1; transform: scale(1); }
 }
-.titlebar{
- min-height:45px;display:flex;
- align-items:center;justify-content:space-between;
- padding:0 13px;background:#1b1d24;
- border-bottom:1px solid #ffe65c44;
- color:var(--yellow);font:12px Orbitron,monospace;
- cursor:grab;user-select:none;touch-action:none
+
+.titlebar {
+  height: 46px;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 13px;
+  background: #1b1d24;
+  border-bottom: 1px solid #ffe65c44;
+  color: var(--yellow);
+  font: 12px monospace;
+  letter-spacing: 1px;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
 }
-.window-controls{display:flex;gap:5px}
-.window-controls button{
- padding:5px 10px;color:white;
- background:#ffffff18;border:1px solid #ffffff30;
- border-radius:6px
+
+.window-controls {
+  display: flex;
+  gap: 6px;
 }
-.window-controls .close:hover{background:#b52935}
-.window-content{
- flex:1;min-height:0;display:flex;
- flex-direction:column;gap:12px;
- padding:15px;overflow:auto
+
+.window-controls button {
+  padding: 5px 10px;
+  background: #ffffff18;
+  border: 1px solid #ffffff38;
+  border-radius: 6px;
+  color: white;
+}
+
+.window-controls .close:hover {
+  background: #a72e3b;
+}
+
+.window-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  overflow: auto;
 }
 
 /* BROWSER */
-.browser-toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.browser-toolbar .field{flex:1;min-width:150px}
-.browser-page{
- flex:1;min-height:0;overflow:auto;
- border:1px solid #ffe65c44;border-radius:9px;
- background:#0b0e14
-}
-.browser-home{
- min-height:100%;display:flex;
- flex-direction:column;align-items:center;
- justify-content:center;gap:14px;
- text-align:center;padding:20px;
- background:radial-gradient(circle,#ffe65c13,#0b0e14)
-}
-.browser-home h1{
- margin:0;color:var(--yellow);
- font-size:clamp(25px,5vw,45px);
- font-family:Orbitron,monospace;
- text-shadow:0 0 20px #ffc40088
-}
-.result{
- margin:12px;padding:14px;
- background:#161b24;border:1px solid #ffe65c44;
- border-radius:10px
-}
-.result h3{margin:0 0 7px;font-size:15px}
-.result p{font-size:13px;line-height:1.5}
-.result-url{font-size:11px;color:#adb3c0;overflow-wrap:anywhere}
-.website-frame{
- display:block;width:100%;height:100%;
- min-height:250px;border:0;background:white
-}
-.read-content{
- padding:16px;white-space:pre-wrap;
- overflow-wrap:anywhere;line-height:1.6;font-size:13px
-}
-.terminal-output{
- flex:1;overflow:auto;white-space:pre-wrap;
- font:13px/1.6 "Share Tech Mono",monospace;
- color:var(--yellow)
-}
-.calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.calc-grid button{
- padding:15px 4px;background:#ffffff17;
- color:white;border:1px solid #ffffff30;
- border-radius:8px;font-size:19px
+
+.browser-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
-/* GAMES */
-.game-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.game-panel{
- flex:1;min-height:0;display:flex;
- flex-direction:column;align-items:center;
- justify-content:flex-start;gap:12px;
- overflow:auto;padding:10px
+.browser-toolbar .field {
+  flex: 1;
+  min-width: 170px;
 }
-.mine-board{
- display:grid;gap:2px;max-width:100%;
- padding:7px;background:#171b25;
- border:1px solid #ffe65c55;border-radius:9px;
- user-select:none;touch-action:manipulation
-}
-.mine-cell{
- width:29px;height:29px;padding:0;
- border:1px solid #ffe65c44;border-radius:4px;
- background:#343b49;color:white;
- font:700 15px "Share Tech Mono",monospace
-}
-.mine-cell.open{
- background:#11151e;border-color:#ffffff14;
- cursor:default
-}
-.mine-cell.flag{color:#ffdf59}
-.mine-cell.bomb{background:#92283b}
-.mine-cell[data-number="1"]{color:#78c9ff}
-.mine-cell[data-number="2"]{color:#78e6b4}
-.mine-cell[data-number="3"]{color:#ff7777}
-.mine-cell[data-number="4"]{color:#c4a1ff}
-.mine-cell[data-number="5"]{color:#ffb775}
-#snakeCanvas{
- width:min(100%,400px);height:auto;
- aspect-ratio:1;background:#0b0e14;
- border:2px solid #ffe65c88;border-radius:8px;
- image-rendering:pixelated
-}
-.direction-pad{
- display:grid;grid-template-columns:repeat(3,48px);
- gap:5px
-}
-.direction-pad button{height:44px}
-.tiles2048{
- display:grid;grid-template-columns:repeat(4,1fr);
- gap:9px;width:min(100%,370px);
- aspect-ratio:1;padding:9px;
- border:1px solid #ffe65c66;
- border-radius:12px;background:#11151e
-}
-.tile2048{
- display:grid;place-items:center;
- border-radius:7px;background:#ffffff10;
- font:800 clamp(16px,3vw,29px) Orbitron,monospace;
- color:#171717
-}
-.tile2048[data-v="0"]{color:transparent}
-.tile2048[data-v="2"]{background:#eee4da}
-.tile2048[data-v="4"]{background:#ede0c8}
-.tile2048[data-v="8"]{background:#f2b179}
-.tile2048[data-v="16"]{background:#f59563}
-.tile2048[data-v="32"]{background:#f67c5f}
-.tile2048[data-v="64"]{background:#f65e3b}
-.tile2048[data-v="128"]{background:#edcf72}
-.tile2048[data-v="256"]{background:#edcc61}
-.tile2048[data-v="512"]{background:#edc850}
-.tile2048[data-v="1024"]{background:#edc53f}
-.tile2048[data-v="2048"]{background:#edc22e}
-.tile2048[data-v="4096"]{background:#c7a7ff}
 
-/* CINEMATIC REBOOT */
-#md-boot{
- position:fixed;inset:0;z-index:999999;
- overflow:hidden;isolation:isolate;
- background:#040406;color:#ffe65c;
- font-family:"Share Tech Mono",monospace;
- transition:opacity 1.1s ease,filter 1.1s ease
+.browser-page {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: #0b0e14;
+  border: 1px solid #ffe65c44;
+  border-radius: 10px;
 }
-#md-boot:before{
- content:"";position:absolute;inset:0;z-index:15;
- pointer-events:none;
- background:
- repeating-linear-gradient(0deg,#0007 0px,#0007 1px,transparent 2px,transparent 4px),
- radial-gradient(ellipse at center,transparent 25%,#000b 100%)
+
+.browser-home {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 25px;
+  text-align: center;
+  background: radial-gradient(circle, #ffe65c13, #0b0e14);
 }
-#md-boot:after{
- content:"";position:absolute;inset:-100% 0;
- pointer-events:none;z-index:14;
- background:linear-gradient(transparent 47%,#ffd40013 50%,transparent 53%);
- animation:screenSweep 4s linear infinite
+
+.browser-home h1 {
+  margin: 0;
+  color: var(--yellow);
+  font-size: clamp(26px, 5vw, 43px);
+  letter-spacing: 4px;
+  text-shadow: 0 0 20px #ffc40088;
 }
-.boot-ambient{
- position:absolute;inset:0;z-index:0;
- background:radial-gradient(ellipse at center,#ffc4000b,transparent 68%);
- animation:ambient 3s ease-in-out infinite alternate
+
+.result {
+  margin: 12px;
+  padding: 15px;
+  background: #161b24;
+  border: 1px solid #ffe65c44;
+  border-radius: 10px;
 }
-.boot-logs{
- position:absolute;top:20px;left:22px;z-index:5;
- max-width:80vw;white-space:pre-wrap;
- font-size:clamp(11px,1.25vw,16px);
- line-height:1.55;letter-spacing:1.3px;
- color:#ffe86d;text-shadow:0 0 9px #ffc40088
+
+.result h3 {
+  margin: 0 0 7px;
+  font-size: 15px;
 }
-.boot-cursor{
- display:inline-block;width:9px;height:16px;
- background:#ffe65c;vertical-align:middle;
- box-shadow:0 0 10px #ffe000;
- animation:cursorBlink .7s steps(1) infinite
+
+.result p {
+  font-size: 13px;
+  line-height: 1.5;
 }
-.boot-center{
- position:absolute;inset:0;display:flex;
- flex-direction:column;align-items:center;
- justify-content:center;gap:18px;
- padding:18px;z-index:4
+
+.result-url {
+  color: #aeb5c4;
+  font-size: 11px;
+  overflow-wrap: anywhere;
 }
-#boot-main{
- position:relative;
- font:800 clamp(20px,5.2vw,80px) Orbitron,monospace;
- letter-spacing:4px;text-align:center;
- color:#fff5ac;white-space:nowrap;
- text-shadow:
- 0 0 4px #fff,
- 0 0 12px #ffe600,
- 0 0 28px #ffd000,
- 0 0 65px #ffb900;
- animation:textFlicker 3.5s infinite,textJitter 5s infinite;
- transition:color .45s,text-shadow .45s
+
+.website-frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+  border: 0;
+  background: white;
 }
-#boot-main:before,#boot-main:after{
- content:attr(data-text);
- position:absolute;inset:0;
- opacity:0;pointer-events:none
+
+/* TERMINAL */
+
+.terminal-output {
+  flex: 1;
+  overflow: auto;
+  white-space: pre-wrap;
+  color: var(--yellow);
+  font: 13px/1.6 monospace;
 }
-#boot-main:before{
- color:#fff5b0;text-shadow:-8px 0 #ffbd00;
- animation:glitchA 1.5s infinite
+
+/* CALCULATOR */
+
+.calculator-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
 }
-#boot-main:after{
- color:white;text-shadow:8px 0 #ff9f00;
- animation:glitchB 1.8s infinite
+
+.calculator-grid button {
+  padding: 15px 4px;
+  background: #ffffff15;
+  color: white;
+  border: 1px solid #ffffff33;
+  border-radius: 8px;
+  font-size: 19px;
 }
-#boot-jk{
- display:none;position:relative;
- font:800 clamp(38px,7vw,100px) Orbitron,monospace;
- color:#fff5a8;letter-spacing:8px;
- text-shadow:
- -3px 0 8px #ffe000,
- 3px 0 9px #a65aff,
- 0 0 24px #ffd400,
- 0 0 45px #9e52ff
+
+/* REBOOT */
+
+#boot {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 20px;
+  background: #050608;
+  color: var(--yellow);
+  text-align: center;
+  font: 16px monospace;
 }
-.boot-bottom{
- position:absolute;right:22px;bottom:23px;
- z-index:5;text-align:right;
- color:#e6c74d;font-size:12px;
- letter-spacing:1.5px;line-height:1.6
+
+#boot h1 {
+  font-size: clamp(28px, 7vw, 55px);
+  letter-spacing: 5px;
+  text-shadow: 0 0 25px #ffc400;
 }
-.boot-lowerlogs{
- position:absolute;left:22px;bottom:23px;
- z-index:5;color:#d6b43d;font-size:12px;line-height:1.5
+
+#bootTrack {
+  width: min(380px, 80vw);
+  height: 10px;
+  border: 1px solid var(--yellow);
 }
-.glitch-strip{
- position:absolute;left:0;width:100%;height:3px;
- opacity:0;z-index:7;pointer-events:none;
- background:linear-gradient(90deg,transparent,#ffdd00,#fff8a5,#ffb800,transparent);
- box-shadow:0 0 15px #ffcc00
+
+#bootFill {
+  width: 0;
+  height: 100%;
+  background: var(--yellow);
+  box-shadow: 0 0 15px #ffc400;
 }
-.glitch-strip:nth-child(1){
- top:32%;animation:stripGlitch 2.5s steps(2) infinite
+
+#boot.glitch {
+  animation: glitch .12s infinite;
 }
-.glitch-strip:nth-child(2){
- top:49%;animation:stripGlitch 3.2s steps(2) infinite .3s
+
+@keyframes glitch {
+  0%, 100% { transform: translate(0); }
+  30% { transform: translate(3px, -2px); }
+  60% { transform: translate(-3px, 2px); }
 }
-.glitch-strip:nth-child(3){
- top:62%;animation:stripGlitch 2.8s steps(2) infinite .15s
+
+@media (max-width: 600px) {
+  #taskbar { gap: 4px; padding: 7px; }
+  .task-button { width: 31px; height: 34px; }
+  .task-button svg { width: 19px; }
+  .window-content { padding: 10px; }
+  .desktop-icon { width: 79px; height: 82px; }
+  .browser-toolbar .btn { padding: 8px; }
 }
-#md-boot.intense .glitch-strip{
- animation-duration:.4s
+
+/* GAMES: original theme, additional controls only */
+.game-top {display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.game-board {display:grid;gap:3px;align-content:start;justify-content:start;user-select:none;touch-action:manipulation}
+.game-cell {display:grid;place-items:center;min-width:0;min-height:0;padding:0;border:1px solid #ffe65c55;border-radius:5px;background:#242832;color:#ffe65c;font-weight:bold;cursor:pointer}
+.game-cell:hover {background:#44402a}
+.game-cell.revealed {background:#0d1017;border-color:#ffffff20;cursor:default}
+.game-cell.flagged {color:#ffce54}
+.game-cell.mine {color:#ff6767;background:#3a1820}
+.game-cell[data-number="1"] {color:#6fb5ff}.game-cell[data-number="2"] {color:#7ce3a6}.game-cell[data-number="3"] {color:#ff8484}.game-cell[data-number="4"] {color:#c4a1ff}
+.game-2048-tile {border-radius:7px;display:grid;place-items:center;font-size:clamp(17px,3vw,27px);font-weight:900;color:#171717;background:#e3dcb9;min-height:0}
+.game-2048-tile[data-value="0"] {background:#262933;color:transparent}
+.game-2048-tile[data-value="2"] {background:#f4edc0}.game-2048-tile[data-value="4"] {background:#f8e091}.game-2048-tile[data-value="8"] {background:#ffcb64}.game-2048-tile[data-value="16"] {background:#ffb44e}.game-2048-tile[data-value="32"] {background:#ffa168}.game-2048-tile[data-value="64"] {background:#ff8575}.game-2048-tile[data-value="128"] {background:#ffe75d}.game-2048-tile[data-value="256"] {background:#f8da27}.game-2048-tile[data-value="512"] {background:#f9c700}.game-2048-tile[data-value="1024"] {background:#f7a500}.game-2048-tile[data-value="2048"] {background:#fff176}
+.snake-canvas {width:min(100%,440px);aspect-ratio:1;background:#0c1015;border:1px solid #ffe65c77;border-radius:8px;image-rendering:pixelated;touch-action:none}
+.game-pad {display:grid;grid-template-columns:repeat(3,48px);gap:5px;justify-content:center}
+.game-pad button {height:42px}
+
+/* ====================================
+   CINEMATIC REBOOT SCREEN
+==================================== */
+#md-boot {
+  position:fixed;
+  inset:0;
+  z-index:999999;
+  overflow:hidden;
+  background:#050507;
+  color:var(--yellow);
+  font-family:"Share Tech Mono",monospace;
+  transition:opacity .9s ease;
 }
-#md-boot.failed{
- background:#090103;
- box-shadow:inset 0 0 180px #ff00004d
+#md-boot::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:15;
+  pointer-events:none;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      #0006 0px,
+      #0006 1px,
+      transparent 2px,
+      transparent 4px
+    ),
+    radial-gradient(
+      ellipse at center,
+      transparent 25%,
+      #000a 100%
+    );
 }
-#md-boot.failed #boot-main{
- color:#ff9090;
- text-shadow:0 0 8px red,0 0 25px red,0 0 65px red
+#md-boot::after {
+  content:"";
+  position:absolute;
+  inset:-100% 0;
+  pointer-events:none;
+  background:linear-gradient(
+    transparent 47%,
+    #ffd40012 50%,
+    transparent 53%
+  );
+  animation:screenSweep 4s linear infinite;
 }
-#md-boot.failed #boot-main:before,
-#md-boot.failed #boot-main:after{
- color:#ff5555;text-shadow:8px 0 red
+.boot-logs {
+  position:absolute;
+  top:20px;
+  left:22px;
+  max-width:80vw;
+  font-size:clamp(11px,1.25vw,16px);
+  line-height:1.55;
+  letter-spacing:1.4px;
+  white-space:pre-wrap;
+  color:#ffe86d;
+  text-shadow:0 0 9px #ffc40088;
+  z-index:5;
 }
-#md-boot.failed .glitch-strip{
- background:#ff2538;box-shadow:0 0 25px red
+.boot-cursor {
+  display:inline-block;
+  width:9px;
+  height:16px;
+  background:#ffe65c;
+  vertical-align:middle;
+  box-shadow:0 0 10px #ffe000;
+  animation:cursorBlink .7s steps(1) infinite;
 }
-#md-boot.failed .boot-bottom,
-#md-boot.failed .boot-logs{color:#ff5151}
-#md-boot.joking{
- background:#090610;
- box-shadow:inset 0 0 130px #7839a533
+.boot-right {
+  position:absolute;
+  right:20px;
+  top:20px;
+  text-align:right;
+  font-size:12px;
+  line-height:1.5;
+  color:#d8b83c;
+  z-index:5;
 }
-#md-boot.joking #boot-main{
- color:#fff1ac;
- text-shadow:-3px 0 7px #ffd600,3px 0 9px #a65aff,0 0 28px #e8bfff
+.boot-center {
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  z-index:4;
 }
-#md-boot.joking #boot-jk{
- display:block;
- animation:jkReveal .7s cubic-bezier(.2,.8,.2,1) both,
- jkGlow 1.8s .7s ease-in-out infinite alternate
+#boot-main {
+  position:relative;
+  font-family:Orbitron,monospace;
+  font-weight:800;
+  font-size:clamp(23px,5.2vw,82px);
+  letter-spacing:5px;
+  text-align:center;
+  color:#fff5ac;
+  white-space:nowrap;
+  text-shadow:
+    0 0 4px #fff,
+    0 0 12px #ffe600,
+    0 0 28px #ffd000,
+    0 0 65px #ffb900,
+    0 0 110px #ff9a00;
+  animation:
+    textFlicker 2.2s infinite,
+    textJitter 3s infinite;
 }
-#md-boot.joking .glitch-strip{
- background:linear-gradient(90deg,transparent,#ffd800,#b260ff,#fff2a0,transparent);
- box-shadow:0 0 20px #a55bff
+#boot-main::before,
+#boot-main::after {
+  content:attr(data-text);
+  position:absolute;
+  inset:0;
+  opacity:0;
+  pointer-events:none;
 }
-#md-boot.jk-glitch{animation:screenJolt .38s steps(3)}
-#md-boot.boot-exit{opacity:0;filter:blur(7px)}
-@keyframes cursorBlink{50%{opacity:0}}
-@keyframes ambient{to{opacity:.4}}
-@keyframes screenSweep{to{transform:translateY(100%)}}
-@keyframes textFlicker{
- 0%,88%,92%,97%,100%{opacity:1}
- 89%,95%{opacity:.45}
- 90%,96%{opacity:.85}
+#boot-main::before {
+  color:#fff5b0;
+  text-shadow:-9px 0 #ffbd00;
+  animation:glitchSliceA 1.1s infinite;
 }
-@keyframes textJitter{
- 0%,85%,100%{transform:translate(0)}
- 86%{transform:translate(-4px,2px)}
- 88%{transform:translate(5px,-2px)}
- 90%{transform:translate(-2px,1px)}
+#boot-main::after {
+  color:#fff;
+  text-shadow:9px 0 #ff9f00;
+  animation:glitchSliceB 1.4s infinite;
 }
-@keyframes glitchA{
- 0%,72%,100%{opacity:0;clip-path:inset(100% 0 0)}
- 74%{opacity:.95;transform:translateX(-10px);clip-path:inset(15% 0 62%)}
- 79%{opacity:.8;transform:translateX(8px);clip-path:inset(58% 0 20%)}
- 83%{opacity:0}
+.boot-bottom {
+  position:absolute;
+  right:22px;
+  bottom:23px;
+  z-index:5;
+  text-align:right;
+  color:#e6c74d;
+  font-size:12px;
+  letter-spacing:1.6px;
+  text-shadow:0 0 10px #ffcc0088;
 }
-@keyframes glitchB{
- 0%,66%,100%{opacity:0;clip-path:inset(0 0 100%)}
- 68%{opacity:.9;transform:translateX(11px);clip-path:inset(42% 0 34%)}
- 73%{opacity:.8;transform:translateX(-8px);clip-path:inset(76% 0 8%)}
- 77%{opacity:0}
+.boot-lowerlogs {
+  position:absolute;
+  bottom:22px;
+  left:22px;
+  z-index:5;
+  font-size:12px;
+  line-height:1.5;
+  color:#d6b43d;
 }
-@keyframes stripGlitch{
- 0%,65%,100%{opacity:0;transform:translateX(0) scaleY(1)}
- 67%{opacity:.8;transform:translateX(-15px) scaleY(2)}
- 72%{opacity:.5;transform:translateX(20px)}
- 77%{opacity:0}
+.glitch-strip {
+  position:absolute;
+  z-index:7;
+  left:0;
+  width:100%;
+  height:4px;
+  opacity:0;
+  background:linear-gradient(
+    90deg,
+    transparent,
+    #ffdd00,
+    #fff8a5,
+    #ffb800,
+    transparent
+  );
+  box-shadow:0 0 20px #ffcc00;
+  pointer-events:none;
 }
-@keyframes screenJolt{
- 0%,100%{transform:translateX(0);filter:brightness(1)}
- 25%{transform:translateX(-7px);filter:brightness(1.8)}
- 50%{transform:translateX(7px);filter:brightness(.5)}
- 75%{transform:translateX(-3px);filter:brightness(1.4)}
+.glitch-strip:nth-child(1) {
+  top:32%;
+  animation:stripGlitch .8s steps(2) infinite;
 }
-@keyframes jkReveal{
- 0%{opacity:0;transform:translateY(15px) scale(.94);filter:blur(8px)}
- 35%{opacity:.85;transform:translateY(-3px) scale(1.03);filter:blur(1px)}
- 100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+.glitch-strip:nth-child(2) {
+  top:49%;
+  animation:stripGlitch 1.1s steps(2) infinite .3s;
 }
-@keyframes jkGlow{to{filter:brightness(1.3)}}
-@media(max-width:700px){
- .system-label{display:none}
- #taskbar{padding:7px;gap:3px}
- .task-button{width:31px;min-width:31px}
- .task-button svg{width:19px}
- .window-content{padding:10px}
- .desktop-icon{width:80px;height:82px}
- .mine-cell{width:24px;height:24px;font-size:12px}
- #boot-main{font-size:clamp(15px,4.5vw,34px);letter-spacing:1px}
- .boot-logs{font-size:10px}
- .boot-bottom,.boot-lowerlogs{font-size:9px}
+.glitch-strip:nth-child(3) {
+  top:62%;
+  animation:stripGlitch .65s steps(2) infinite .15s;
 }
-@media(prefers-reduced-motion:reduce){
- #md-boot *,#md-boot:after{animation:none!important}
+#md-boot.intense .glitch-strip {
+  animation-duration:.18s;
 }
+#md-boot.intense #boot-main {
+  animation-duration:.25s;
+}
+#md-boot.failed {
+  background:#120205;
+  box-shadow:inset 0 0 180px #ff000077;
+}
+#md-boot.failed #boot-main {
+  color:#ff8080;
+  text-shadow:
+    0 0 8px red,
+    0 0 25px red,
+    0 0 70px #ff0000;
+}
+#md-boot.failed #boot-main::before,
+#md-boot.failed #boot-main::after {
+  color:#ff5555;
+  text-shadow:8px 0 #f00;
+}
+#md-boot.failed .glitch-strip {
+  background:#ff2538;
+  box-shadow:0 0 30px red;
+}
+#md-boot.failed .boot-bottom {
+  color:#ff5151;
+}
+#md-boot.success #boot-main {
+  color:#fff7a6;
+  text-shadow:
+    0 0 8px #fff,
+    0 0 25px #ffdd00,
+    0 0 65px #ffb000;
+}
+
+@keyframes cursorBlink {
+  50% {opacity:0}
+}
+@keyframes screenSweep {
+  to {transform:translateY(100%)}
+}
+@keyframes textFlicker {
+  0%,88%,92%,97%,100% {opacity:1}
+  89%,95% {opacity:.4}
+  90%,96% {opacity:.85}
+}
+@keyframes textJitter {
+  0%,85%,100% {transform:translate(0)}
+  86% {transform:translate(-5px,2px)}
+  88% {transform:translate(7px,-2px)}
+  90% {transform:translate(-3px,1px)}
+}
+@keyframes glitchSliceA {
+  0%,72%,100% {
+    opacity:0;
+    clip-path:inset(100% 0 0 0);
+  }
+  74% {
+    opacity:.95;
+    transform:translate(-12px);
+    clip-path:inset(15% 0 62% 0);
+  }
+  79% {
+    opacity:.85;
+    transform:translate(9px);
+    clip-path:inset(58% 0 20% 0);
+  }
+  83% {opacity:0}
+}
+@keyframes glitchSliceB {
+  0%,66%,100% {
+    opacity:0;
+    clip-path:inset(0 0 100% 0);
+  }
+  68% {
+    opacity:.9;
+    transform:translate(13px);
+    clip-path:inset(42% 0 34% 0);
+  }
+  73% {
+    opacity:.8;
+    transform:translate(-9px);
+    clip-path:inset(76% 0 8% 0);
+  }
+  77% {opacity:0}
+}
+@keyframes stripGlitch {
+  0%,65%,100% {
+    opacity:0;
+    transform:translateX(0) scaleY(1);
+  }
+  67% {
+    opacity:.9;
+    transform:translateX(-18px) scaleY(3);
+  }
+  72% {
+    opacity:.6;
+    transform:translateX(24px) scaleY(1);
+  }
+  77% {opacity:0}
+}
+@media(max-width:700px) {
+  #boot-main {
+    font-size:clamp(17px,5vw,34px);
+    letter-spacing:1px;
+  }
+  .boot-right {display:none}
+  .boot-logs {font-size:10px}
+  .boot-lowerlogs,.boot-bottom {font-size:9px}
+}
+@media(prefers-reduced-motion:reduce) {
+  #md-boot *,
+  #md-boot::after {
+    animation:none!important;
+  }
+}
+
+/* JK ending: original cinematic intro is unchanged. */
+.boot-message-stack{display:flex;flex-direction:column;align-items:center;gap:20px;position:relative}
+#boot-jk{display:none;position:relative;font:800 clamp(40px,6vw,86px) Orbitron,monospace;letter-spacing:9px;color:#fff6af;text-shadow:-5px 0 7px #ffd900,5px 0 8px #a35cff,0 0 20px #ffd900,0 0 38px #8c3fff,0 0 65px #9a52ff}
+#md-boot.joking #boot-jk{display:block;animation:jkReveal .55s steps(3,end) both,jkPulse 1.1s .55s infinite alternate}
+#md-boot.joking{background:#090610;box-shadow:inset 0 0 130px #7839a533}
+#md-boot.joking #boot-main{color:#fff1ac;text-shadow:-3px 0 7px #ffd600,3px 0 9px #a65aff,0 0 28px #e8bfff}
+#md-boot.joking .glitch-strip{background:linear-gradient(90deg,transparent,#ffd800,#b260ff,#fff2a0,transparent);box-shadow:0 0 20px #a55bff}
+#md-boot.jk-glitch{animation:jkScreenGlitch .48s steps(3,end)}
+@keyframes jkScreenGlitch{0%,100%{transform:translateX(0);filter:brightness(1)}25%{transform:translateX(-9px);filter:brightness(1.9)}50%{transform:translateX(8px);filter:brightness(.35)}75%{transform:translateX(-3px);filter:brightness(1.5)}}
+@keyframes jkReveal{0%{opacity:0;transform:translate(-14px,4px) skewX(-8deg)}35%{opacity:.2;transform:translate(10px,-2px)}65%{opacity:1;transform:translate(-4px,0)}100%{opacity:1;transform:translate(0)}}
+@keyframes jkPulse{to{filter:brightness(1.35)}}
+
+
+/* SMOOTH CINEMATIC REBOOT — Cyn wallpaper appears only on desktop */
+#md-boot {
+  isolation:isolate;
+  background:#040407;
+  transition:opacity 1.15s cubic-bezier(.22,1,.36,1),
+             filter 1.15s ease;
+}
+#md-boot .ambient-glow {
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse 55% 34% at 50% 50%,#ffc40012,transparent 78%);
+  animation:ambientPulse 3.8s ease-in-out infinite alternate;
+}
+#md-boot.failed .ambient-glow {
+  background:radial-gradient(ellipse 55% 30% at 50% 50%,#ff172e38,transparent 78%);
+}
+#md-boot.joking .ambient-glow {
+  background:radial-gradient(ellipse 55% 30% at 50% 50%,#a45aff29,#ffd0000c 45%,transparent 85%);
+}
+#boot-main {
+  animation:textFlicker 3.7s infinite,textJitter 5.1s infinite;
+  transition:color .45s ease,text-shadow .55s ease,filter .55s ease;
+  will-change:transform,opacity;
+}
+#md-boot .glitch-strip {opacity:0;filter:blur(.5px)}
+#md-boot .glitch-strip:nth-child(1) {animation-duration:2.5s}
+#md-boot .glitch-strip:nth-child(2) {animation-duration:3.2s}
+#md-boot .glitch-strip:nth-child(3) {animation-duration:2.8s}
+#md-boot.intense .glitch-strip {animation-duration:.55s}
+#md-boot .boot-logs,#md-boot .boot-bottom,#md-boot .boot-lowerlogs {
+  transition:color .45s ease,text-shadow .45s ease;
+}
+#md-boot.joking #boot-jk {
+  animation:jkSmoothReveal .72s cubic-bezier(.2,.8,.2,1) both,
+            jkSmoothGlow 2.1s .72s ease-in-out infinite alternate;
+  text-shadow:-3px 0 7px #ffd400,3px 0 8px #ad65ff,
+              0 0 20px #ffdf6e,0 0 40px #9d4cff;
+}
+#md-boot.jk-glitch {animation:jkScreenGlitch .36s steps(3,end)}
+#md-boot.boot-exit {opacity:0;filter:blur(7px) brightness(1.3)}
+@keyframes ambientPulse {to{opacity:.5}}
+@keyframes jkSmoothReveal {
+  0%{opacity:0;transform:translateY(15px) scale(.94);filter:blur(9px)}
+  35%{opacity:.85;transform:translateY(-3px) scale(1.03);filter:blur(1px)}
+  100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+}
+@keyframes jkSmoothGlow {to{filter:brightness(1.28)}}
+@media(prefers-reduced-motion:reduce) {
+  #md-boot .ambient-glow,
+  #md-boot.joking #boot-jk{animation:none!important}
+}
+
+/* Glowing yellow Windows-style desktop selection */
+#desktop-selection {
+  position: fixed;
+  display: none;
+  z-index: 10;
+  pointer-events: none;
+  border: 1px solid #ffe65c;
+  border-radius: 2px;
+  background: rgba(255, 230, 92, .14);
+  box-shadow: 0 0 9px #ffd60055, inset 0 0 15px #ffd6001c;
+}
+.desktop-icon.selected {
+  background: rgba(255, 230, 92, .25);
+  border-color: #ffe65c;
+  box-shadow: 0 0 15px #ffd60077, inset 0 0 10px #ffd60033;
+}
+.desktop-icon.selected svg {
+  filter: drop-shadow(0 0 9px #ffe65c);
+}
+
 </style>
 </head>
+
 <body>
 
 <div id="desktop"></div>
 
 <div id="taskbar">
- <strong class="system-label">MYBROWSER // ONLINE</strong>
- <div id="taskApps"></div>
- <span id="clock"></span>
+  <strong style="color:var(--yellow);font-size:12px">MB</strong>
+  <div id="taskApps"></div>
+  <span id="clock"></span>
 </div>
 
 <div id="md-boot">
- <div class="boot-ambient"></div>
- <div class="glitch-strip"></div>
- <div class="glitch-strip"></div>
- <div class="glitch-strip"></div>
+  <div class="ambient-glow" aria-hidden="true"></div>
+  <div class="glitch-strip"></div>
+  <div class="glitch-strip"></div>
+  <div class="glitch-strip"></div>
 
- <div class="boot-logs">
-  <span id="boot-typed"></span><span class="boot-cursor"></span>
- </div>
+  <div class="boot-logs">
+    <span id="boot-typed"></span><span class="boot-cursor"></span>
+  </div>
 
- <div class="boot-center">
-  <div id="boot-main" data-text="REBOOTING...">REBOOTING...</div>
-  <div id="boot-jk">JK</div>
- </div>
+  <div class="boot-right">
+    SYS://CORE<br>
+    VER: ???.???<br>
+    STATUS: UNKNOWN
+  </div>
 
- <div class="boot-lowerlogs">
-  &gt; RESTORING DRONE SYSTEMS...<br>
-  &gt; REINITIALIZING MEMORY BANKS...<br>
-  &gt; ESTABLISHING CONNECTION...
- </div>
+  <div class="boot-center">
+    <div class="boot-message-stack">
+      <div id="boot-main" data-text="REBOOTING...">REBOOTING...</div>
+      <div id="boot-jk" aria-live="polite">JK</div>
+    </div>
+  </div>
 
- <div class="boot-bottom" id="boot-bottom">
-  DATA RESTORATION IN PROGRESS<br>
-  &gt; PLEASE WAIT...
- </div>
+  <div class="boot-lowerlogs">
+    &gt; RESTORING DRONE SYSTEMS...<br>
+    &gt; REINITIALIZING MEMORY BANKS...<br>
+    &gt; ESTABLISHING CONNECTION...
+  </div>
+
+  <div class="boot-bottom" id="boot-bottom">
+    DATA RESTORATION IN PROGRESS<br>
+    &gt; PLEASE WAIT...
+  </div>
+</div>
+
 </div>
 
 <script>
 "use strict";
 
-const WORKER_URL =
- "https://mybrowser-search.gosha7258.workers.dev/";
+/* YOUR CLOUDFLARE WORKER */
 
-const APPS=[
- ["browser","Browser"],
- ["files","Files"],
- ["editor","Text Editor"],
- ["terminal","Terminal"],
- ["calculator","Calculator"],
- ["cloaking","Cloaking"],
- ["about","About"],
- ["minesweeper","Minesweeper"],
- ["snake","Snake"],
- ["game2048","2048"]
+const WORKER_URL =
+  "https://mybrowser-search.gosha7258.workers.dev/";
+
+/* APPLICATIONS */
+
+const APPS = [
+  ["browser", "Browser"],
+  ["files", "Files"],
+  ["editor", "Text Editor"],
+  ["terminal", "Terminal"],
+  ["calculator", "Calculator"],
+  ["cloaking", "Cloaking"],
+  ["about", "About"],
+  ["minesweeper", "Minesweeper"],
+  ["snake", "Snake"],
+  ["game2048", "2048"]
 ];
 
-const ICONS={
- browser:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"/>',
- files:'<path d="M3 7V5h7l2 3h9v11H3z"/>',
- editor:'<path d="M5 3h10l4 4v14H5zM15 3v5h4M8 12h8M8 16h7"/>',
- terminal:'<rect x="2" y="3" width="20" height="18" rx="2"/><path d="m6 8 4 4-4 4M12 16h6"/>',
- calculator:'<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 11h2M14 11h2M8 15h2M14 15h2M8 19h8"/>',
- cloaking:'<path d="M12 3 3 7v5c0 6 4 9 9 10 5-1 9-4 9-10V7zM8 12l3 3 5-6"/>',
- about:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7v1"/>',
- minesweeper:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/><circle cx="12" cy="12" r="2"/>',
- snake:'<path d="M3 6h12a4 4 0 0 1 0 8H9a4 4 0 0 0 0 8h8"/><circle cx="18" cy="6" r="1"/>',
- game2048:'<rect x="2" y="2" width="9" height="9" rx="1"/><rect x="13" y="2" width="9" height="9" rx="1"/><rect x="2" y="13" width="9" height="9" rx="1"/><rect x="13" y="13" width="9" height="9" rx="1"/>'
+const ICONS = {
+  browser: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"/>',
+  files: '<path d="M3 7V5h7l2 3h9v11H3z"/>',
+  editor: '<path d="M5 3h10l4 4v14H5zM15 3v5h4M8 12h8M8 16h7"/>',
+  terminal: '<rect x="2" y="3" width="20" height="18" rx="2"/><path d="m6 8 4 4-4 4M12 16h6"/>',
+  calculator: '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 11h2M14 11h2M8 15h2M14 15h2M8 19h8"/>',
+  cloaking: '<path d="M12 3 3 7v5c0 6 4 9 9 10 5-1 9-4 9-10V7zM8 12l3 3 5-6"/>',
+  about: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7v1"/>',
+  minesweeper: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/><circle cx="12" cy="12" r="2"/>',
+  snake: '<path d="M3 6h12a4 4 0 0 1 0 8H9a4 4 0 0 0 0 8h8"/><circle cx="18" cy="6" r="1"/>',
+  game2048: '<rect x="2" y="2" width="9" height="9" rx="1"/><rect x="13" y="2" width="9" height="9" rx="1"/><rect x="2" y="13" width="9" height="9" rx="1"/><rect x="13" y="13" width="9" height="9" rx="1"/>'
 };
 
-function iconSVG(id){
- return '<svg viewBox="0 0 24 24">'+ICONS[id]+'</svg>';
+function iconSVG(id) {
+  return '<svg viewBox="0 0 24 24">' + ICONS[id] + '</svg>';
 }
 
-const desktop=document.getElementById("desktop");
-const taskApps=document.getElementById("taskApps");
-let topZ=20,windowCount=0;
-let positions={};
+const desktop = document.getElementById("desktop");
+const taskApps = document.getElementById("taskApps");
 
-try{
- positions=JSON.parse(
-  localStorage.getItem("mybrowser-layout-v3")||"{}"
- );
-}catch{}
+let topZ = 20;
+let windowCount = 0;
+let positions = {};
 
-function savePositions(){
- localStorage.setItem(
-  "mybrowser-layout-v3",JSON.stringify(positions)
- );
+try {
+  positions = JSON.parse(
+    localStorage.getItem("mybrowser-layout-v3") || "{}"
+  );
+} catch (error) {
+  positions = {};
 }
 
-/* DESKTOP ICONS */
-APPS.forEach(([id,name],index)=>{
- const el=document.createElement("div");
- el.className="desktop-icon";
- el.innerHTML=iconSVG(id)+"<span>"+name+"</span>";
+function savePositions() {
+  localStorage.setItem(
+    "mybrowser-layout-v3",
+    JSON.stringify(positions)
+  );
+}
 
- const fallback={
-  x:20+(index%3)*106,
-  y:20+Math.floor(index/3)*106
- };
- const pos=positions[id]||fallback;
+/* CREATE DESKTOP ICONS */
 
- el.style.left=pos.x+"px";
- el.style.top=pos.y+"px";
- desktop.appendChild(el);
+APPS.forEach(([id, name], index) => {
+  const element = document.createElement("div");
+  element.className = "desktop-icon";
+  element.innerHTML = iconSVG(id) + "<span>" + name + "</span>";
 
- let sx=0,sy=0,ox=0,oy=0,moved=false;
+  const fallback = {
+    x: 20 + (index % 3) * 106,
+    y: 20 + Math.floor(index / 3) * 106
+  };
 
- el.addEventListener("pointerdown",e=>{
-  if(e.button!==0)return;
-  el.setPointerCapture(e.pointerId);
-  sx=e.clientX;sy=e.clientY;
-  ox=el.offsetLeft;oy=el.offsetTop;
-  moved=false;
-  el.classList.add("dragging");
- });
+  const pos = positions[id] || fallback;
 
- el.addEventListener("pointermove",e=>{
-  if(!el.hasPointerCapture(e.pointerId))return;
-  const dx=e.clientX-sx,dy=e.clientY-sy;
-  if(Math.abs(dx)+Math.abs(dy)>6)moved=true;
-  if(!moved)return;
-  el.style.left=Math.max(0,Math.min(
-   innerWidth-el.offsetWidth,ox+dx
-  ))+"px";
-  el.style.top=Math.max(0,Math.min(
-   innerHeight-100-el.offsetHeight,oy+dy
-  ))+"px";
- });
+  element.style.left = pos.x + "px";
+  element.style.top = pos.y + "px";
 
- el.addEventListener("pointerup",()=>{
-  el.classList.remove("dragging");
-  positions[id]={x:el.offsetLeft,y:el.offsetTop};
-  savePositions();
-  if(!moved)openApp(id);
- });
+  desktop.appendChild(element);
 
- const task=document.createElement("button");
- task.className="task-button";
- task.title=name;
- task.innerHTML=iconSVG(id);
- task.onclick=()=>openApp(id);
- taskApps.appendChild(task);
+  let sx = 0, sy = 0, ox = 0, oy = 0;
+  let moved = false;
+
+  element.addEventListener("pointerdown", event => {
+    if (event.button !== 0) return;
+
+    element.setPointerCapture(event.pointerId);
+
+    sx = event.clientX;
+    sy = event.clientY;
+    ox = element.offsetLeft;
+    oy = element.offsetTop;
+    moved = false;
+
+    element.classList.add("dragging");
+  });
+
+  element.addEventListener("pointermove", event => {
+    if (!element.hasPointerCapture(event.pointerId)) return;
+
+    const dx = event.clientX - sx;
+    const dy = event.clientY - sy;
+
+    if (Math.abs(dx) + Math.abs(dy) > 6) {
+      moved = true;
+    }
+
+    if (!moved) return;
+
+    const x = Math.max(0, Math.min(
+      innerWidth - element.offsetWidth,
+      ox + dx
+    ));
+
+    const y = Math.max(0, Math.min(
+      innerHeight - 100 - element.offsetHeight,
+      oy + dy
+    ));
+
+    element.style.left = x + "px";
+    element.style.top = y + "px";
+  });
+
+  element.addEventListener("pointerup", () => {
+    element.classList.remove("dragging");
+
+    positions[id] = {
+      x: element.offsetLeft,
+      y: element.offsetTop
+    };
+
+    savePositions();
+
+    if (!moved) openApp(id);
+  });
+
+  const taskButton = document.createElement("button");
+  taskButton.className = "task-button";
+  taskButton.title = name;
+  taskButton.innerHTML = iconSVG(id);
+  taskButton.onclick = () => openApp(id);
+
+  taskApps.appendChild(taskButton);
 });
 
 /* WINDOW MANAGER */
-function makeWindow(id,title){
- const existing=document.querySelector(
-  '.window[data-app="'+id+'"]'
- );
- if(existing){
-  existing.style.zIndex=++topZ;
-  return null;
- }
 
- const win=document.createElement("div");
- win.className="window";
- win.dataset.app=id;
- win.style.left=Math.max(5,Math.min(
-  innerWidth-300,100+windowCount*26
- ))+"px";
- win.style.top=Math.max(5,Math.min(
-  innerHeight-200,50+windowCount*22
- ))+"px";
- win.style.zIndex=++topZ;
- windowCount=(windowCount+1)%9;
+function makeWindow(id, title) {
+  const existing = document.querySelector(
+    '.window[data-app="' + id + '"]'
+  );
 
- const bar=document.createElement("div");
- bar.className="titlebar";
-
- const label=document.createElement("span");
- label.textContent="◆ "+title.toUpperCase();
-
- const controls=document.createElement("div");
- controls.className="window-controls";
-
- const max=document.createElement("button");
- max.textContent="□";
- max.title="Maximize";
- let saved=null;
-
- max.onclick=()=>{
-  if(!saved){
-   saved={
-    left:win.style.left,top:win.style.top,
-    width:win.style.width,height:win.style.height
-   };
-   Object.assign(win.style,{
-    left:"0",top:"0",width:"100vw",
-    height:"calc(100vh - 80px)",maxWidth:"none"
-   });
-  }else{
-   Object.assign(win.style,{
-    ...saved,maxWidth:"96vw"
-   });
-   saved=null;
+  if (existing) {
+    existing.style.zIndex = ++topZ;
+    return null;
   }
- };
 
- const close=document.createElement("button");
- close.className="close";
- close.textContent="✕";
- close.onclick=()=>win.remove();
+  const win = document.createElement("div");
+  win.className = "window";
+  win.dataset.app = id;
 
- controls.append(max,close);
- bar.append(label,controls);
+  win.style.left = Math.max(5, Math.min(
+    innerWidth - 300,
+    100 + windowCount * 26
+  )) + "px";
 
- const area=document.createElement("div");
- area.className="window-content";
- win.append(bar,area);
- document.body.appendChild(win);
+  win.style.top = Math.max(5, Math.min(
+    innerHeight - 200,
+    50 + windowCount * 22
+  )) + "px";
 
- win.addEventListener("pointerdown",()=>{
-  win.style.zIndex=++topZ;
- });
+  win.style.zIndex = ++topZ;
+  windowCount = (windowCount + 1) % 9;
 
- let dragging=false,sx=0,sy=0,ox=0,oy=0;
+  const bar = document.createElement("div");
+  bar.className = "titlebar";
 
- bar.addEventListener("pointerdown",e=>{
-  if(e.target.closest("button"))return;
-  dragging=true;
-  sx=e.clientX;sy=e.clientY;
-  ox=win.offsetLeft;oy=win.offsetTop;
-  bar.setPointerCapture(e.pointerId);
- });
+  const heading = document.createElement("span");
+  heading.textContent = "◆ " + title.toUpperCase();
 
- bar.addEventListener("pointermove",e=>{
-  if(!dragging||saved)return;
-  win.style.left=Math.max(0,Math.min(
-   innerWidth-90,ox+e.clientX-sx
-  ))+"px";
-  win.style.top=Math.max(0,Math.min(
-   innerHeight-90,oy+e.clientY-sy
-  ))+"px";
- });
+  const controls = document.createElement("div");
+  controls.className = "window-controls";
 
- bar.addEventListener("pointerup",()=>dragging=false);
- bar.addEventListener("pointercancel",()=>dragging=false);
+  const maximize = document.createElement("button");
+  maximize.textContent = "□";
+  maximize.title = "Maximize";
 
- return area;
+  let savedSize = null;
+
+  maximize.onclick = () => {
+    if (!savedSize) {
+      savedSize = {
+        left: win.style.left,
+        top: win.style.top,
+        width: win.style.width,
+        height: win.style.height
+      };
+
+      win.style.left = "0";
+      win.style.top = "0";
+      win.style.width = "100vw";
+      win.style.height = "calc(100vh - 80px)";
+      win.style.maxWidth = "none";
+    } else {
+      win.style.left = savedSize.left;
+      win.style.top = savedSize.top;
+      win.style.width = savedSize.width;
+      win.style.height = savedSize.height;
+      win.style.maxWidth = "96vw";
+      savedSize = null;
+    }
+  };
+
+  const close = document.createElement("button");
+  close.className = "close";
+  close.textContent = "✕";
+  close.onclick = () => win.remove();
+
+  controls.append(maximize, close);
+  bar.append(heading, controls);
+
+  const area = document.createElement("div");
+  area.className = "window-content";
+
+  win.append(bar, area);
+  document.body.appendChild(win);
+
+  win.addEventListener("pointerdown", () => {
+    win.style.zIndex = ++topZ;
+  });
+
+  let dragging = false;
+  let sx = 0, sy = 0, ox = 0, oy = 0;
+
+  bar.addEventListener("pointerdown", event => {
+    if (event.target.closest("button")) return;
+
+    dragging = true;
+
+    sx = event.clientX;
+    sy = event.clientY;
+    ox = win.offsetLeft;
+    oy = win.offsetTop;
+
+    bar.setPointerCapture(event.pointerId);
+  });
+
+  bar.addEventListener("pointermove", event => {
+    if (!dragging || savedSize) return;
+
+    win.style.left = Math.max(0, Math.min(
+      innerWidth - 90,
+      ox + event.clientX - sx
+    )) + "px";
+
+    win.style.top = Math.max(0, Math.min(
+      innerHeight - 90,
+      oy + event.clientY - sy
+    )) + "px";
+  });
+
+  bar.addEventListener("pointerup", () => {
+    dragging = false;
+  });
+
+  bar.addEventListener("pointercancel", () => {
+    dragging = false;
+  });
+
+  return area;
 }
 
-function openApp(id){
- const title=APPS.find(x=>x[0]===id)?.[1];
- if(!title)return;
- const area=makeWindow(id,title);
- if(!area)return;
+function openApp(id) {
+  const name = APPS.find(app => app[0] === id)?.[1];
+  if (!name) return;
 
- if(id==="browser")browserApp(area);
- if(id==="files")filesApp(area);
- if(id==="editor")editorApp(area);
- if(id==="terminal")terminalApp(area);
- if(id==="calculator")calculatorApp(area);
- if(id==="cloaking")cloakingApp(area);
- if(id==="about")aboutApp(area);
- if(id==="minesweeper")minesweeperApp(area);
- if(id==="snake")snakeApp(area);
- if(id==="game2048")game2048App(area);
+  const area = makeWindow(id, name);
+  if (!area) return;
+
+  if (id === "browser") browserApp(area);
+  if (id === "files") filesApp(area);
+  if (id === "editor") editorApp(area);
+  if (id === "terminal") terminalApp(area);
+  if (id === "calculator") calculatorApp(area);
+  if (id === "cloaking") cloakingApp(area);
+  if (id === "about") aboutApp(area);
+  if (id === "minesweeper") minesweeperApp(area);
+  if (id === "snake") snakeApp(area);
+  if (id === "game2048") game2048App(area);
 }
 
-/* BROWSER */
-function browserApp(area){
- let history=[],historyIndex=-1;
- let currentURL="",mode="home",requestNumber=0;
+/* BROWSER WITH TAVILY AND INTERNAL WEBSITE VIEWER */
 
- area.innerHTML=`
- <div class="browser-toolbar">
-  <button class="btn" id="back">←</button>
-  <button class="btn" id="forward">→</button>
-  <button class="btn" id="refresh">⟳</button>
-  <button class="btn" id="home">⌂</button>
-  <input class="field" id="address"
-   placeholder="Search the web or enter a URL">
-  <button class="primary" id="go">GO</button>
- </div>
- <div class="browser-page" id="page"></div>
- <div class="muted" id="status">MYBROWSER // READY</div>`;
+function browserApp(area) {
+  let history = [];
+  let historyIndex = -1;
+  let currentURL = "";
+  let mode = "home";
+  let searchRequest = 0;
 
- const page=area.querySelector("#page");
- const address=area.querySelector("#address");
- const status=area.querySelector("#status");
- const back=area.querySelector("#back");
- const forward=area.querySelector("#forward");
+  area.innerHTML = `
+    <div class="browser-toolbar">
+      <button class="btn" id="backBtn" title="Back">←</button>
+      <button class="btn" id="forwardBtn" title="Forward">→</button>
+      <button class="btn" id="refreshBtn" title="Refresh">⟳</button>
+      <button class="btn" id="homeBtn" title="Home">⌂</button>
+      <input class="field" id="address"
+        placeholder="Search the web or enter a URL">
+      <button class="primary" id="goBtn">GO</button>
+    </div>
 
- function buttons(){
-  back.disabled=historyIndex<=0;
-  forward.disabled=historyIndex>=history.length-1;
- }
- function record(entry){
-  history=history.slice(0,historyIndex+1);
-  history.push(entry);
-  historyIndex=history.length-1;
-  buttons();
- }
+    <div class="browser-page" id="browserPage"></div>
 
- function home(add=true){
-  requestNumber++;
-  mode="home";currentURL="";address.value="";
-  page.innerHTML=`
-   <div class="browser-home">
-    <h1>MYBROWSER</h1>
-    <p class="muted">WEB SEARCH // POWERED BY TAVILY</p>
-    <p class="muted">Search for websites or enter an address.</p>
-   </div>`;
-  status.textContent="MYBROWSER // HOME";
-  if(add)record({type:"home"});
- }
+    <div class="muted" id="browserStatus">
+      MYBROWSER // READY
+    </div>
+  `;
 
- async function search(query,add=true){
-  const req=++requestNumber;
-  mode="search";currentURL="";
-  address.value=query;
-  if(add)record({type:"search",value:query});
+  const page = area.querySelector("#browserPage");
+  const address = area.querySelector("#address");
+  const status = area.querySelector("#browserStatus");
 
-  page.replaceChildren();
-  const heading=document.createElement("h2");
-  heading.textContent="Search results: "+query;
-  heading.style.padding="16px";
-  page.appendChild(heading);
-  status.textContent="Searching Tavily...";
+  const backBtn = area.querySelector("#backBtn");
+  const forwardBtn = area.querySelector("#forwardBtn");
 
-  try{
-   const response=await fetch(WORKER_URL,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({action:"search",query})
-   });
-   const data=await response.json();
-   if(!response.ok)throw Error(data.error||"Search failed");
-   if(req!==requestNumber)return;
-
-   const results=data.results||[];
-   status.textContent=results.length+" results found";
-
-   if(!results.length){
-    const empty=document.createElement("p");
-    empty.className="muted";
-    empty.style.padding="16px";
-    empty.textContent="No results found.";
-    page.appendChild(empty);
-   }
-
-   for(const item of results){
-    const card=document.createElement("div");
-    card.className="result";
-
-    const title=document.createElement("h3");
-    title.textContent=item.title||"Untitled";
-
-    const url=document.createElement("div");
-    url.className="result-url";
-    url.textContent=item.url||"";
-
-    const description=document.createElement("p");
-    description.textContent=item.description||"";
-
-    const actions=document.createElement("div");
-    actions.className="row";
-
-    const open=document.createElement("button");
-    open.className="primary";
-    open.textContent="OPEN IN MYBROWSER";
-    open.onclick=()=>navigate(item.url);
-
-    const read=document.createElement("button");
-    read.className="btn";
-    read.textContent="READ PAGE";
-    read.onclick=()=>readPage(item.url);
-
-    actions.append(open,read);
-    card.append(title,url,description,actions);
-    page.appendChild(card);
-   }
-  }catch(e){
-   if(req!==requestNumber)return;
-   status.textContent="Search failed: "+e.message;
+  function updateButtons() {
+    backBtn.disabled = historyIndex <= 0;
+    forwardBtn.disabled =
+      historyIndex >= history.length - 1;
   }
- }
 
- function validURL(url){
-  try{
-   const parsed=new URL(url);
-   if(!["http:","https:"].includes(parsed.protocol))return null;
-   return parsed;
-  }catch{return null}
- }
-
- function navigate(url,add=true){
-  const parsed=validURL(url);
-  if(!parsed){
-   status.textContent="Invalid website address.";
-   return;
+  function record(entry) {
+    history = history.slice(0, historyIndex + 1);
+    history.push(entry);
+    historyIndex = history.length - 1;
+    updateButtons();
   }
-  requestNumber++;
-  mode="website";currentURL=parsed.href;
-  address.value=currentURL;
-  if(add)record({type:"website",value:currentURL});
 
-  page.replaceChildren();
-  const frame=document.createElement("iframe");
-  frame.className="website-frame";
-  frame.title="Website Viewer";
-  frame.src=currentURL;
-  frame.referrerPolicy="no-referrer";
-  page.appendChild(frame);
+  function showHome(addHistory = true) {
+    searchRequest++;
+    mode = "home";
+    currentURL = "";
+    address.value = "";
 
-  status.textContent="Viewing "+parsed.hostname+
-   " — some sites may block embedded viewing.";
- }
+    page.innerHTML = `
+      <div class="browser-home">
+        <h1>MYBROWSER</h1>
+        <p class="muted">
+          WEB SEARCH // POWERED BY TAVILY
+        </p>
+        <p class="muted">
+          Search for websites or enter an address above.
+        </p>
+      </div>
+    `;
 
- async function readPage(url,add=true){
-  const parsed=validURL(url);
-  if(!parsed){
-   status.textContent="Invalid website address.";
-   return;
+    status.textContent = "MYBROWSER // HOME";
+
+    if (addHistory) record({type: "home"});
   }
-  const req=++requestNumber;
-  mode="read";currentURL=parsed.href;
-  address.value=currentURL;
-  if(add)record({type:"read",value:currentURL});
 
-  page.replaceChildren();
-  const heading=document.createElement("h2");
-  heading.textContent="READ PAGE // "+parsed.hostname;
-  heading.style.padding="16px 16px 0";
+  async function searchWeb(query, addHistory = true) {
+    const requestId = ++searchRequest;
 
-  const content=document.createElement("div");
-  content.className="read-content";
-  content.textContent="Loading readable content...";
-  page.append(heading,content);
-  status.textContent="Reading page with Jina AI...";
+    mode = "search";
+    currentURL = "";
+    address.value = query;
 
-  try{
-   const response=await fetch(WORKER_URL,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({action:"read",url:parsed.href})
-   });
-   const data=await response.json();
-   if(!response.ok)throw Error(data.error||"Read failed");
-   if(req!==requestNumber)return;
+    if (addHistory) {
+      record({type: "search", value: query});
+    }
 
-   content.textContent=data.content||"No readable content found.";
-   status.textContent="READ PAGE // "+parsed.hostname;
-  }catch(e){
-   if(req!==requestNumber)return;
-   content.textContent="Unable to read page: "+e.message;
-   status.textContent="READ PAGE // FAILED";
+    page.replaceChildren();
+    status.textContent = "Searching Tavily...";
+
+    const heading = document.createElement("h2");
+    heading.textContent = "Search results: " + query;
+    heading.style.padding = "16px";
+    page.appendChild(heading);
+
+    try {
+      const response = await fetch(WORKER_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({query})
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Search failed");
+      }
+
+      if (requestId !== searchRequest) return;
+
+      const items = data.results || [];
+
+      status.textContent = items.length + " results found";
+
+      if (!items.length) {
+        const empty = document.createElement("p");
+        empty.className = "muted";
+        empty.style.padding = "16px";
+        empty.textContent = "No results found.";
+        page.appendChild(empty);
+      }
+
+      for (const item of items) {
+        const card = document.createElement("div");
+        card.className = "result";
+
+        const title = document.createElement("h3");
+        title.textContent = item.title || "Untitled";
+
+        const urlText = document.createElement("div");
+        urlText.className = "result-url";
+        urlText.textContent = item.url || "";
+
+        const description = document.createElement("p");
+        description.textContent = item.description || "";
+
+        const open = document.createElement("button");
+        open.className = "primary";
+        open.textContent = "OPEN IN MYBROWSER";
+        open.onclick = () => navigate(item.url);
+
+        const read = document.createElement("button");
+        read.className = "btn";
+        read.textContent = "READ PAGE";
+        read.style.marginLeft = "8px";
+        read.onclick = () => readPage(item.url);
+
+        card.append(title, urlText, description, open, read);
+        page.appendChild(card);
+      }
+
+    } catch (error) {
+      if (requestId !== searchRequest) return;
+
+      status.textContent =
+        "Search failed: " + error.message +
+        ". Check your Cloudflare Worker connection.";
+    }
   }
- }
 
- function restore(){
-  const entry=history[historyIndex];
-  if(!entry)return;
-  if(entry.type==="home")home(false);
-  if(entry.type==="search")search(entry.value,false);
-  if(entry.type==="website")navigate(entry.value,false);
-  if(entry.type==="read")readPage(entry.value,false);
-  buttons();
- }
+  function navigate(url, addHistory = true) {
+    let parsed;
 
- function go(){
-  const value=address.value.trim();
-  if(!value)return;
-  if(/^https?:\/\//i.test(value))navigate(value);
-  else if(/^[^\s]+\.[a-z]{2,}(?:[/:?#].*)?$/i.test(value))
-   navigate("https://"+value);
-  else search(value);
- }
+    try {
+      parsed = new URL(url);
 
- area.querySelector("#go").onclick=go;
- address.onkeydown=e=>{if(e.key==="Enter")go()};
- back.onclick=()=>{
-  if(historyIndex>0){historyIndex--;restore()}
- };
- forward.onclick=()=>{
-  if(historyIndex<history.length-1){historyIndex++;restore()}
- };
- area.querySelector("#refresh").onclick=restore;
- area.querySelector("#home").onclick=()=>home();
- home();
+      if (!["https:", "http:"].includes(parsed.protocol)) {
+        throw new Error("Unsupported URL");
+      }
+    } catch (error) {
+      status.textContent = "Invalid website address.";
+      return;
+    }
+
+    searchRequest++;
+    mode = "website";
+    currentURL = parsed.href;
+    address.value = currentURL;
+
+    if (addHistory) {
+      record({type: "website", value: currentURL});
+    }
+
+    page.replaceChildren();
+
+    const frame = document.createElement("iframe");
+    frame.className = "website-frame";
+    frame.title = "MyBrowser Website Viewer";
+    frame.src = currentURL;
+    frame.referrerPolicy = "no-referrer";
+
+    page.appendChild(frame);
+
+    status.textContent =
+      "Viewing " + parsed.hostname +
+      " — some websites may refuse embedded viewing.";
+
+    // Cross-origin security means we cannot reliably
+    // detect whether a website rejected iframe embedding.
+  }
+
+  async function readPage(url, addHistory = true) {
+    let parsed;
+    try {
+      parsed = new URL(url);
+      if (!["https:", "http:"].includes(parsed.protocol)) {
+        throw new Error("Unsupported URL");
+      }
+    } catch (error) {
+      status.textContent = "Invalid website address.";
+      return;
+    }
+
+    const requestId = ++searchRequest;
+    mode = "read";
+    currentURL = parsed.href;
+    address.value = currentURL;
+
+    if (addHistory) {
+      record({type: "read", value: currentURL});
+    }
+
+    page.replaceChildren();
+    const reading = document.createElement("div");
+    reading.style.padding = "16px";
+    const heading = document.createElement("h2");
+    heading.textContent = "READ PAGE // " + parsed.hostname;
+    const content = document.createElement("div");
+    content.style.whiteSpace = "pre-wrap";
+    content.style.overflowWrap = "anywhere";
+    content.style.lineHeight = "1.6";
+    content.style.fontSize = "13px";
+    content.style.marginTop = "14px";
+    content.textContent = "Loading readable content...";
+    reading.append(heading, content);
+    page.appendChild(reading);
+    status.textContent = "Reading " + parsed.hostname + " with Jina...";
+
+    try {
+      const response = await fetch(WORKER_URL, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({action: "read", url: currentURL})
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to read page");
+      }
+      if (requestId !== searchRequest) return;
+      content.textContent = data.content || "No readable content found.";
+      status.textContent = "READ PAGE // " + parsed.hostname;
+    } catch (error) {
+      if (requestId !== searchRequest) return;
+      content.textContent = "Could not read this page: " + error.message;
+      status.textContent = "READ PAGE // FAILED";
+    }
+  }
+
+  function restoreHistory() {
+    const entry = history[historyIndex];
+    if (!entry) return;
+
+    if (entry.type === "home") {
+      showHome(false);
+    } else if (entry.type === "search") {
+      searchWeb(entry.value, false);
+    } else if (entry.type === "website") {
+      navigate(entry.value, false);
+    } else if (entry.type === "read") {
+      readPage(entry.value, false);
+    }
+
+    updateButtons();
+  }
+
+  function go() {
+    const value = address.value.trim();
+    if (!value) return;
+
+    if (/^https?:\/\//i.test(value)) {
+      navigate(value);
+    } else if (
+      /^[^\s]+\.[a-z]{2,}(?:[/:?#].*)?$/i.test(value)
+    ) {
+      navigate("https://" + value);
+    } else {
+      searchWeb(value);
+    }
+  }
+
+  area.querySelector("#goBtn").onclick = go;
+
+  address.onkeydown = event => {
+    if (event.key === "Enter") go();
+  };
+
+  backBtn.onclick = () => {
+    if (historyIndex > 0) {
+      historyIndex--;
+      restoreHistory();
+    }
+  };
+
+  forwardBtn.onclick = () => {
+    if (historyIndex < history.length - 1) {
+      historyIndex++;
+      restoreHistory();
+    }
+  };
+
+  area.querySelector("#refreshBtn").onclick = () => {
+    if (mode === "website") {
+      navigate(currentURL, false);
+    } else {
+      restoreHistory();
+    }
+  };
+
+  area.querySelector("#homeBtn").onclick = () => {
+    showHome();
+  };
+
+  showHome();
 }
 
-/* FILES */
-function filesApp(area){
- area.innerHTML=`
- <h2>FILE MANAGER</h2>
- <p class="muted">Choose files from your device.</p>
- <input type="file" class="field" id="picker" multiple>
- <div id="fileList"></div>`;
+/* FILE MANAGER */
 
- area.querySelector("#picker").onchange=e=>{
-  const list=area.querySelector("#fileList");
-  list.replaceChildren();
-  for(const file of e.target.files){
-   const item=document.createElement("div");
-   item.className="card";
-   item.textContent=file.name+" — "+file.size+" bytes";
-   list.appendChild(item);
-  }
- };
+function filesApp(area) {
+  area.innerHTML = `
+    <h2>FILE MANAGER</h2>
+    <p class="muted">
+      Choose files from your device to inspect them.
+    </p>
+    <input type="file" id="filePicker" class="field" multiple>
+    <div id="fileList"></div>
+  `;
+
+  area.querySelector("#filePicker").onchange = event => {
+    const list = area.querySelector("#fileList");
+    list.replaceChildren();
+
+    for (const file of event.target.files) {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.textContent =
+        file.name + " — " + file.size + " bytes";
+      list.appendChild(card);
+    }
+  };
 }
 
 /* TEXT EDITOR */
-function editorApp(area){
- area.innerHTML=`
- <h2>TEXT EDITOR</h2>
- <p class="muted">Your notes are saved locally.</p>
- <textarea id="notes" placeholder="Write something..."></textarea>
- <div class="row">
-  <button class="primary" id="save">SAVE</button>
-  <span class="muted" id="saved"></span>
- </div>`;
 
- const notes=area.querySelector("#notes");
- notes.value=localStorage.getItem("mybrowser-notes")||"";
- area.querySelector("#save").onclick=()=>{
-  localStorage.setItem("mybrowser-notes",notes.value);
-  area.querySelector("#saved").textContent="Saved!";
- };
+function editorApp(area) {
+  area.innerHTML = `
+    <h2>TEXT EDITOR</h2>
+    <p class="muted">Your notes are saved locally.</p>
+    <textarea id="notes"
+      placeholder="Write something..."></textarea>
+    <div class="row">
+      <button class="primary" id="saveNotes">SAVE</button>
+      <span class="muted" id="saveStatus"></span>
+    </div>
+  `;
+
+  const notes = area.querySelector("#notes");
+  notes.value = localStorage.getItem("mybrowser-notes") || "";
+
+  area.querySelector("#saveNotes").onclick = () => {
+    localStorage.setItem("mybrowser-notes", notes.value);
+    area.querySelector("#saveStatus").textContent = "Saved!";
+  };
 }
 
-/* TERMINAL */
-function terminalApp(area){
- area.innerHTML=`
- <h2>TERMINAL</h2>
- <div class="terminal-output" id="output">MYBROWSER TERMINAL
+/* SIMULATED TERMINAL */
+
+function terminalApp(area) {
+  area.innerHTML = `
+    <h2>TERMINAL</h2>
+    <div class="terminal-output" id="output">MYBROWSER TERMINAL v1.0
 Type HELP for commands.
 
 </div>
- <input class="field" id="command" placeholder="Enter command...">`;
+    <input class="field" id="command"
+      placeholder="Enter command...">
+  `;
 
- const output=area.querySelector("#output");
- const input=area.querySelector("#command");
+  const output = area.querySelector("#output");
+  const input = area.querySelector("#command");
 
- input.onkeydown=e=>{
-  if(e.key!=="Enter")return;
-  const command=input.value.trim();
-  const cmd=command.toLowerCase();
-  input.value="";
+  input.onkeydown = event => {
+    if (event.key !== "Enter") return;
 
-  if(cmd==="clear"){output.textContent="";return}
+    const command = input.value.trim();
+    const cmd = command.toLowerCase();
+    input.value = "";
 
-  let answer="Unknown command. Type HELP.";
-  if(cmd==="help")
-   answer="HELP, DATE, TIME, ABOUT, APPS, CLEAR, REBOOT, ECHO";
-  else if(cmd==="date")answer=new Date().toDateString();
-  else if(cmd==="time")answer=new Date().toLocaleTimeString();
-  else if(cmd==="about")answer="MyBrowser // System Online";
-  else if(cmd==="apps")answer=APPS.map(x=>x[1]).join(", ");
-  else if(cmd==="reboot"){location.reload();return}
-  else if(cmd.startsWith("echo "))answer=command.slice(5);
+    if (cmd === "clear") {
+      output.textContent = "";
+      return;
+    }
 
-  output.textContent+="> "+command+"\n"+answer+"\n\n";
-  output.scrollTop=output.scrollHeight;
- };
+    let answer = "Unknown command. Type HELP.";
+
+    if (cmd === "help") {
+      answer =
+        "HELP, DATE, TIME, ABOUT, APPS, CLEAR, REBOOT, ECHO";
+    } else if (cmd === "date") {
+      answer = new Date().toDateString();
+    } else if (cmd === "time") {
+      answer = new Date().toLocaleTimeString();
+    } else if (cmd === "about") {
+      answer = "MyBrowser // Custom Web Desktop";
+    } else if (cmd === "apps") {
+      answer = APPS.map(app => app[1]).join(", ");
+    } else if (cmd === "reboot") {
+      location.reload();
+      return;
+    } else if (cmd.startsWith("echo ")) {
+      answer = command.slice(5);
+    }
+
+    output.textContent +=
+      "> " + command + "\n" + answer + "\n\n";
+
+    output.scrollTop = output.scrollHeight;
+  };
 }
 
 /* CALCULATOR */
-function calculatorApp(area){
- area.innerHTML=`
- <h2>CALCULATOR</h2>
- <input class="field" id="display" readonly value="0"
-  style="font-size:25px;text-align:right">
- <div class="calc-grid" id="keys"></div>`;
 
- const display=area.querySelector("#display");
- const grid=area.querySelector("#keys");
- let expression="";
+function calculatorApp(area) {
+  area.innerHTML = `
+    <h2>CALCULATOR</h2>
+    <input class="field" id="display" readonly value="0"
+      style="font-size:25px;text-align:right">
+    <div class="calculator-grid" id="keys"></div>
+  `;
 
- const keys=[
-  "7","8","9","÷",
-  "4","5","6","×",
-  "1","2","3","−",
-  "C","0",".","+",
-  "(",")","⌫","="
- ];
+  const display = area.querySelector("#display");
+  const keys = area.querySelector("#keys");
 
- function calculate(source){
-  const s=source.replaceAll("×","*")
-   .replaceAll("÷","/").replaceAll("−","-");
-  if(!/^[0-9+\-*/().\s]+$/.test(s))throw Error();
+  const labels = [
+    "7", "8", "9", "÷",
+    "4", "5", "6", "×",
+    "1", "2", "3", "−",
+    "C", "0", ".", "+",
+    "(", ")", "⌫", "="
+  ];
 
-  const tokens=s.match(/\d+(?:\.\d+)?|\.\d+|[()+\-*/]/g);
-  if(!tokens||tokens.join("")!==s.replace(/\s/g,""))
-   throw Error();
+  let expression = "";
 
-  let i=0;
-  function expr(){
-   let v=term();
-   while(tokens[i]==="+"||tokens[i]==="-"){
-    const op=tokens[i++];
-    const n=term();
-    v=op==="+"?v+n:v-n;
-   }
-   return v;
+  labels.forEach(label => {
+    const button = document.createElement("button");
+    button.textContent = label;
+
+    button.onclick = () => {
+      if (label === "C") {
+        expression = "";
+      } else if (label === "⌫") {
+        expression = expression.slice(0, -1);
+      } else if (label === "=") {
+        try {
+          const normalized = expression
+            .replaceAll("×", "*")
+            .replaceAll("÷", "/")
+            .replaceAll("−", "-");
+
+          if (!/^[0-9+\-*/().\s]+$/.test(normalized)) {
+            throw new Error("Invalid");
+          }
+
+          const tokens = normalized.match(
+            /\d+(?:\.\d+)?|\.\d+|[()+\-*/]/g
+          );
+
+          if (
+            !tokens ||
+            tokens.join("") !== normalized.replace(/\s/g, "")
+          ) {
+            throw new Error("Invalid");
+          }
+
+          let index = 0;
+
+          function parseExpression() {
+            let value = parseTerm();
+
+            while (
+              tokens[index] === "+" ||
+              tokens[index] === "-"
+            ) {
+              const operator = tokens[index++];
+              const next = parseTerm();
+
+              value = operator === "+"
+                ? value + next
+                : value - next;
+            }
+
+            return value;
+          }
+
+          function parseTerm() {
+            let value = parseFactor();
+
+            while (
+              tokens[index] === "*" ||
+              tokens[index] === "/"
+            ) {
+              const operator = tokens[index++];
+              const next = parseFactor();
+
+              value = operator === "*"
+                ? value * next
+                : value / next;
+            }
+
+            return value;
+          }
+
+          function parseFactor() {
+            const token = tokens[index++];
+
+            if (token === "+") return parseFactor();
+            if (token === "-") return -parseFactor();
+
+            if (token === "(") {
+              const value = parseExpression();
+
+              if (tokens[index++] !== ")") {
+                throw new Error("Missing parenthesis");
+              }
+
+              return value;
+            }
+
+            const value = Number(token);
+
+            if (!Number.isFinite(value)) {
+              throw new Error("Invalid number");
+            }
+
+            return value;
+          }
+
+          const result = parseExpression();
+
+          if (
+            index !== tokens.length ||
+            !Number.isFinite(result)
+          ) {
+            throw new Error("Invalid result");
+          }
+
+          expression = String(
+            Number(result.toPrecision(12))
+          );
+
+        } catch (error) {
+          expression = "";
+          display.value = "ERROR";
+          return;
+        }
+      } else {
+        expression += label;
+      }
+
+      display.value = expression || "0";
+    };
+
+    keys.appendChild(button);
+  });
+}
+
+/* TAB CUSTOMIZATION */
+
+const DEFAULT_ICON = "data:,";
+
+const PRESETS = {
+  "MyBrowser": "MyBrowser",
+  "Study Workspace": "Study Workspace",
+  "Learning Hub": "Learning Hub",
+  "Documents": "Documents",
+  "System Core": "System Core"
+};
+
+function setTab(title, icon) {
+  document.title = title;
+  document.getElementById("tabIcon").href =
+    icon || DEFAULT_ICON;
+}
+
+function restoreTab() {
+  try {
+    const saved = JSON.parse(
+      localStorage.getItem("mybrowser-cloak")
+    );
+
+    if (saved && saved.title) {
+      setTab(saved.title, saved.icon);
+    }
+  } catch (error) {}
+}
+
+function cloakingApp(area) {
+  area.innerHTML = `
+    <h2>TAB CUSTOMIZATION</h2>
+    <p class="muted">
+      Customize this tab's title and icon.
+      This does not change its actual URL.
+    </p>
+
+    <div class="card">
+      <p>Preset</p>
+      <select class="field" id="preset">
+        <option>MyBrowser</option>
+        <option>Study Workspace</option>
+        <option>Learning Hub</option>
+        <option>Documents</option>
+        <option>System Core</option>
+        <option>Custom</option>
+      </select>
+
+      <p>Tab title</p>
+      <input class="field" id="customTitle">
+
+      <p>Custom favicon URL</p>
+      <input class="field" id="customIcon"
+        value="https://">
+
+      <p class="muted" id="preview"></p>
+
+      <div class="row" style="flex-wrap:wrap">
+        <button class="primary" id="apply">
+          APPLY CLOAK
+        </button>
+        <button class="btn" id="reset">
+          RESET TO DEFAULT
+        </button>
+      </div>
+
+      <p class="muted" id="cloakStatus"></p>
+    </div>
+  `;
+
+  const preset = area.querySelector("#preset");
+  const title = area.querySelector("#customTitle");
+  const icon = area.querySelector("#customIcon");
+  const preview = area.querySelector("#preview");
+  const status = area.querySelector("#cloakStatus");
+
+  function updatePreview() {
+    preview.textContent =
+      "Preview: " + (title.value.trim() || "Custom");
   }
-  function term(){
-   let v=factor();
-   while(tokens[i]==="*"||tokens[i]==="/"){
-    const op=tokens[i++];
-    const n=factor();
-    v=op==="*"?v*n:v/n;
-   }
-   return v;
-  }
-  function factor(){
-   const token=tokens[i++];
-   if(token==="+")return factor();
-   if(token==="-")return -factor();
-   if(token==="("){
-    const v=expr();
-    if(tokens[i++]!==")")throw Error();
-    return v;
-   }
-   const v=Number(token);
-   if(!Number.isFinite(v))throw Error();
-   return v;
-  }
-  const result=expr();
-  if(i!==tokens.length||!Number.isFinite(result))
-   throw Error();
-  return String(Number(result.toPrecision(12)));
- }
 
- keys.forEach(key=>{
-  const b=document.createElement("button");
-  b.textContent=key;
-  b.onclick=()=>{
-   if(key==="C")expression="";
-   else if(key==="⌫")expression=expression.slice(0,-1);
-   else if(key==="="){
-    try{expression=calculate(expression)}
-    catch{expression="";display.value="ERROR";return}
-   }else expression+=key;
-   display.value=expression||"0";
+  preset.onchange = () => {
+    if (preset.value !== "Custom") {
+      title.value = PRESETS[preset.value];
+      icon.value = "https://";
+    }
+
+    updatePreview();
   };
-  grid.appendChild(b);
- });
-}
 
-/* CLOAKING */
-const DEFAULT_ICON="data:,";
-
-function setTab(title,icon){
- document.title=title;
- document.getElementById("favicon").href=icon||DEFAULT_ICON;
-}
-
-function restoreTab(){
- try{
-  const saved=JSON.parse(
-   localStorage.getItem("mybrowser-cloak")
-  );
-  if(saved?.title)setTab(saved.title,saved.icon);
- }catch{}
-}
-
-function cloakingApp(area){
- area.innerHTML=`
- <h2>TAB CUSTOMIZATION</h2>
- <p class="muted">
-  Change the tab title and favicon.
-  This does not change the website URL.
- </p>
- <div class="card">
-  <p>Preset</p>
-  <select class="field" id="preset">
-   <option>MyBrowser</option>
-   <option>Study Workspace</option>
-   <option>Learning Hub</option>
-   <option>Documents</option>
-   <option>System Core</option>
-   <option>Custom</option>
-  </select>
-  <p>Tab title</p>
-  <input class="field" id="title">
-  <p>Favicon URL</p>
-  <input class="field" id="icon" value="https://">
-  <div class="row" style="margin-top:14px">
-   <button class="primary" id="apply">APPLY</button>
-   <button class="btn" id="reset">RESET</button>
-  </div>
-  <p class="muted" id="message"></p>
- </div>`;
-
- const preset=area.querySelector("#preset");
- const title=area.querySelector("#title");
- const icon=area.querySelector("#icon");
- const message=area.querySelector("#message");
-
- preset.onchange=()=>{
-  if(preset.value!=="Custom"){
-   title.value=preset.value;
-   icon.value="https://";
-  }
- };
- preset.onchange();
-
- area.querySelector("#apply").onclick=()=>{
-  const newTitle=title.value.trim();
-  if(!newTitle){
-   message.textContent="Enter a title.";
-   return;
-  }
-  let newIcon=DEFAULT_ICON;
-  if(icon.value.trim()!=="https://"){
-   try{
-    const u=new URL(icon.value.trim());
-    if(u.protocol!=="https:")throw Error();
-    newIcon=u.href;
-   }catch{
-    message.textContent="Enter a valid HTTPS favicon URL.";
-    return;
-   }
-  }
-  setTab(newTitle,newIcon);
-  localStorage.setItem(
-   "mybrowser-cloak",
-   JSON.stringify({title:newTitle,icon:newIcon})
-  );
-  message.textContent="Tab updated!";
- };
-
- area.querySelector("#reset").onclick=()=>{
-  localStorage.removeItem("mybrowser-cloak");
-  setTab("MyBrowser",DEFAULT_ICON);
-  preset.value="MyBrowser";
+  title.oninput = updatePreview;
   preset.onchange();
-  message.textContent="Restored default.";
- };
+
+  area.querySelector("#apply").onclick = () => {
+    const newTitle = title.value.trim();
+
+    if (!newTitle) {
+      status.textContent = "Enter a title.";
+      return;
+    }
+
+    let newIcon = DEFAULT_ICON;
+
+    if (icon.value.trim() !== "https://") {
+      try {
+        const parsed = new URL(icon.value.trim());
+
+        if (parsed.protocol !== "https:") {
+          throw new Error("HTTPS required");
+        }
+
+        newIcon = parsed.href;
+      } catch (error) {
+        status.textContent =
+          "Enter a valid HTTPS favicon URL.";
+        return;
+      }
+    }
+
+    setTab(newTitle, newIcon);
+
+    localStorage.setItem(
+      "mybrowser-cloak",
+      JSON.stringify({
+        title: newTitle,
+        icon: newIcon
+      })
+    );
+
+    status.textContent = "Cloak applied successfully.";
+  };
+
+  area.querySelector("#reset").onclick = () => {
+    localStorage.removeItem("mybrowser-cloak");
+
+    setTab("MyBrowser", DEFAULT_ICON);
+
+    preset.value = "MyBrowser";
+    preset.onchange();
+
+    status.textContent = "Restored default tab.";
+  };
 }
 
 /* ABOUT */
-function aboutApp(area){
- area.innerHTML=`
- <h2>ABOUT MYBROWSER</h2>
- <div class="card">
-  <h3>MYBROWSER // SYSTEM CORE</h3>
-  <p>Custom Murder Drones-inspired web desktop.</p>
-  <p>Search: Tavily</p>
-  <p>Page reader: Jina AI</p>
-  <p>Backend: Cloudflare Workers</p>
-  <p>Hosting: GitHub Pages</p>
-  <p>Games: Minesweeper, Snake, 2048</p>
-  <p>STATUS: SYSTEM ONLINE</p>
- </div>
- <p class="muted">
-  Some websites block iframe embedding.
- </p>`;
+
+function aboutApp(area) {
+  area.innerHTML = `
+    <h2>ABOUT MYBROWSER</h2>
+
+    <div class="card">
+      <h3>MYBROWSER // SYSTEM CORE</h3>
+      <p>Custom yellow-and-black web desktop.</p>
+      <p>Search provider: Tavily</p>
+      <p>Backend: Cloudflare Workers</p>
+      <p>Hosting: GitHub Pages</p>
+      <p>Website viewer: Embedded iframe</p>
+      <p>Version: 2.0</p>
+    </div>
+
+    <p class="muted">
+      MyBrowser runs inside Chrome.
+      Websites may block iframe embedding,
+      and school network restrictions still apply.
+    </p>
+  `;
 }
 
-/* MINESWEEPER */
-function minesweeperApp(area){
- let rows=9,cols=9,mines=10;
- let cells=[],started=false,ended=false;
- let flags=0,seconds=0,timer=null,flagMode=false;
 
- area.innerHTML=`
- <h2>MINESWEEPER</h2>
- <div class="game-top">
-  <select class="field" id="difficulty" style="width:auto">
-   <option value="easy">Easy 9×9</option>
-   <option value="medium">Medium 12×12</option>
-   <option value="hard">Hard 16×16</option>
-  </select>
-  <button class="primary" id="restart">NEW GAME</button>
-  <button class="btn" id="flagMode">FLAG: OFF</button>
- </div>
- <div class="game-top">
-  <span class="muted" id="mineCount">MINES: 10</span>
-  <span class="muted" id="mineTime">TIME: 0</span>
-  <span class="muted" id="mineStatus">READY</span>
- </div>
- <div class="game-panel">
-  <div class="mine-board" id="board"></div>
-  <p class="muted">
-   Left-click to reveal. Right-click to flag.
-   On touchscreens, use Flag mode.
-  </p>
- </div>`;
-
- const board=area.querySelector("#board");
- const counter=area.querySelector("#mineCount");
- const time=area.querySelector("#mineTime");
- const status=area.querySelector("#mineStatus");
-
- function neighbors(r,c){
-  const result=[];
-  for(let dr=-1;dr<=1;dr++){
-   for(let dc=-1;dc<=1;dc++){
-    if(!dr&&!dc)continue;
-    const nr=r+dr,nc=c+dc;
-    if(nr>=0&&nr<rows&&nc>=0&&nc<cols)
-     result.push([nr,nc]);
-   }
-  }
-  return result;
- }
-
- function stopTimer(){
-  clearInterval(timer);
-  timer=null;
- }
-
- function newGame(){
-  stopTimer();
-  const difficulty=area.querySelector("#difficulty").value;
-  if(difficulty==="easy"){
-   rows=9;cols=9;mines=10;
-  }else if(difficulty==="medium"){
-   rows=12;cols=12;mines=24;
-  }else{
-   rows=16;cols=16;mines=40;
-  }
-
-  cells=Array.from({length:rows},()=>Array.from(
-   {length:cols},
-   ()=>({mine:false,open:false,flag:false,count:0})
-  ));
-  started=false;ended=false;flags=0;seconds=0;
-  flagMode=false;
-  area.querySelector("#flagMode").textContent="FLAG: OFF";
-  time.textContent="TIME: 0";
-  status.textContent="READY";
-  board.style.gridTemplateColumns=`repeat(${cols},1fr)`;
-  board.replaceChildren();
-
-  for(let r=0;r<rows;r++){
-   for(let c=0;c<cols;c++){
-    const b=document.createElement("button");
-    b.className="mine-cell";
-    b.dataset.r=r;b.dataset.c=c;
-    b.onclick=()=>{
-     if(flagMode)toggleFlag(r,c);
-     else reveal(r,c);
-    };
-    b.oncontextmenu=e=>{
-     e.preventDefault();
-     toggleFlag(r,c);
-    };
-    board.appendChild(b);
-   }
-  }
-  update();
- }
-
- function placeMines(safeR,safeC){
-  const forbidden=new Set(
-   [[safeR,safeC],...neighbors(safeR,safeC)]
-   .map(([r,c])=>r+","+c)
-  );
-  const possible=[];
-  for(let r=0;r<rows;r++)
-   for(let c=0;c<cols;c++)
-    if(!forbidden.has(r+","+c))possible.push([r,c]);
-
-  for(let i=possible.length-1;i>0;i--){
-   const j=Math.floor(Math.random()*(i+1));
-   [possible[i],possible[j]]=[possible[j],possible[i]];
-  }
-
-  for(const [r,c] of possible.slice(0,mines))
-   cells[r][c].mine=true;
-
-  for(let r=0;r<rows;r++)
-   for(let c=0;c<cols;c++)
-    cells[r][c].count=neighbors(r,c)
-     .filter(([nr,nc])=>cells[nr][nc].mine).length;
- }
-
- function toggleFlag(r,c){
-  if(ended)return;
-  const cell=cells[r][c];
-  if(cell.open)return;
-  cell.flag=!cell.flag;
-  flags+=cell.flag?1:-1;
-  update();
- }
-
- function reveal(r,c){
-  if(ended)return;
-  if(!started){
-   started=true;
-   placeMines(r,c);
-   status.textContent="PLAYING";
-   timer=setInterval(()=>{
-    seconds++;
-    time.textContent="TIME: "+seconds;
-   },1000);
-  }
-
-  const cell=cells[r][c];
-  if(cell.open||cell.flag)return;
-
-  if(cell.mine){
-   cell.open=true;
-   ended=true;
-   stopTimer();
-   status.textContent="GAME OVER";
-   for(const row of cells)
-    for(const item of row)
-     if(item.mine)item.open=true;
-   update();
-   return;
-  }
-
-  const queue=[[r,c]];
-  while(queue.length){
-   const [cr,cc]=queue.pop();
-   const current=cells[cr][cc];
-   if(current.open||current.flag||current.mine)continue;
-   current.open=true;
-   if(current.count===0){
-    for(const [nr,nc] of neighbors(cr,cc)){
-     const next=cells[nr][nc];
-     if(!next.open&&!next.flag&&!next.mine)
-      queue.push([nr,nc]);
-    }
-   }
-  }
-
-  const safeOpened=cells.flat().filter(
-   x=>x.open&&!x.mine
-  ).length;
-
-  if(safeOpened===rows*cols-mines){
-   ended=true;
-   stopTimer();
-   status.textContent="YOU WIN!";
-  }
-  update();
- }
-
- function update(){
-  counter.textContent="MINES: "+(mines-flags);
-  for(const button of board.children){
-   const r=+button.dataset.r,c=+button.dataset.c;
-   const cell=cells[r][c];
-   button.className="mine-cell";
-   button.textContent="";
-   button.removeAttribute("data-number");
-
-   if(cell.open){
-    button.classList.add("open");
-    if(cell.mine){
-     button.textContent="✹";
-     button.classList.add("bomb");
-    }else if(cell.count){
-     button.textContent=cell.count;
-     button.dataset.number=cell.count;
-    }
-   }else if(cell.flag){
-    button.textContent="⚑";
-    button.classList.add("flag");
-   }
-  }
- }
-
- area.querySelector("#restart").onclick=newGame;
- area.querySelector("#difficulty").onchange=newGame;
- area.querySelector("#flagMode").onclick=()=>{
-  flagMode=!flagMode;
-  area.querySelector("#flagMode").textContent=
-   "FLAG: "+(flagMode?"ON":"OFF");
- };
-
- newGame();
-
- const observer=new MutationObserver(()=>{
-  if(!area.isConnected){
-   stopTimer();
-   observer.disconnect();
-  }
- });
- observer.observe(document.body,{childList:true});
+/* THREE OFFLINE GAMES — no API keys needed */
+function minesweeperApp(area) {
+  let width=9,height=9,mines=10,board=[],started=false,ended=false,flags=0,seconds=0,timer=null,flagMode=false;
+  area.innerHTML=`<h2>MINESWEEPER</h2><div class="game-top"><select class="field" id="msLevel" style="width:auto"><option value="easy">Easy (9×9)</option><option value="medium">Medium (12×12)</option><option value="hard">Hard (16×16)</option></select><button class="primary" id="msNew">NEW GAME</button><button class="btn" id="msFlag">Flag mode: OFF</button><span class="muted" id="msInfo"></span></div><div class="muted" id="msMessage">Reveal squares. Right-click or use Flag mode to mark mines. First click is safe.</div><div style="flex:1;min-height:0;overflow:auto"><div class="game-board" id="msBoard"></div></div>`;
+  const grid=area.querySelector('#msBoard'),info=area.querySelector('#msInfo'),message=area.querySelector('#msMessage'),level=area.querySelector('#msLevel'),flagButton=area.querySelector('#msFlag');
+  function stopTimer(){if(timer){clearInterval(timer);timer=null;}}
+  function neighbors(x,y){const out=[];for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;let nx=x+dx,ny=y+dy;if(nx>=0&&ny>=0&&nx<width&&ny<height)out.push(ny*width+nx);}return out;}
+  function updateInfo(){info.textContent=`Mines: ${mines-flags}  |  Time: ${seconds}s`;}
+  function newGame(){stopTimer();let l=level.value;width=l==='easy'?9:l==='medium'?12:16;height=width;mines=l==='easy'?10:l==='medium'?22:40;started=false;ended=false;flags=0;seconds=0;flagMode=false;flagButton.textContent='Flag mode: OFF';message.textContent='Reveal squares. First click is safe.';board=Array.from({length:width*height},()=>({mine:false,count:0,open:false,flag:false}));render();updateInfo();}
+  function placeMines(safeIndex){const safe=new Set([safeIndex,...neighbors(safeIndex%width,Math.floor(safeIndex/width))]);let choices=board.map((_,i)=>i).filter(i=>!safe.has(i));for(let i=choices.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[choices[i],choices[j]]=[choices[j],choices[i]];}for(const i of choices.slice(0,mines))board[i].mine=true;board.forEach((cell,i)=>{cell.count=neighbors(i%width,Math.floor(i/width)).filter(n=>board[n].mine).length;});}
+  function finish(won){ended=true;stopTimer();message.textContent=won?'YOU WIN! All safe squares cleared.':'GAME OVER — You hit a mine.';if(won)board.forEach(c=>{if(c.mine)c.flag=true;});render();}
+  function reveal(index){if(ended||board[index].flag||board[index].open)return;if(!started){placeMines(index);started=true;timer=setInterval(()=>{seconds++;updateInfo();},1000);}if(board[index].mine){board[index].open=true;board.forEach(c=>{if(c.mine)c.open=true;});finish(false);return;}const queue=[index];while(queue.length){const i=queue.pop(),c=board[i];if(c.open||c.flag||c.mine)continue;c.open=true;if(c.count===0)for(const n of neighbors(i%width,Math.floor(i/width)))if(!board[n].open&&!board[n].flag)queue.push(n);}if(board.every(c=>c.mine||c.open)){finish(true);return;}render();}
+  function flag(index){if(ended||board[index].open)return;board[index].flag=!board[index].flag;flags+=board[index].flag?1:-1;render();}
+  function render(){grid.replaceChildren();grid.style.gridTemplateColumns=`repeat(${width},minmax(24px,32px))`;board.forEach((cell,i)=>{const b=document.createElement('button');b.className='game-cell'+(cell.open?' revealed':'')+(cell.flag?' flagged':'')+(cell.open&&cell.mine?' mine':'');b.style.width='32px';b.style.height='32px';b.type='button';if(cell.open&&cell.mine)b.textContent='✹';else if(cell.flag)b.textContent='⚑';else if(cell.open&&cell.count){b.textContent=cell.count;b.dataset.number=String(cell.count);}b.addEventListener('click',()=>{if(flagMode)flag(i);else reveal(i);});b.addEventListener('contextmenu',e=>{e.preventDefault();flag(i);});grid.appendChild(b);});updateInfo();}
+  flagButton.onclick=()=>{flagMode=!flagMode;flagButton.textContent='Flag mode: '+(flagMode?'ON':'OFF');};area.querySelector('#msNew').onclick=newGame;level.onchange=newGame;newGame();
+  const observer=new MutationObserver(()=>{if(!area.isConnected){stopTimer();observer.disconnect();}});observer.observe(document.body,{childList:true});
 }
 
-/* SNAKE */
 function snakeApp(area){
- area.innerHTML=`
- <h2>SNAKE</h2>
- <div class="game-top">
-  <span class="muted" id="score">SCORE: 0</span>
-  <span class="muted" id="best">BEST: 0</span>
-  <button class="primary" id="start">START / RESTART</button>
-  <button class="btn" id="pause">PAUSE</button>
- </div>
- <div class="game-panel">
-  <canvas id="snakeCanvas" width="400" height="400"></canvas>
-  <span class="muted" id="message">Press START to play</span>
-  <div class="direction-pad">
-   <span></span><button class="btn" data-dir="up">↑</button><span></span>
-   <button class="btn" data-dir="left">←</button>
-   <button class="btn" data-dir="down">↓</button>
-   <button class="btn" data-dir="right">→</button>
-  </div>
-  <p class="muted">Use arrow keys or WASD.</p>
- </div>`;
-
- const canvas=area.querySelector("#snakeCanvas");
- const ctx=canvas.getContext("2d");
- const scoreEl=area.querySelector("#score");
- const bestEl=area.querySelector("#best");
- const message=area.querySelector("#message");
-
- const N=20,S=20;
- let snake=[],food={x:10,y:10};
- let direction={x:1,y:0},next={x:1,y:0};
- let score=0,running=false,paused=false,timer=null;
- let best=Number(localStorage.getItem("mybrowser-snake-best")||0);
- bestEl.textContent="BEST: "+best;
-
- function randomFood(){
-  const empty=[];
-  for(let y=0;y<N;y++)
-   for(let x=0;x<N;x++)
-    if(!snake.some(p=>p.x===x&&p.y===y))
-     empty.push({x,y});
-  return empty.length?
-   empty[Math.floor(Math.random()*empty.length)]:null;
- }
-
- function draw(){
-  ctx.fillStyle="#0b0e14";
-  ctx.fillRect(0,0,400,400);
-
-  ctx.strokeStyle="#ffe65c0d";
-  for(let i=0;i<=N;i++){
-   ctx.beginPath();
-   ctx.moveTo(i*S,0);ctx.lineTo(i*S,400);
-   ctx.stroke();
-   ctx.beginPath();
-   ctx.moveTo(0,i*S);ctx.lineTo(400,i*S);
-   ctx.stroke();
-  }
-
-  if(food){
-   ctx.fillStyle="#ff5a76";
-   ctx.shadowColor="#ff284c";
-   ctx.shadowBlur=12;
-   ctx.fillRect(food.x*S+4,food.y*S+4,S-8,S-8);
-   ctx.shadowBlur=0;
-  }
-
-  snake.forEach((part,i)=>{
-   ctx.fillStyle=i===0?"#fff4ad":"#ffe65c";
-   ctx.shadowColor="#ffd400";
-   ctx.shadowBlur=i===0?12:3;
-   ctx.fillRect(part.x*S+2,part.y*S+2,S-4,S-4);
-  });
-  ctx.shadowBlur=0;
- }
-
- function stop(){
-  clearInterval(timer);
-  timer=null;
- }
-
- function start(){
-  stop();
-  snake=[{x:5,y:10},{x:4,y:10},{x:3,y:10}];
-  direction={x:1,y:0};
-  next={x:1,y:0};
-  food=randomFood();
-  score=0;running=true;paused=false;
-  scoreEl.textContent="SCORE: 0";
-  message.textContent="PLAYING";
-  area.querySelector("#pause").textContent="PAUSE";
-  draw();
-  timer=setInterval(step,115);
- }
-
- function end(){
-  running=false;
-  stop();
-  message.textContent="GAME OVER — PRESS RESTART";
- }
-
- function step(){
-  if(!running||paused)return;
-  direction=next;
-  const head={
-   x:snake[0].x+direction.x,
-   y:snake[0].y+direction.y
-  };
-
-  const eating=food&&head.x===food.x&&head.y===food.y;
-  const body=eating?snake:snake.slice(0,-1);
-
-  if(
-   head.x<0||head.y<0||head.x>=N||head.y>=N||
-   body.some(p=>p.x===head.x&&p.y===head.y)
-  ){
-   end();return;
-  }
-
-  snake.unshift(head);
-
-  if(eating){
-   score+=10;
-   scoreEl.textContent="SCORE: "+score;
-   if(score>best){
-    best=score;
-    bestEl.textContent="BEST: "+best;
-    localStorage.setItem("mybrowser-snake-best",best);
-   }
-   food=randomFood();
-   if(!food){
-    end();
-    message.textContent="YOU WIN!";
-   }
-  }else snake.pop();
-
-  draw();
- }
-
- function setDirection(name){
-  const dirs={
-   up:{x:0,y:-1},down:{x:0,y:1},
-   left:{x:-1,y:0},right:{x:1,y:0}
-  };
-  const d=dirs[name];
-  if(!d)return;
-  if(d.x===-direction.x&&d.y===-direction.y)return;
-  next=d;
- }
-
- function keyHandler(e){
-  const win=area.closest(".window");
-  if(!win||!win.isConnected){
-   window.removeEventListener("keydown",keyHandler);
-   stop();
-   return;
-  }
-  if(document.activeElement?.matches("input,textarea"))return;
-  if(win.style.zIndex!==String(topZ))return;
-
-  const map={
-   ArrowUp:"up",ArrowDown:"down",
-   ArrowLeft:"left",ArrowRight:"right",
-   w:"up",s:"down",a:"left",d:"right"
-  };
-  if(map[e.key]){
-   e.preventDefault();
-   setDirection(map[e.key]);
-  }
- }
-
- window.addEventListener("keydown",keyHandler);
-
- area.querySelectorAll("[data-dir]").forEach(b=>{
-  b.onclick=()=>setDirection(b.dataset.dir);
- });
- area.querySelector("#start").onclick=start;
- area.querySelector("#pause").onclick=()=>{
-  if(!running)return;
-  paused=!paused;
-  message.textContent=paused?"PAUSED":"PLAYING";
-  area.querySelector("#pause").textContent=
-   paused?"RESUME":"PAUSE";
- };
-
- const observer=new MutationObserver(()=>{
-  if(!area.isConnected){
-   stop();
-   window.removeEventListener("keydown",keyHandler);
-   observer.disconnect();
-  }
- });
- observer.observe(document.body,{childList:true});
-
- snake=[{x:5,y:10},{x:4,y:10},{x:3,y:10}];
- draw();
+  area.innerHTML=`<h2>SNAKE</h2><div class="game-top"><button class="primary" id="snakeStart">START / RESTART</button><button class="btn" id="snakePause">PAUSE</button><span class="muted" id="snakeInfo">Score: 0</span></div><div class="muted" id="snakeMessage">Use arrow keys or WASD while this game is focused. On touchscreens, use the controls below.</div><canvas class="snake-canvas" id="snakeCanvas" width="400" height="400" tabindex="0"></canvas><div class="game-pad"><span></span><button class="btn" data-dir="up">↑</button><span></span><button class="btn" data-dir="left">←</button><button class="btn" data-dir="down">↓</button><button class="btn" data-dir="right">→</button></div>`;
+  const canvas=area.querySelector('#snakeCanvas'),ctx=canvas.getContext('2d'),info=area.querySelector('#snakeInfo'),message=area.querySelector('#snakeMessage');const size=20,unit=20;let snake,food,dir,nextDir,score,interval=null,running=false,paused=false;
+  function randomFood(){const free=[];for(let y=0;y<size;y++)for(let x=0;x<size;x++)if(!snake.some(p=>p.x===x&&p.y===y))free.push({x,y});return free.length?free[Math.floor(Math.random()*free.length)]:null;}
+  function draw(){ctx.fillStyle='#0b1016';ctx.fillRect(0,0,400,400);ctx.strokeStyle='#ffe65c10';for(let i=0;i<=size;i++){ctx.beginPath();ctx.moveTo(i*unit,0);ctx.lineTo(i*unit,400);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i*unit);ctx.lineTo(400,i*unit);ctx.stroke();}if(food){ctx.fillStyle='#ff7068';ctx.fillRect(food.x*unit+3,food.y*unit+3,unit-6,unit-6);}snake.forEach((p,i)=>{ctx.fillStyle=i===0?'#fff19b':'#ffe65c';ctx.fillRect(p.x*unit+2,p.y*unit+2,unit-4,unit-4);});}
+  function stop(){if(interval)clearInterval(interval);interval=null;running=false;}
+  function tick(){if(!area.isConnected){stop();return;}if(paused)return;dir=nextDir;const head={x:snake[0].x+dir.x,y:snake[0].y+dir.y};const eating=food&&head.x===food.x&&head.y===food.y;const body=eating?snake:snake.slice(0,-1);if(head.x<0||head.y<0||head.x>=size||head.y>=size||body.some(p=>p.x===head.x&&p.y===head.y)){stop();message.textContent='GAME OVER — Press START / RESTART to try again.';return;}snake.unshift(head);if(eating){score++;info.textContent='Score: '+score;food=randomFood();if(!food){stop();message.textContent='YOU WIN! Board filled.';}}else snake.pop();draw();}
+  function start(){stop();snake=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];dir={x:1,y:0};nextDir={x:1,y:0};score=0;food=randomFood();paused=false;running=true;info.textContent='Score: 0';message.textContent='Use arrow keys or WASD. Click the board to focus.';area.querySelector('#snakePause').textContent='PAUSE';draw();interval=setInterval(tick,125);canvas.focus();}
+  function turn(name){const d={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}}[name];if(!d||d.x===-dir.x&&d.y===-dir.y)return;nextDir=d;}
+  area.addEventListener('keydown',e=>{const key=e.key.toLowerCase();const map={arrowup:'up',w:'up',arrowdown:'down',s:'down',arrowleft:'left',a:'left',arrowright:'right',d:'right'};if(map[key]){e.preventDefault();turn(map[key]);}});
+  area.querySelectorAll('[data-dir]').forEach(b=>b.onclick=()=>{turn(b.dataset.dir);canvas.focus();});area.querySelector('#snakeStart').onclick=start;area.querySelector('#snakePause').onclick=()=>{if(!running)return;paused=!paused;area.querySelector('#snakePause').textContent=paused?'RESUME':'PAUSE';canvas.focus();};
+  snake=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];dir={x:1,y:0};nextDir={x:1,y:0};food={x:15,y:10};score=0;draw();
+  const observer=new MutationObserver(()=>{if(!area.isConnected){stop();observer.disconnect();}});observer.observe(document.body,{childList:true});
 }
 
-/* 2048 */
 function game2048App(area){
- area.innerHTML=`
- <h2>2048</h2>
- <div class="game-top">
-  <span class="muted" id="score">SCORE: 0</span>
-  <span class="muted" id="best">BEST: 0</span>
-  <button class="primary" id="new">NEW GAME</button>
- </div>
- <div class="game-panel">
-  <div class="tiles2048" id="board"></div>
-  <span class="muted" id="message">
-   Combine tiles to reach 2048.
-  </span>
-  <div class="direction-pad">
-   <span></span><button class="btn" data-dir="up">↑</button><span></span>
-   <button class="btn" data-dir="left">←</button>
-   <button class="btn" data-dir="down">↓</button>
-   <button class="btn" data-dir="right">→</button>
-  </div>
-  <p class="muted">Use arrow keys or WASD.</p>
- </div>`;
-
- const boardEl=area.querySelector("#board");
- const scoreEl=area.querySelector("#score");
- const bestEl=area.querySelector("#best");
- const message=area.querySelector("#message");
-
- let board=[],score=0,won=false,ended=false;
- let best=Number(localStorage.getItem("mybrowser-2048-best")||0);
- bestEl.textContent="BEST: "+best;
-
- function emptyCells(){
-  const result=[];
-  for(let r=0;r<4;r++)
-   for(let c=0;c<4;c++)
-    if(board[r][c]===0)result.push([r,c]);
-  return result;
- }
-
- function spawn(){
-  const empty=emptyCells();
-  if(!empty.length)return;
-  const [r,c]=empty[Math.floor(Math.random()*empty.length)];
-  board[r][c]=Math.random()<.9?2:4;
- }
-
- function render(){
-  boardEl.replaceChildren();
-  for(let r=0;r<4;r++){
-   for(let c=0;c<4;c++){
-    const value=board[r][c];
-    const tile=document.createElement("div");
-    tile.className="tile2048";
-    tile.dataset.v=value;
-    tile.textContent=value||"";
-    if(value>4096){
-     tile.style.background="#ad85ff";
-    }
-    boardEl.appendChild(tile);
-   }
-  }
-  scoreEl.textContent="SCORE: "+score;
-  bestEl.textContent="BEST: "+best;
- }
-
- function newGame(){
-  board=Array.from({length:4},()=>[0,0,0,0]);
-  score=0;won=false;ended=false;
-  spawn();spawn();
-  message.textContent="Combine tiles to reach 2048.";
-  render();
- }
-
- function merge(line){
-  const values=line.filter(v=>v!==0);
-  const result=[];
-  for(let i=0;i<values.length;i++){
-   if(values[i]===values[i+1]){
-    const value=values[i]*2;
-    result.push(value);
-    score+=value;
-    if(value>=2048&&!won){
-     won=true;
-     message.textContent="YOU REACHED 2048!";
-    }
-    i++;
-   }else result.push(values[i]);
-  }
-  while(result.length<4)result.push(0);
-  return result;
- }
-
- function canMove(){
-  if(emptyCells().length)return true;
-  for(let r=0;r<4;r++){
-   for(let c=0;c<4;c++){
-    if(r<3&&board[r][c]===board[r+1][c])return true;
-    if(c<3&&board[r][c]===board[r][c+1])return true;
-   }
-  }
-  return false;
- }
-
- function move(direction){
-  if(ended)return;
-  const before=JSON.stringify(board);
-
-  for(let i=0;i<4;i++){
-   let line=[];
-
-   for(let j=0;j<4;j++){
-    if(direction==="left")line.push(board[i][j]);
-    if(direction==="right")line.push(board[i][3-j]);
-    if(direction==="up")line.push(board[j][i]);
-    if(direction==="down")line.push(board[3-j][i]);
-   }
-
-   const merged=merge(line);
-
-   for(let j=0;j<4;j++){
-    if(direction==="left")board[i][j]=merged[j];
-    if(direction==="right")board[i][3-j]=merged[j];
-    if(direction==="up")board[j][i]=merged[j];
-    if(direction==="down")board[3-j][i]=merged[j];
-   }
-  }
-
-  if(JSON.stringify(board)!==before){
-   spawn();
-   if(score>best){
-    best=score;
-    localStorage.setItem("mybrowser-2048-best",best);
-   }
-  }
-
-  if(!canMove()){
-   ended=true;
-   message.textContent="GAME OVER";
-  }
-  render();
- }
-
- function keyHandler(e){
-  const win=area.closest(".window");
-  if(!win||!win.isConnected){
-   window.removeEventListener("keydown",keyHandler);
-   return;
-  }
-  if(document.activeElement?.matches("input,textarea"))return;
-  if(win.style.zIndex!==String(topZ))return;
-
-  const map={
-   ArrowUp:"up",ArrowDown:"down",
-   ArrowLeft:"left",ArrowRight:"right",
-   w:"up",s:"down",a:"left",d:"right"
-  };
-  if(map[e.key]){
-   e.preventDefault();
-   move(map[e.key]);
-  }
- }
-
- window.addEventListener("keydown",keyHandler);
- area.querySelectorAll("[data-dir]").forEach(b=>{
-  b.onclick=()=>move(b.dataset.dir);
- });
- area.querySelector("#new").onclick=newGame;
-
- newGame();
+  area.innerHTML=`<h2>2048</h2><div class="game-top"><button class="primary" id="game2048New">NEW GAME</button><span class="muted" id="game2048Score">Score: 0</span><span class="muted" id="game2048Best"></span></div><div class="muted" id="game2048Message">Use arrow keys or WASD. On touchscreens, use the buttons below.</div><div class="game-board" id="game2048Board" tabindex="0" style="grid-template-columns:repeat(4,minmax(50px,85px));gap:7px"></div><div class="game-pad"><span></span><button class="btn" data-dir="up">↑</button><span></span><button class="btn" data-dir="left">←</button><button class="btn" data-dir="down">↓</button><button class="btn" data-dir="right">→</button></div>`;
+  const boardEl=area.querySelector('#game2048Board'),scoreEl=area.querySelector('#game2048Score'),bestEl=area.querySelector('#game2048Best'),message=area.querySelector('#game2048Message');let grid,score=0,won=false,over=false;let best=Number(localStorage.getItem('mybrowser-2048-best')||0);
+  function spawn(){const free=[];for(let i=0;i<16;i++)if(!grid[i])free.push(i);if(!free.length)return;const index=free[Math.floor(Math.random()*free.length)];grid[index]=Math.random()<.9?2:4;}
+  function render(){boardEl.replaceChildren();grid.forEach(n=>{const cell=document.createElement('div');cell.className='game-2048-tile';cell.dataset.value=String(Math.min(n,2048));cell.style.aspectRatio='1';cell.textContent=n||'';boardEl.appendChild(cell);});scoreEl.textContent='Score: '+score;bestEl.textContent='Best: '+best;}
+  function start(){grid=Array(16).fill(0);score=0;won=false;over=false;spawn();spawn();message.textContent='Combine matching numbers to reach 2048.';render();boardEl.focus();}
+  function slide(values){const numbers=values.filter(Boolean);const result=[];for(let i=0;i<numbers.length;i++){if(numbers[i]===numbers[i+1]){const n=numbers[i]*2;result.push(n);score+=n;i++;}else result.push(numbers[i]);}while(result.length<4)result.push(0);return result;}
+  function canMove(){if(grid.includes(0))return true;for(let y=0;y<4;y++)for(let x=0;x<4;x++){const i=y*4+x;if(x<3&&grid[i]===grid[i+1])return true;if(y<3&&grid[i]===grid[i+4])return true;}return false;}
+  function move(direction){if(over)return;const old=grid.slice();for(let line=0;line<4;line++){const indices=[];for(let n=0;n<4;n++){let x,y;if(direction==='left'){x=n;y=line;}if(direction==='right'){x=3-n;y=line;}if(direction==='up'){x=line;y=n;}if(direction==='down'){x=line;y=3-n;}indices.push(y*4+x);}const result=slide(indices.map(i=>grid[i]));indices.forEach((i,j)=>grid[i]=result[j]);}if(grid.every((v,i)=>v===old[i]))return;spawn();if(score>best){best=score;localStorage.setItem('mybrowser-2048-best',String(best));}if(!won&&grid.some(n=>n>=2048)){won=true;message.textContent='YOU REACHED 2048! Keep playing if you want.';}if(!canMove()){over=true;message.textContent='GAME OVER — No moves left.';}render();}
+  area.addEventListener('keydown',e=>{const map={arrowup:'up',w:'up',arrowdown:'down',s:'down',arrowleft:'left',a:'left',arrowright:'right',d:'right'};const d=map[e.key.toLowerCase()];if(d){e.preventDefault();move(d);}});area.querySelectorAll('[data-dir]').forEach(b=>b.onclick=()=>{move(b.dataset.dir);boardEl.focus();});area.querySelector('#game2048New').onclick=start;start();
 }
 
 /* CLOCK */
-function updateClock(){
- document.getElementById("clock").textContent=
-  new Date().toLocaleTimeString([],{
-   hour:"2-digit",minute:"2-digit"
-  });
+
+function updateClock() {
+  document.getElementById("clock").textContent =
+    new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
 }
+
 updateClock();
-setInterval(updateClock,15000);
+setInterval(updateClock, 15000);
 
-/* CINEMATIC STARTUP */
+/* RANDOM REBOOT */
+
 (function startReboot(){
- const boot=document.getElementById("md-boot");
- const typed=document.getElementById("boot-typed");
- const main=document.getElementById("boot-main");
- const bottom=document.getElementById("boot-bottom");
+  const boot=document.getElementById("md-boot");
+  const typed=document.getElementById("boot-typed");
+  const main=document.getElementById("boot-main");
+  const bottom=document.getElementById("boot-bottom");
 
- const failed=Math.random()<.5;
+  const failed=Math.random()<0.5;
 
- const lines=[
-  "SYSTEM DESIGNATION: N - 0X0010010",
-  "AUTO RUN COMPLETE",
-  "INITIALIZING ABSOLUTE SOLVER...",
-  "LOADING CORE MODULES...",
-  "CHECKING SYSTEM INTEGRITY...",
-  "RESTORING CORE MEMORY...",
-  "REINITIALIZING DRONE SYSTEMS..."
- ];
+  const lines=[
+    "> SERIAL DESIGNATION: ???",
+    "> AUTO RUN COMPLETE.",
+    "> INITIALIZING ABSOLUTE SOLVER...",
+    "> LOADING CORE MODULES...",
+    "> CHECKING SYSTEM INTEGRITY...",
+    "> RESTORING CORE MEMORY...",
+    "> REBOOTING, PLEASE WAIT..."
+  ];
 
- let line=0,character=0;
+  let line=0;
+  let character=0;
 
- function typeNext(){
-  if(line>=lines.length){
-   finish();
-   return;
+  function typeNext(){
+    if(line>=lines.length){
+      beginFinalSequence();
+      return;
+    }
+
+    const current=lines[line];
+
+    if(character<current.length){
+      typed.textContent+=current[character];
+      character++;
+
+      // Smooth typing with a slight variation
+      setTimeout(typeNext,20+Math.random()*18);
+    }else{
+      typed.textContent+="\n";
+      line++;
+      character=0;
+      setTimeout(typeNext,180);
+    }
   }
-  const current=lines[line];
-  if(character<current.length){
-   typed.textContent+=current[character++];
-   setTimeout(typeNext,18+Math.random()*20);
-  }else{
-   typed.textContent+="\n";
-   line++;character=0;
-   setTimeout(typeNext,160);
+
+  function setMain(text){
+    main.textContent=text;
+    main.setAttribute("data-text",text);
   }
- }
 
- function setMain(text){
-  main.textContent=text;
-  main.dataset.text=text;
- }
+  function beginFinalSequence(){
+    boot.classList.add("intense");
+    bottom.innerHTML=
+      "SYSTEM INTEGRITY CHECK<br>&gt; FINALIZING REBOOT...";
 
- function exit(){
-  boot.classList.add("boot-exit");
-  setTimeout(()=>boot.remove(),1150);
- }
-
- function finish(){
-  boot.classList.add("intense");
-  bottom.innerHTML=
-   "SYSTEM INTEGRITY CHECK<br>&gt; FINALIZING REBOOT...";
-
-  setTimeout(()=>{
-   boot.classList.remove("intense");
-
-   if(!failed){
-    boot.classList.add("success");
-    setMain("REBOOT SUCCESSFUL : )");
-    bottom.innerHTML="SYSTEM ONLINE<br>WELCOME BACK_";
-    setTimeout(exit,2700);
-    return;
-   }
-
-   boot.classList.add("failed");
-   setMain("REBOOT FAILED X D");
-   bottom.innerHTML="SYSTEM ERROR<br>CODE: 0XDEAD";
-
-   setTimeout(()=>{
-    boot.classList.add("intense","jk-glitch");
-
+    // Heavy glitching before the result
     setTimeout(()=>{
-     boot.classList.remove("failed","intense","jk-glitch");
-     boot.classList.add("joking");
-     bottom.innerHTML=
-      "SYSTEM RECOVERED<br>JUST KIDDING_";
-    },380);
+      boot.classList.remove("intense");
 
-   },1700);
+      if(failed){
+        boot.classList.add("failed");
+        setMain("REBOOT FAILED X D");
+        bottom.innerHTML=
+          "CRITICAL SYSTEM ERROR<br>&gt; CODE: 0xDEAD";
+      }else{
+        boot.classList.add("success");
+        setMain("REBOOT SUCCESSFUL : )");
+        bottom.innerHTML=
+          "SYSTEM ONLINE<br>&gt; WELCOME BACK_";
+      }
 
-   setTimeout(exit,4700);
+      // Original intro and outcome remain intact. Only failed outcome gets JK.
+      if(failed){
+        setTimeout(()=>{
+          boot.classList.add("intense","jk-glitch");
+          setTimeout(()=>{
+            boot.classList.remove("failed","intense","jk-glitch");
+            boot.classList.add("joking");
+            bottom.innerHTML="SYSTEM RECOVERED<br>&gt; JUST KIDDING_";
+          },480);
+        },1800);
+      }
+      setTimeout(()=>{
+        boot.classList.add("boot-exit");
+        setTimeout(()=>boot.remove(),900);
+      },failed?4800:2700);
+    },2300);
+  }
 
-  },1800);
- }
-
- setTimeout(typeNext,450);
+  setTimeout(typeNext,500);
 })();
 
 /* START */
+
 restoreTab();
+
+
+/* Glowing yellow desktop drag-to-select */
+(function setupDesktopSelection() {
+  const desktop = document.getElementById("desktop");
+  const selection = document.createElement("div");
+  selection.id = "desktop-selection";
+  document.body.appendChild(selection);
+  let selecting = false, startX = 0, startY = 0, pointerId = null;
+
+  function clearSelected() {
+    desktop.querySelectorAll(".desktop-icon.selected")
+      .forEach(icon => icon.classList.remove("selected"));
+  }
+
+  desktop.addEventListener("pointerdown", e => {
+    if (e.target !== desktop || e.button !== 0) return;
+    selecting = true;
+    pointerId = e.pointerId;
+    startX = e.clientX;
+    startY = e.clientY;
+    clearSelected();
+    Object.assign(selection.style, {
+      left: startX + "px", top: startY + "px",
+      width: "0px", height: "0px", display: "block"
+    });
+    desktop.setPointerCapture(e.pointerId);
+  });
+
+  desktop.addEventListener("pointermove", e => {
+    if (!selecting || e.pointerId !== pointerId) return;
+    const left = Math.min(startX, e.clientX);
+    const top = Math.min(startY, e.clientY);
+    const width = Math.abs(e.clientX - startX);
+    const height = Math.abs(e.clientY - startY);
+    Object.assign(selection.style, {
+      left: left + "px", top: top + "px",
+      width: width + "px", height: height + "px"
+    });
+    const right = left + width, bottom = top + height;
+    desktop.querySelectorAll(".desktop-icon").forEach(icon => {
+      const rect = icon.getBoundingClientRect();
+      const overlaps = rect.left < right && rect.right > left &&
+                       rect.top < bottom && rect.bottom > top;
+      icon.classList.toggle("selected", overlaps);
+    });
+  });
+
+  function finish(e) {
+    if (!selecting || e.pointerId !== pointerId) return;
+    selecting = false;
+    pointerId = null;
+    selection.style.display = "none";
+  }
+  desktop.addEventListener("pointerup", finish);
+  desktop.addEventListener("pointercancel", finish);
+
+  desktop.querySelectorAll(".desktop-icon").forEach(icon => {
+    icon.addEventListener("pointerdown", () => clearSelected());
+  });
+})();
 
 </script>
 </body>
