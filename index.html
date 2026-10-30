@@ -1027,19 +1027,20 @@ textarea {
 .updates-note{font-size:11px;color:#9999a7;line-height:1.7;margin-top:16px}
 
 
-/* Murder Drones-inspired OWNER identity: industrial warning panel, neon optics. */
-/* Compact SD-G badge: thin lines, small icon, no oversized message cards. */
-.chat-feed>.chat-message{flex-shrink:0;min-height:0}
-.chat-message.chat-owner-message{position:relative;overflow:visible;background:linear-gradient(100deg,rgba(31,29,14,.28),rgba(9,10,12,.55));border:1px solid rgba(255,226,91,.30);border-radius:6px;padding:7px 9px 8px;margin:0;box-shadow:none}
-.chat-message.chat-owner-message:before{content:"";position:absolute;top:7px;bottom:7px;left:-1px;width:1px;background:#ffe369;box-shadow:0 0 4px #ffe36955;pointer-events:none}
-.chat-owner-message header{gap:6px;margin-bottom:4px;min-height:19px}
-.chat-owner-message header>b{display:inline-flex;align-items:center;gap:6px;color:#ffe478;text-shadow:none;font-weight:700;font-size:11px;white-space:nowrap}
-.chat-owner-badge{display:inline-flex;align-items:center;gap:5px;margin-left:0;padding:1px 7px 1px 5px;border:1px solid #d7bd4b77;border-radius:3px;background:#16160f;color:#ffe478;font:700 10px/1.3 Consolas,monospace;letter-spacing:.5px;vertical-align:middle;box-shadow:none;text-shadow:none;white-space:nowrap;clip-path:none}
-.chat-owner-badge:after{display:none}
-.chat-owner-badge .owner-solver-symbol{display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;color:#ffe676;filter:drop-shadow(0 0 2px #ffdf4766)}
-.chat-owner-badge .owner-solver-symbol svg{width:13px;height:13px}
+/* SD-G: small inline verified badge; no oversized or clipped owner cards. */
+.chat-feed{align-items:stretch}
+.chat-feed>.chat-message{display:block;flex:0 0 auto!important;height:auto!important;min-height:max-content!important;max-height:none!important;overflow:visible!important}
+.chat-feed>.chat-message p{display:block!important;position:static!important;height:auto!important;max-height:none!important;overflow:visible!important;white-space:pre-wrap;line-height:1.5;margin:3px 0 0!important}
+.chat-message.chat-owner-message{background:transparent!important;border:0!important;border-bottom:1px solid #ffdf522b!important;border-radius:0!important;padding:4px 0 9px!important;margin:0!important;box-shadow:none!important}
+.chat-message.chat-owner-message:before{display:none!important}
+.chat-owner-message header{display:flex!important;align-items:center!important;min-height:0!important;height:auto!important;gap:8px!important;margin:0 0 4px!important;overflow:visible!important}
+.chat-owner-message header>b{display:inline-flex!important;align-items:center!important;gap:7px!important;flex-shrink:0!important;font-size:12px!important;color:#ffec85!important;line-height:1.4!important;white-space:nowrap}
+.chat-owner-badge{display:inline-flex!important;align-items:center!important;gap:4px!important;vertical-align:middle!important;padding:1px 6px 1px 4px!important;margin:0!important;min-height:0!important;height:17px!important;border:1px solid #f4d84b99!important;border-radius:2px!important;background:#18170c!important;box-shadow:0 0 4px #f4d84b18!important;color:#ffe66a!important;font:700 10px/1 Consolas,monospace!important;letter-spacing:.5px!important;clip-path:none!important;animation:none!important}
+.chat-owner-badge:after{display:none!important}
+.chat-owner-badge .owner-solver-symbol{display:inline-flex!important;width:12px!important;height:12px!important;align-items:center;justify-content:center;filter:drop-shadow(0 0 2px #ffe76966)}
+.chat-owner-badge .owner-solver-symbol svg{display:block!important;width:12px!important;height:12px!important}
+.chat-owner-message .chat-actions{margin-left:auto!important}
 .chat-owner-message .chat-actions button{padding:2px 5px;font-size:9px}
-.chat-owner-message p{font-size:12px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
 @media(prefers-reduced-motion:reduce){.chat-owner-badge,.chat-owner-badge .owner-solver-symbol{animation:none}}
 </style>
 </head>
