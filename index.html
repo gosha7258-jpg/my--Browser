@@ -1685,6 +1685,8 @@ function globalChatApp(area){
     localStorage.setItem(tokenKey,token);
   }
   let nickname=localStorage.getItem(nameKey)||'';
+  let ownerSession=sessionStorage.getItem('gosha-owner-session')||'';
+  if(ownerSession)nickname='gosha';
   let muted=[];try{muted=JSON.parse(localStorage.getItem(muteKey)||'[]')}catch{}
   nameInput.value=nickname;
   let lastId=0,known=new Set(),loading=false,disposed=false,interval=null;
@@ -1699,7 +1701,7 @@ function globalChatApp(area){
     if(claimedName===n)return true;
     const button=$('.chat-save');button.disabled=true;setStatus('CHECKING NAME...');
     try{
-      const data=await api('/claim',{method:'POST',body:JSON.stringify({nickname:n,token})});
+      const data=await api('/claim',{method:'POST',body:JSON.stringify({nickname:n,token,ownerSession})});
       nickname=data.nickname;claimedName=nickname;
       localStorage.setItem(nameKey,nickname);setStatus('● NAME RESERVED');return true;
     }catch(err){setStatus(err.message.slice(0,80));return false}
@@ -1712,7 +1714,7 @@ function globalChatApp(area){
     const nearBottom=feed.scrollHeight-feed.scrollTop-feed.clientHeight<100;
     const item=document.createElement('article');item.className='chat-message';
     const header=document.createElement('header'),user=document.createElement('b'),time=document.createElement('time'),actions=document.createElement('div'),body=document.createElement('p');
-    actions.className='chat-actions';user.textContent=m.nickname;time.textContent=new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});body.textContent=m.message;
+    actions.className='chat-actions';user.textContent=m.nickname;if(m.is_owner){const badge=document.createElement('span');badge.textContent=' (OWNER)';badge.style.cssText='color:#f6e7a5;font-size:11px;letter-spacing:.6px';user.appendChild(badge)}time.textContent=new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});body.textContent=m.message;
     const mute=document.createElement('button');mute.type='button';mute.textContent='Mute';mute.title='Hide messages from this nickname on your device';mute.onclick=()=>{if(!muted.includes(m.nickname.toLowerCase()))muted.push(m.nickname.toLowerCase());localStorage.setItem(muteKey,JSON.stringify(muted));feed.querySelectorAll('.chat-message').forEach(el=>{if(el.dataset.nick===m.nickname.toLowerCase())el.remove()})};
     const report=document.createElement('button');report.type='button';report.textContent='Report';report.onclick=async()=>{if(!confirm('Report this message for review?'))return;report.disabled=true;try{await api('/report',{method:'POST',body:JSON.stringify({messageId:m.id,reason:'User report'})});report.textContent='Reported'}catch(err){report.disabled=false;setStatus('REPORT FAILED')}};
     actions.append(mute,report);header.append(user,time,actions);item.append(header,body);item.dataset.nick=m.nickname.toLowerCase();feed.appendChild(item);if(nearBottom)feed.scrollTop=feed.scrollHeight;
@@ -1732,8 +1734,9 @@ function globalChatApp(area){
     if(!(await saveName()))return;
     const message=messageInput.value.trim();if(!message)return;
     sendButton.disabled=true;
-    try{await api('/messages',{method:'POST',body:JSON.stringify({nickname,message,token})});messageInput.value='';await refresh()}catch(err){setStatus('SEND FAILED: '+err.message.slice(0,60))}finally{sendButton.disabled=false}
+    try{await api('/messages',{method:'POST',body:JSON.stringify({nickname,message,token,ownerSession})});messageInput.value='';await refresh()}catch(err){setStatus('SEND FAILED: '+err.message.slice(0,60))}finally{sendButton.disabled=false}
   });
+  window.addEventListener('gosha-owner-login',()=>{ownerSession=sessionStorage.getItem('gosha-owner-session')||'';nickname='gosha';nameInput.value='gosha';claimedName='';saveName();});
   if(!configured){setStatus('SETUP REQUIRED');note('Chat is not connected yet. Deploy the chat Worker and replace CHAT_WORKER_URL in index.html.')}else{setStatus('CONNECTING');refresh();if(nickname)saveName();interval=setInterval(refresh,3000)}
   const watcher=new MutationObserver(()=>{if(!win.isConnected){disposed=true;clearInterval(interval);watcher.disconnect()}});watcher.observe(document.body,{childList:true,subtree:true});
 }
@@ -2260,6 +2263,27 @@ Type ACTIVE to see current online sessions.
     const command = input.value.trim();
     const cmd = command.toLowerCase();
     input.value = "";
+
+    if (command === "gosha123") {
+      // Owner verification happens only on the server; no passcode is stored in website code.
+      output.textContent += "> [OWNER LOGIN] Contacting secure chat server...\n";
+      try {
+        let guestToken=localStorage.getItem('gosha-chat-owner-token-v1');
+        if(!guestToken||!/^[0-9a-f]{64}$/i.test(guestToken)){
+          guestToken=Array.from(crypto.getRandomValues(new Uint8Array(32)),b=>b.toString(16).padStart(2,'0')).join('');
+          localStorage.setItem('gosha-chat-owner-token-v1',guestToken);
+        }
+        const response=await fetch(CHAT_WORKER_URL+'/owner-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({passcode:command,token:guestToken})});
+        const result=await response.json();
+        if(!response.ok)throw new Error(result.error||'Login failed');
+        sessionStorage.setItem('gosha-owner-session',result.ownerSession);
+        localStorage.setItem('gosha-chat-nickname','gosha');
+        window.dispatchEvent(new Event('gosha-owner-login'));
+        output.textContent += 'OWNER ACCESS GRANTED. Global Chat name: gosha (OWNER)\n\n';
+      }catch(error){output.textContent += 'OWNER LOGIN FAILED: '+error.message+'\n\n'}
+      output.scrollTop=output.scrollHeight;
+      return;
+    }
 
     if (cmd === "clear") {
       output.textContent = "";
