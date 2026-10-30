@@ -161,6 +161,16 @@ textarea {
   text-shadow: 0 0 7px black;
 }
 
+/* [NULL] desktop shortcut: white instead of the global yellow theme */
+.desktop-icon[data-app="null"]{border-color:rgba(255,255,255,.48);background:rgba(12,12,14,.66)}
+.desktop-icon[data-app="null"] svg{stroke:#fff;filter:drop-shadow(0 0 7px rgba(255,255,255,.85))}
+.desktop-icon[data-app="null"] span{color:#fff;text-shadow:0 0 7px rgba(255,255,255,.5)}
+.desktop-icon[data-app="null"]:hover,.desktop-icon[data-app="null"].dragging{background:rgba(255,255,255,.16);border-color:#fff;box-shadow:0 0 19px rgba(255,255,255,.52)}
+.desktop-icon[data-app="null"].selected{background:rgba(255,255,255,.22);border-color:#fff;box-shadow:0 0 15px rgba(255,255,255,.5),inset 0 0 10px rgba(255,255,255,.14)}
+.desktop-icon[data-app="null"].selected svg{filter:drop-shadow(0 0 9px #fff)}
+/* White selection rectangle matches the [NULL] desktop interaction. */
+#desktop-selection{border-color:rgba(255,255,255,.92);background:rgba(255,255,255,.1);box-shadow:0 0 9px rgba(255,255,255,.3),inset 0 0 15px rgba(255,255,255,.1)}
+
 /* TASKBAR */
 
 #taskbar {
@@ -893,6 +903,105 @@ textarea {
 .app-sidebar .sidebar-foot{margin-top:auto;padding:10px 9px;color:#a9afc2;font:10px Consolas,monospace}
 @media(max-width:640px){.app-sidebar{flex-basis:116px;width:116px;padding:10px 5px}.app-sidebar button{font-size:11px;padding:9px 6px}.app-sidebar-title{font-size:10px}.app-main{padding:11px}}
 @media(prefers-reduced-motion:reduce){.window-content .btn,.window-content .primary,.window-controls button,.app-sidebar button{transition:none}}
+
+/* GOSHA'S BROWSER — LIVING WINDOW BORDERS
+   A subtle yellow/purple signal travels around the active app's edge.
+   Decorative only: it never blocks clicks or changes window sizing. */
+.window { isolation:isolate; }
+.window::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:20;
+  pointer-events:none;
+  border-radius:inherit;
+  padding:2px;
+  background:conic-gradient(from var(--living-border-angle,0deg),
+    #ffe65c 0deg, #ffe65c88 25deg, transparent 65deg,
+    transparent 120deg, #a75cff 155deg, #a75cffcc 185deg,
+    transparent 225deg, transparent 300deg, #ffe65c 360deg);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+  mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  mask-composite:exclude;
+  opacity:.24;
+  transition:opacity .22s ease;
+}
+.window.window-active::after {opacity:1;animation:living-border-rotation 5s linear infinite;}
+.window.window-active {box-shadow:0 24px 80px #000c,0 0 18px #ffe65c33,0 0 28px #a75cff20,inset 0 1px #ffe65c3b;}
+@property --living-border-angle {syntax:"<angle>";inherits:false;initial-value:0deg;}
+@keyframes living-border-rotation {to{--living-border-angle:360deg}}
+@media(prefers-reduced-motion:reduce){.window.window-active::after{animation:none}}
+
+
+/* [NULL] — layered dusty-light event horizon, draggable and interactive */
+.null-stage{position:relative;min-height:380px;height:100%;overflow:hidden;background:radial-gradient(ellipse at center,#080706 0%,#030303 48%,#000 85%);isolation:isolate;border-radius:12px}
+.null-stage::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,transparent 12%,#0000 42%,#0008 84%,#000 100%)}
+.null-stage::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(circle at var(--glow-x,50%) var(--glow-y,50%),rgba(210,190,160,.035),transparent 50%)}
+.null-orbit{position:absolute;z-index:2;left:50%;top:50%;width:min(72vw,390px);height:min(72vw,390px);max-width:92%;max-height:92%;aspect-ratio:1;transform:translate(-50%,-50%);touch-action:none;user-select:none;cursor:grab;outline:none;filter:brightness(var(--null-bright,1));transition:filter .25s ease}
+.null-orbit::before,.null-orbit::after,.null-glow,.null-smoke,.null-smoke-extra{content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none}
+.null-orbit::before{inset:1%;background:conic-gradient(from 12deg,transparent 0deg,#b9a07f88 35deg,#d6c8b0bb 68deg,#6c5c4988 102deg,#cbb89caa 157deg,#62544199 214deg,#d6c8b0a6 258deg,#88755b99 315deg,transparent 360deg);-webkit-mask:radial-gradient(ellipse at 50% 50%,transparent 0 48%,#0009 54%,#000 61%,transparent 75%);mask:radial-gradient(ellipse at 50% 50%,transparent 0 48%,#0009 54%,#000 61%,transparent 75%);filter:blur(17px);opacity:.66;animation:null-spin 44s linear infinite}
+.null-orbit::after{inset:4%;background:conic-gradient(from 150deg,#cbb89c88 0deg,transparent 38deg,#b9a07fbb 80deg,transparent 133deg,#d6c8b099 187deg,transparent 242deg,#cbb89caa 302deg,transparent 360deg);-webkit-mask:radial-gradient(circle,transparent 0 52%,#000 60%,transparent 75%);mask:radial-gradient(circle,transparent 0 52%,#000 60%,transparent 75%);filter:blur(22px);opacity:.62;animation:null-spin 57s linear infinite reverse}
+.null-glow{inset:-5%;background:conic-gradient(from 80deg,transparent,#cbb89c66,transparent,#d6c8b066,transparent,#b9a07f55,transparent);-webkit-mask:radial-gradient(circle,transparent 0 52%,#000 61%,transparent 78%);mask:radial-gradient(circle,transparent 0 52%,#000 61%,transparent 78%);filter:blur(27px);opacity:.65;animation:null-spin 68s linear infinite,null-soft-pulse 10s ease-in-out infinite}
+.null-smoke{inset:6%;background:conic-gradient(from 90deg,#cbb89c80,#302b2580,#b9a07fbb,#40382e70,#d6c8b09c,#3b332980,#cbb89c80);-webkit-mask:radial-gradient(ellipse 49% 52% at 49% 50%,transparent 0 52%,#000a 60%,#000 67%,transparent 78%);mask:radial-gradient(ellipse 49% 52% at 49% 50%,transparent 0 52%,#000a 60%,#000 67%,transparent 78%);filter:blur(11px);opacity:.74;animation:null-spin 39s linear infinite}
+.null-smoke-extra{inset:5%;background:conic-gradient(from 30deg,transparent 0deg,#d6c8b088 24deg,transparent 68deg,#b9a07f99 113deg,transparent 165deg,#cbb89c99 220deg,transparent 275deg,#b9a07f77 318deg,transparent 360deg);-webkit-mask:radial-gradient(ellipse 52% 47% at 50% 52%,transparent 0 51%,#000 64%,transparent 77%);mask:radial-gradient(ellipse 52% 47% at 50% 52%,transparent 0 51%,#000 64%,transparent 77%);filter:blur(14px);opacity:.55;animation:null-spin 49s linear infinite reverse,null-wobble 13s ease-in-out infinite}
+.null-void{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;width:51%;height:51%;border-radius:50%;background:radial-gradient(circle at 48% 48%,#000 0%,#000 78%,#050505 93%,#0b0a09 100%);box-shadow:0 0 0 1px #d6c8b02e,0 0 7px 2px #b9a07f12,0 0 15px 9px #0009,inset 0 0 13px 3px #15130e99;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.68);font:11px Consolas,monospace;letter-spacing:0;text-shadow:0 0 4px #d6c8b044}
+.null-void span{animation:null-text-flicker 15s linear infinite}
+.null-stage.null-pulse .null-orbit{--null-bright:1.24}
+.null-stage.null-pulse .null-glow{opacity:.87}
+.null-orbit.dragging{cursor:grabbing;--null-bright:1.1}
+.null-orbit:focus-visible{outline:1px dashed #b9a07f;outline-offset:6px}
+.null-spark{position:absolute;z-index:6;pointer-events:none;left:0;top:0;width:var(--w,5px);height:var(--w,5px);border-radius:50%;background:var(--c,#cbb89c);box-shadow:0 0 9px var(--c,#cbb89c);animation:null-spark var(--life,650ms) ease-out forwards}
+@keyframes null-spin{to{transform:rotate(360deg)}}
+@keyframes null-soft-pulse{50%{opacity:.43}}
+@keyframes null-wobble{50%{border-radius:48% 52% 49% 51%}}
+@keyframes null-text-flicker{0%,89%,91%,100%{opacity:.68}90%{opacity:.4}}
+@keyframes null-spark{0%{opacity:.75;transform:translate(-50%,-50%) scale(.5)}100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.1)}}
+@media(prefers-reduced-motion:reduce){.null-orbit::before,.null-orbit::after,.null-glow,.null-smoke,.null-smoke-extra,.null-void span{animation:none!important}}
+
+/* [NULL] atmospheric focus — darkens the desktop behind its active window */
+#null-focus-shade{
+ position:fixed;inset:0;pointer-events:none;opacity:0;
+ background:radial-gradient(ellipse at 50% 45%,rgba(9,8,10,.68) 0%,rgba(0,0,0,.84) 68%,rgba(0,0,0,.93) 100%);
+ backdrop-filter:brightness(.48) blur(4px) saturate(.55);
+ -webkit-backdrop-filter:brightness(.48) blur(4px) saturate(.55);
+ transition:opacity .42s ease;
+}
+#null-focus-shade.visible{opacity:1}
+@media(prefers-reduced-motion:reduce){#null-focus-shade{transition:none}}
+
+/* [NULL] white pixel rain and broken-signal particles — behind focused window */
+#null-pixel-field{position:fixed;inset:0;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .55s ease;contain:layout style paint}
+#null-pixel-field.visible{opacity:1}
+.null-background-pixel{position:absolute;display:block;width:var(--pw);height:var(--ph);left:var(--px);top:var(--py);background:rgba(255,255,255,var(--alpha));box-shadow:0 0 5px rgba(255,255,255,.28);will-change:transform,opacity}
+.null-background-pixel.fall{animation:null-pixel-fall var(--dur) linear var(--delay) infinite}
+.null-background-pixel.glitch{animation:null-pixel-glitch var(--dur) steps(1,end) var(--delay) infinite}
+.null-background-pixel.hybrid{animation:null-pixel-hybrid var(--dur) linear var(--delay) infinite}
+@keyframes null-pixel-fall{0%{transform:translate3d(0,-24vh,0);opacity:0}8%{opacity:var(--alpha)}90%{opacity:var(--alpha)}100%{transform:translate3d(var(--drift),125vh,0);opacity:0}}
+@keyframes null-pixel-glitch{0%,13%,29%,49%,67%,85%,100%{opacity:0;transform:translate3d(0,0,0) scaleX(1)}14%,28%{opacity:var(--alpha);transform:translate3d(8px,-3px,0) scaleX(3)}50%,66%{opacity:var(--alpha);transform:translate3d(-13px,5px,0) scaleX(1.8)}86%,94%{opacity:var(--alpha);transform:translate3d(4px,0,0) scaleX(4)}}
+@keyframes null-pixel-hybrid{0%{opacity:0;transform:translate3d(0,-30vh,0)}12%{opacity:var(--alpha)}35%{transform:translate3d(4px,10vh,0)}36%{transform:translate3d(-23px,10vh,0) scaleX(3)}38%{transform:translate3d(9px,11vh,0) scaleX(1)}63%{transform:translate3d(0,45vh,0)}64%{opacity:0;transform:translate3d(27px,45vh,0) scaleX(5)}67%{opacity:var(--alpha);transform:translate3d(-8px,48vh,0)}100%{opacity:0;transform:translate3d(var(--drift),125vh,0)}}
+@media(prefers-reduced-motion:reduce){.null-background-pixel{animation:none!important;opacity:.45}#null-pixel-field{transition:none}}
+
+/* [NULL] hover — ring shifts from dusty gold to soft white */
+.null-orbit::before,.null-orbit::after,.null-glow,.null-smoke,.null-smoke-extra{transition:filter .38s ease,opacity .38s ease}
+.null-orbit:hover::before,.null-orbit:hover::after,.null-orbit:hover .null-glow,.null-orbit:hover .null-smoke,.null-orbit:hover .null-smoke-extra{filter:grayscale(1) brightness(1.55) blur(17px)}
+.null-orbit:hover .null-glow{filter:grayscale(1) brightness(1.8) blur(27px)}
+.null-orbit:hover::after{filter:grayscale(1) brightness(1.6) blur(22px)}
+.null-orbit:hover .null-smoke{filter:grayscale(1) brightness(1.6) blur(11px)}
+.null-orbit:hover .null-smoke-extra{filter:grayscale(1) brightness(1.6) blur(14px)}
+.null-orbit:hover .null-void{box-shadow:0 0 0 1px #ffffff66,0 0 12px 4px #ffffff17,0 0 15px 9px #0009,inset 0 0 13px 3px #15130e99}
+.null-orbit:hover .null-void span{color:#fff;text-shadow:0 0 8px #fff9}
+
+
+/* [NULL] only: monochrome black-and-white window frame, not the global gold/purple border */
+.window[data-app="null"]{border:1px solid #d6d6d6a6;background:#08090b;box-shadow:0 24px 80px #000e,0 0 0 1px #080808,inset 0 1px #ffffff20}
+.window[data-app="null"].window-active{border-color:#f1f1f1;box-shadow:0 24px 80px #000e,0 0 19px #ffffff22,0 0 0 1px #000,inset 0 1px #ffffff35}
+.window[data-app="null"]::after{background:conic-gradient(from var(--living-border-angle,0deg),#fff 0deg,#f2f2f2bd 28deg,#8b8b8b55 62deg,transparent 108deg,#050505 150deg,#101010 196deg,transparent 245deg,#d0d0d0b8 305deg,#fff 360deg)}
+.window[data-app="null"] .titlebar{color:#f1f1f1;background:linear-gradient(100deg,#0a0a0d,#17171b);border-bottom-color:#ffffff36}
+.window[data-app="null"] .window-statusbar{background:#090a0d;border-top-color:#ffffff36;color:#c9c9c9}
+.window[data-app="null"] .window-statusbar .status-online{color:#ededed}
+.window[data-app="null"] .window-controls button:hover{border-color:#ffffff9c;background:#ffffff20;box-shadow:0 0 0 2px #ffffff12}
+
 </style>
 </head>
 
@@ -968,10 +1077,12 @@ const APPS = [
   ["settings", "Settings"],
   ["minesweeper", "Minesweeper"],
   ["snake", "Snake"],
-  ["game2048", "2048"]
+  ["game2048", "2048"],
+  ["null", "[NULL]"]
 ];
 
 const ICONS = {
+  null: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/>',
   browser: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"/>',
   music: '<path d="M9 18V5l12-2v13M9 9l12-2"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
   notesapp: '<path d="M5 3h14v18H5zM8 8h8M8 12h8M8 16h6"/>',
@@ -1019,6 +1130,7 @@ function savePositions() {
 APPS.forEach(([id, name], index) => {
   const element = document.createElement("div");
   element.className = "desktop-icon";
+  element.dataset.app = id;
   element.innerHTML = iconSVG(id) + "<span>" + name + "</span>";
 
   const fallback = {
@@ -1098,6 +1210,49 @@ APPS.forEach(([id, name], index) => {
   taskApps.appendChild(taskButton);
 });
 
+/* Atmospheric focus only while [NULL] is the foreground app. */
+const nullFocusShade = document.createElement('div');
+nullFocusShade.id = 'null-focus-shade';
+nullFocusShade.setAttribute('aria-hidden','true');
+document.body.appendChild(nullFocusShade);
+const nullPixelField=document.createElement('div');
+nullPixelField.id='null-pixel-field';
+nullPixelField.setAttribute('aria-hidden','true');
+document.body.appendChild(nullPixelField);
+(function buildNullPixels(){
+  const frag=document.createDocumentFragment();
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const count=reduced?32:115;
+  for(let i=0;i<count;i++){
+    const dot=document.createElement('i');
+    const kind=i%7<3?'fall':i%7<5?'glitch':'hybrid';
+    dot.className='null-background-pixel '+kind;
+    const rand=(min,max)=>min+Math.random()*(max-min);
+    dot.style.setProperty('--px',rand(1,99).toFixed(2)+'%');
+    dot.style.setProperty('--py',rand(0,100).toFixed(2)+'%');
+    dot.style.setProperty('--pw',rand(1,5).toFixed(1)+'px');
+    dot.style.setProperty('--ph',rand(1,5).toFixed(1)+'px');
+    dot.style.setProperty('--alpha',rand(.25,.86).toFixed(2));
+    dot.style.setProperty('--dur',rand(kind==='glitch'?2.4:5,kind==='glitch'?8:16).toFixed(2)+'s');
+    dot.style.setProperty('--delay',(-rand(0,17)).toFixed(2)+'s');
+    dot.style.setProperty('--drift',rand(-60,60).toFixed(0)+'px');
+    frag.appendChild(dot);
+  }
+  nullPixelField.appendChild(frag);
+})();
+function syncNullAtmosphere(){
+  const windows=[...document.querySelectorAll('.window:not([data-closing="true"])')];
+  const front=windows.reduce((best,w)=>!best||Number(w.style.zIndex)>Number(best.style.zIndex)?w:best,null);
+  const enabled=front?.dataset.app==='null' && !front.classList.contains('app-awaiting-glitch');
+  if(enabled){
+    const frontZ=Number(front.style.zIndex);
+    nullFocusShade.style.zIndex=String(Math.max(1,frontZ-2));
+    nullPixelField.style.zIndex=String(Math.max(2,frontZ-1));
+  }
+  nullFocusShade.classList.toggle('visible',!!enabled);
+  nullPixelField.classList.toggle('visible',!!enabled);
+}
+
 /* WINDOW MANAGER */
 
 function makeWindow(id, title) {
@@ -1109,6 +1264,7 @@ function makeWindow(id, title) {
     document.querySelectorAll('.window.window-active').forEach(w=>w.classList.remove('window-active'));
     existing.classList.add('window-active');
     existing.style.zIndex = ++topZ;
+    syncNullAtmosphere();
     existing.classList.add('window-focus');
     setTimeout(()=>existing.classList.remove('window-focus'),210);
     window.dispatchEvent(new CustomEvent('mybrowser-action',{detail:{type:'focus',app:id}}));
@@ -1183,6 +1339,8 @@ function makeWindow(id, title) {
     window.dispatchEvent(new CustomEvent('mybrowser-action',{detail:{type:'close',app:id}}));
     if (win.dataset.closing === 'true') return;
     win.dataset.closing = 'true';
+    syncNullAtmosphere();
+    setTimeout(syncNullAtmosphere,600);
     win.classList.add('app-awaiting-glitch');
     launchAppGlitch(win, () => win.remove());
   };
@@ -1203,6 +1361,7 @@ function makeWindow(id, title) {
     document.querySelectorAll('.window.window-active').forEach(w=>w.classList.remove('window-active'));
     win.classList.add('window-active');
     win.style.zIndex = ++topZ;
+    syncNullAtmosphere();
   }
   win.addEventListener("pointerdown", activateWindow);
   activateWindow();
@@ -1298,7 +1457,11 @@ function launchAppGlitch(targetWindow, onComplete) {
   };
   launchGlitchFinish = finish;
   const started = performance.now();
-  const palette = ['#ffe83a','#ffe83a','#fff37a','#f5c500','#ba46ff','#a02dff','#7922d5','#f13a58'];
+  // [NULL] uses white static for both opening and closing; other apps keep their original palette.
+  const isNullGlitch = targetWindow.dataset.app === 'null';
+  const palette = isNullGlitch
+    ? ['#ffffff','#ffffff','#f8f8f8','#eaeaea','#d7d7d7','#bcbcbc','#ffffff']
+    : ['#ffe83a','#ffe83a','#fff37a','#f5c500','#ba46ff','#a02dff','#7922d5','#f13a58'];
   const pick = a => a[Math.floor(Math.random()*a.length)];
   const random = (min,max) => min + Math.random()*(max-min);
   const fragments = [];
@@ -1336,7 +1499,7 @@ function launchAppGlitch(targetWindow, onComplete) {
       const y=f.y+(Math.random()-.5)*5;
       launchGlitchCtx.fillRect(x,y,f.w,f.h);
       if(f.type>.82){
-        launchGlitchCtx.fillStyle='#0b0710';
+        launchGlitchCtx.fillStyle=isNullGlitch?'#161616':'#0b0710';
         launchGlitchCtx.fillRect(x+random(0,f.w*.6),y,random(2,Math.max(3,f.w*.25)),f.h);
       }
     }
@@ -1396,6 +1559,89 @@ function settingsApp(area){
 }
 try{document.documentElement.style.setProperty('--gosha-blur',(localStorage.getItem('gosha-glass-blur')||'24')+'px');document.documentElement.style.setProperty('--gosha-radius',(localStorage.getItem('gosha-corner-radius')||'15')+'px')}catch{}
 
+
+/* [NULL] — draggable black hole with interactive gravitational effects */
+function nullApp(area){
+  area.innerHTML=`<div class="null-stage"><div class="null-orbit" role="button" tabindex="0" aria-label="Drag the void or click to pulse" title="Drag the void"><div class="null-glow"></div><div class="null-smoke"></div><div class="null-smoke-extra"></div><div class="null-void"><span>[null]</span></div></div></div>`;
+  const stage=area.querySelector('.null-stage'),orb=area.querySelector('.null-orbit');
+  let x=.5,y=.5,drag=false,moved=false,startX=0,startY=0,lastX=0,lastY=0,lastTime=0,vx=0,vy=0,raf=0;
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function position(){
+    const r=stage.getBoundingClientRect(),size=orb.getBoundingClientRect().width;
+    const margin=Math.min(size*.2,65);
+    const px=Math.max(margin,Math.min(r.width-margin,x*r.width));
+    const py=Math.max(margin,Math.min(r.height-margin,y*r.height));
+    orb.style.left=px+'px';orb.style.top=py+'px';
+    stage.style.setProperty('--glow-x',px+'px');stage.style.setProperty('--glow-y',py+'px');
+    return {px,py};
+  }
+  function sparks(n=12,spread=90){
+    if(reduced)return;
+    const {px,py}=position();
+    for(let i=0;i<n;i++){
+      const dot=document.createElement('i');dot.className='null-spark';
+      const a=Math.random()*Math.PI*2,dist=20+Math.random()*spread;
+      dot.style.left=px+(Math.random()-.5)*60+'px';
+      dot.style.top=py+(Math.random()-.5)*60+'px';
+      dot.style.setProperty('--dx',Math.cos(a)*dist+'px');
+      dot.style.setProperty('--dy',Math.sin(a)*dist+'px');
+      dot.style.setProperty('--w',(2+Math.random()*6)+'px');
+      dot.style.setProperty('--life',(420+Math.random()*500)+'ms');
+      dot.style.setProperty('--c',Math.random()<.08?'#a59b8c':'#cbb89c');
+      stage.appendChild(dot);dot.addEventListener('animationend',()=>dot.remove(),{once:true});
+      setTimeout(()=>dot.remove(),1100);
+    }
+  }
+  function pulse(){
+    stage.classList.add('null-pulse');sparks(24,150);
+    setTimeout(()=>stage.classList.remove('null-pulse'),420);
+  }
+  function stopMomentum(){cancelAnimationFrame(raf);raf=0}
+  orb.addEventListener('pointerdown',e=>{
+    if(e.button!==0)return;
+    stopMomentum();drag=true;moved=false;startX=e.clientX;startY=e.clientY;
+    lastX=e.clientX;lastY=e.clientY;lastTime=performance.now();vx=vy=0;
+    orb.classList.add('dragging');orb.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  orb.addEventListener('pointermove',e=>{
+    if(!drag)return;
+    const r=stage.getBoundingClientRect(),now=performance.now(),dt=Math.max(8,now-lastTime);
+    x+=(e.clientX-lastX)/Math.max(1,r.width);
+    y+=(e.clientY-lastY)/Math.max(1,r.height);
+    vx=(e.clientX-lastX)/dt;vy=(e.clientY-lastY)/dt;
+    if(Math.hypot(e.clientX-startX,e.clientY-startY)>6)moved=true;
+    lastX=e.clientX;lastY=e.clientY;lastTime=now;
+    position();
+    if(moved&&Math.random()<.28)sparks(1,50);
+  });
+  function release(){
+    if(!drag)return;drag=false;orb.classList.remove('dragging');
+    if(!moved){pulse();return}
+    if(reduced)return;
+    let frames=0;
+    function glide(){
+      const r=stage.getBoundingClientRect();
+      x+=vx*13/Math.max(1,r.width);y+=vy*13/Math.max(1,r.height);
+      vx*=.89;vy*=.89;frames++;position();
+      if(frames<65&&Math.hypot(vx,vy)>.015)raf=requestAnimationFrame(glide);
+    }
+    raf=requestAnimationFrame(glide);
+  }
+  orb.addEventListener('pointerup',release);
+  orb.addEventListener('pointercancel',()=>{drag=false;orb.classList.remove('dragging')});
+  orb.addEventListener('keydown',e=>{
+    const step=e.shiftKey?.08:.025;
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();pulse();return}
+    const keys={ArrowLeft:[-step,0],ArrowRight:[step,0],ArrowUp:[0,-step],ArrowDown:[0,step]};
+    if(keys[e.key]){e.preventDefault();stopMomentum();x+=keys[e.key][0];y+=keys[e.key][1];position()}
+  });
+  const observer=new ResizeObserver(()=>position());observer.observe(stage);
+  const cleanup=new MutationObserver(()=>{if(!area.isConnected){observer.disconnect();cleanup.disconnect();stopMomentum()}});
+  cleanup.observe(document.body,{childList:true,subtree:true});
+  position();
+}
+
 function openApp(id) {
   const name = APPS.find(app => app[0] === id)?.[1];
   if (!name) return;
@@ -1419,8 +1665,9 @@ function openApp(id) {
   if (id === "minesweeper") minesweeperApp(area);
   if (id === "snake") snakeApp(area);
   if (id === "game2048") game2048App(area);
+  if (id === "null") nullApp(area);
   addAppSidebar(area,id);
-  launchAppGlitch(newWindow, () => newWindow.classList.remove("app-awaiting-glitch"));
+  launchAppGlitch(newWindow, () => {newWindow.classList.remove("app-awaiting-glitch");syncNullAtmosphere();});
 }
 
 /* BROWSER WITH TAVILY AND INTERNAL WEBSITE VIEWER */
@@ -1786,7 +2033,7 @@ function notesApp(area){
 /* TASK MANAGER */
 function taskManagerApp(area){
  area.innerHTML=`<h2>TASK MANAGER</h2><p class="muted">Running applications in Gosha's Browser (not your computer's system processes).</p><div id="runningApps"></div><button class="btn" id="refreshTasks">REFRESH</button>`;
- const render=()=>{const list=area.querySelector('#runningApps');list.replaceChildren();document.querySelectorAll('.window:not([data-closing="true"])').forEach(win=>{const el=document.createElement('div');el.className='card';el.style.cssText='display:flex;align-items:center;gap:12px;margin:8px 0';const label=document.createElement('span');label.style.flex='1';label.textContent=APPS.find(a=>a[0]===win.dataset.app)?.[1]||win.dataset.app;const focus=document.createElement('button');focus.className='btn';focus.textContent='FOCUS';focus.onclick=()=>{win.style.zIndex=++topZ};const kill=document.createElement('button');kill.className='btn';kill.textContent='FORCE CLOSE';kill.onclick=()=>{if(win===area.closest('.window')){win.querySelector('.window-controls .close')?.click();return;}win.querySelector('.window-controls .close')?.click();setTimeout(render,600)};el.append(label,focus,kill);list.append(el)});};area.querySelector('#refreshTasks').onclick=render;render();
+ const render=()=>{const list=area.querySelector('#runningApps');list.replaceChildren();document.querySelectorAll('.window:not([data-closing="true"])').forEach(win=>{const el=document.createElement('div');el.className='card';el.style.cssText='display:flex;align-items:center;gap:12px;margin:8px 0';const label=document.createElement('span');label.style.flex='1';label.textContent=APPS.find(a=>a[0]===win.dataset.app)?.[1]||win.dataset.app;const focus=document.createElement('button');focus.className='btn';focus.textContent='FOCUS';focus.onclick=()=>{win.style.zIndex=++topZ;syncNullAtmosphere()};const kill=document.createElement('button');kill.className='btn';kill.textContent='FORCE CLOSE';kill.onclick=()=>{if(win===area.closest('.window')){win.querySelector('.window-controls .close')?.click();return;}win.querySelector('.window-controls .close')?.click();setTimeout(render,600)};el.append(label,focus,kill);list.append(el)});};area.querySelector('#refreshTasks').onclick=render;render();
 }
 
 /* TEXT EDITOR */
@@ -2547,7 +2794,7 @@ restoreTab();
     '> THREAD 07 READY\n> WAITING FOR INPUT_'
   ];
   /* Context-aware multi-turn conversations, shuffled for variety */
-  const appNames={browser:'Browser',files:'Files',editor:'Text Editor',terminal:'Terminal',calculator:'Calculator',cloaking:'Cloaking',about:'About',minesweeper:'Minesweeper',snake:'Snake',game2048:'2048'};
+  const appNames={browser:'Browser',files:'Files',editor:'Text Editor',terminal:'Terminal',calculator:'Calculator',cloaking:'Cloaking',about:'About',minesweeper:'Minesweeper',snake:'Snake',game2048:'2048',null:'[NULL]'};
   const interactions={
     browser:[['<TILT HEAD> The internet is a very large room.','Yeah, and you are not invited to every website.','<GIGGLE> But I brought snacks.'],['Shall we look for something interesting?','Define interesting. Actually, do not.'],['So many little links to explore.','Try not to break any of them.']],
     files:[['<GIGGLE> So many secrets in these folders.','Stop snooping, Cyn.','<INNOCENT EXPRESSION> Just browsing.'],['Your files are organized. How delightful.','Hands off the files.'],['What is inside this little folder?','That is none of your business!']],
@@ -2692,7 +2939,7 @@ document.addEventListener('keydown',event=>{
   if(event.altKey && event.key==='Tab'){
     event.preventDefault();
     const sorted=wins.sort((a,b)=>Number(b.style.zIndex)-Number(a.style.zIndex));
-    const next=sorted[1]||sorted[0];next.style.zIndex=++topZ;next.focus();
+    const next=sorted[1]||sorted[0];next.style.zIndex=++topZ;next.focus();syncNullAtmosphere();
   }
   if(event.ctrlKey && !event.shiftKey && event.key.toLowerCase()==='w'){
     event.preventDefault();front().querySelector('.window-controls .close')?.click();
