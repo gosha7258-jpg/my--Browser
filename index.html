@@ -1014,6 +1014,18 @@ textarea {
 .chat-compose{display:flex;gap:8px}.chat-compose input{width:100%}.chat-notice{font-size:10px;color:#aeb2c0;line-height:1.5}
 @media(max-width:580px){.chat-message header{flex-wrap:wrap}.chat-compose{gap:5px}.chat-shell button{padding:8px}}
 
+/* Update Logs app — read-only changelog, no backend needed */
+.updates-app{height:100%;overflow:auto;padding:22px 24px;color:#e9e9e9;background:radial-gradient(ellipse at top right,#27242f 0%,#101014 54%,#08090b 100%);font-family:Consolas,monospace}
+.updates-heading{font-size:23px;font-weight:700;color:#f5f5f5;letter-spacing:1px;margin-bottom:7px}
+.updates-subheading{font-size:12px;color:#a5a5b0;margin-bottom:20px;line-height:1.7}
+.updates-entry{border:1px solid #ffffff26;background:#ffffff08;border-radius:13px;margin:0 0 15px;overflow:hidden;box-shadow:0 6px 24px #0003}
+.updates-entry-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 16px;border-bottom:1px solid #ffffff17}
+.updates-version{font-weight:700;font-size:15px;color:#fff}
+.updates-tag{font-size:10px;letter-spacing:.6px;color:#e0e0e0;background:#ffffff1a;border:1px solid #ffffff30;border-radius:30px;padding:4px 9px}
+.updates-entry ul{margin:0;padding:13px 20px 16px 35px;color:#c9c9d0;font-size:12px;line-height:2}
+.updates-entry li::marker{color:#c8c8cf}
+.updates-note{font-size:11px;color:#9999a7;line-height:1.7;margin-top:16px}
+
 </style>
 </head>
 
@@ -1091,10 +1103,12 @@ const APPS = [
   ["snake", "Snake"],
   ["game2048", "2048"],
   ["null", "[NULL]"],
-  ["chat", "Global Chat"]
+  ["chat", "Global Chat"],
+  ["updates", "Update Logs"]
 ];
 
 const ICONS = {
+  updates: '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/><circle cx="6.5" cy="8" r=".5"/>',
   chat: '<path d="M4 4h16v12H9l-5 4V4zM8 9h8M8 12h5"/>',
   null: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/>',
   browser: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"/>',
@@ -1724,6 +1738,42 @@ function globalChatApp(area){
   const watcher=new MutationObserver(()=>{if(!win.isConnected){disposed=true;clearInterval(interval);watcher.disconnect()}});watcher.observe(document.body,{childList:true,subtree:true});
 }
 
+
+/* Built-in changelog — edit the entries here when publishing future updates. */
+function updatesApp(area){
+  area.innerHTML=`
+    <section class="updates-app">
+      <div class="updates-heading">UPDATE LOGS <span style="color:#9f9fa9;font-size:12px;font-weight:400">/ CHANGELOG</span></div>
+      <div class="updates-subheading">What's new in Gosha's Browser · Newest updates first</div>
+      <article class="updates-entry">
+        <div class="updates-entry-head"><span class="updates-version">Latest Update</span><span class="updates-tag">NEW</span></div>
+        <ul>
+          <li>Added the Update Logs app to the desktop.</li>
+          <li>Global Chat supports shared messages and guest nicknames.</li>
+          <li>Chat username reservations help prevent duplicate names.</li>
+        </ul>
+      </article>
+      <article class="updates-entry">
+        <div class="updates-entry-head"><span class="updates-version">[NULL] Improvements</span><span class="updates-tag">VISUALS</span></div>
+        <ul>
+          <li>Interactive black hole with drag movement and subtle smoky animation.</li>
+          <li>Dark atmospheric focus and white falling / glitching background pixels.</li>
+          <li>White opening and closing glitches, plus black-and-white window styling.</li>
+          <li>Removed on-screen directions and double-click reset.</li>
+        </ul>
+      </article>
+      <article class="updates-entry">
+        <div class="updates-entry-head"><span class="updates-version">Desktop & Apps</span><span class="updates-tag">FEATURES</span></div>
+        <ul>
+          <li>Draggable desktop windows, animations, and custom desktop icons.</li>
+          <li>Browser, File Explorer, Terminal, Text Editor, Calculator, and Settings.</li>
+          <li>Mini-games and other built-in desktop tools.</li>
+        </ul>
+      </article>
+      <div class="updates-note">Release notes are built into this website. To announce future updates, edit the entries in updatesApp() and publish your updated index.html.</div>
+    </section>`;
+}
+
 function openApp(id) {
   const name = APPS.find(app => app[0] === id)?.[1];
   if (!name) return;
@@ -1749,6 +1799,7 @@ function openApp(id) {
   if (id === "game2048") game2048App(area);
   if (id === "null") nullApp(area);
   if (id === "chat") globalChatApp(area);
+  if (id === "updates") updatesApp(area);
   addAppSidebar(area,id);
   launchAppGlitch(newWindow, () => {newWindow.classList.remove("app-awaiting-glitch");syncNullAtmosphere();});
 }
@@ -2877,7 +2928,7 @@ restoreTab();
     '> THREAD 07 READY\n> WAITING FOR INPUT_'
   ];
   /* Context-aware multi-turn conversations, shuffled for variety */
-  const appNames={browser:'Browser',files:'Files',editor:'Text Editor',terminal:'Terminal',calculator:'Calculator',cloaking:'Cloaking',about:'About',minesweeper:'Minesweeper',snake:'Snake',game2048:'2048',null:'[NULL]',chat:'Global Chat'};
+  const appNames={browser:'Browser',files:'Files',editor:'Text Editor',terminal:'Terminal',calculator:'Calculator',cloaking:'Cloaking',about:'About',minesweeper:'Minesweeper',snake:'Snake',game2048:'2048',null:'[NULL]',chat:'Global Chat',updates:'Update Logs'};
   const interactions={
     browser:[['<TILT HEAD> The internet is a very large room.','Yeah, and you are not invited to every website.','<GIGGLE> But I brought snacks.'],['Shall we look for something interesting?','Define interesting. Actually, do not.'],['So many little links to explore.','Try not to break any of them.']],
     files:[['<GIGGLE> So many secrets in these folders.','Stop snooping, Cyn.','<INNOCENT EXPRESSION> Just browsing.'],['Your files are organized. How delightful.','Hands off the files.'],['What is inside this little folder?','That is none of your business!']],
