@@ -1002,6 +1002,18 @@ textarea {
 .window[data-app="null"] .window-statusbar .status-online{color:#ededed}
 .window[data-app="null"] .window-controls button:hover{border-color:#ffffff9c;background:#ffffff20;box-shadow:0 0 0 2px #ffffff12}
 
+/* Global Chat */
+.chat-shell{height:100%;min-height:300px;display:flex;flex-direction:column;gap:10px;color:#e8e5d9;font-family:Consolas,monospace}
+.chat-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;background:#12141bd9;border:1px solid #ffffff21;border-radius:9px}
+.chat-top strong{font-size:14px;color:#ffdf64}.chat-top small{font-size:10px;color:#aab0bd}.chat-state{font-size:11px;color:#a6b0bb}
+.chat-setup{display:flex;gap:8px;flex-wrap:wrap}.chat-setup input,.chat-compose input{background:#080a10;color:#fff;border:1px solid #ffffff37;border-radius:8px;padding:10px;min-width:0;flex:1;font:12px Consolas,monospace}
+.chat-shell button{cursor:pointer;border:1px solid #ffe26366;border-radius:8px;background:#242118;color:#ffdf64;padding:9px 12px;font:12px Consolas,monospace}
+.chat-shell button:disabled{opacity:.4;cursor:not-allowed}
+.chat-feed{flex:1;min-height:150px;overflow-y:auto;background:#06080ecb;border:1px solid #ffffff20;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px;overscroll-behavior:contain}
+.chat-message{border-bottom:1px solid #ffffff12;padding:0 0 9px;overflow-wrap:anywhere}.chat-message header{display:flex;align-items:center;gap:9px;margin-bottom:5px}.chat-message b{color:#ffe375;font-size:12px}.chat-message time{color:#81899b;font-size:10px}.chat-message p{white-space:pre-wrap;margin:0;color:#e2e4e8;font-size:12px;line-height:1.5}.chat-message .chat-actions{margin-left:auto;display:flex;gap:5px}.chat-message .chat-actions button{padding:3px 6px;font-size:10px;color:#adb1ba;border-color:#ffffff22;background:#ffffff08}
+.chat-compose{display:flex;gap:8px}.chat-compose input{width:100%}.chat-notice{font-size:10px;color:#aeb2c0;line-height:1.5}
+@media(max-width:580px){.chat-message header{flex-wrap:wrap}.chat-compose{gap:5px}.chat-shell button{padding:8px}}
+
 </style>
 </head>
 
@@ -1078,10 +1090,12 @@ const APPS = [
   ["minesweeper", "Minesweeper"],
   ["snake", "Snake"],
   ["game2048", "2048"],
-  ["null", "[NULL]"]
+  ["null", "[NULL]"],
+  ["chat", "Global Chat"]
 ];
 
 const ICONS = {
+  chat: '<path d="M4 4h16v12H9l-5 4V4zM8 9h8M8 12h5"/>',
   null: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/>',
   browser: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"/>',
   music: '<path d="M9 18V5l12-2v13M9 9l12-2"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
@@ -1642,6 +1656,58 @@ function nullApp(area){
   position();
 }
 
+
+/* Global Chat — separate Cloudflare Worker + D1, no credentials in the client */
+const CHAT_WORKER_URL = 'https://goshas-global-chat.gosha7258.workers.dev';
+function globalChatApp(area){
+  const configured=!CHAT_WORKER_URL.includes('REPLACE-WITH-YOUR-CHAT-WORKER');
+  area.innerHTML=`<div class="chat-shell"><div class="chat-top"><div><strong>◈ GLOBAL CHAT</strong><div><small>GOSHA NETWORK // PUBLIC ROOM</small></div></div><span class="chat-state">CONNECTING</span></div><div class="chat-setup"><input class="chat-name" maxlength="20" placeholder="Guest nickname (3–20 characters)" aria-label="Chat nickname"><button class="chat-save">Set name</button></div><div class="chat-feed" role="log" aria-live="polite" aria-label="Chat messages"></div><form class="chat-compose"><input class="chat-input" maxlength="500" placeholder="Write a message…" aria-label="Message" required><button type="submit">SEND</button></form><div class="chat-notice">Public room · Don't share personal information · Mute and report messages as needed</div></div>`;
+  const $=sel=>area.querySelector(sel),feed=$('.chat-feed'),status=$('.chat-state'),nameInput=$('.chat-name'),messageInput=$('.chat-input'),sendButton=$('.chat-compose button');
+  const clientIdKey='gosha-chat-guest-id',nameKey='gosha-chat-nickname',muteKey='gosha-chat-muted';
+  let clientId=sessionStorage.getItem(clientIdKey);
+  if(!clientId){clientId=crypto.randomUUID();sessionStorage.setItem(clientIdKey,clientId)}
+  let nickname=localStorage.getItem(nameKey)||'';
+  let muted=[];try{muted=JSON.parse(localStorage.getItem(muteKey)||'[]')}catch{}
+  nameInput.value=nickname;
+  let lastId=0,known=new Set(),loading=false,disposed=false,interval=null;
+  const win=area.closest('.window');
+  function setStatus(t){status.textContent=t}
+  function note(t){const p=document.createElement('p');p.className='chat-notice';p.textContent=t;feed.appendChild(p)}
+  function checkName(value){return /^[a-zA-Z0-9_ -]{3,20}$/.test(value)}
+  function saveName(){const n=nameInput.value.trim();if(!checkName(n)){setStatus('NAME: 3–20 LETTERS / NUMBERS');return false}nickname=n;localStorage.setItem(nameKey,n);setStatus('READY');return true}
+  $('.chat-save').onclick=saveName;
+  function render(m){
+    if(known.has(m.id))return;known.add(m.id);lastId=Math.max(lastId,m.id);
+    if(muted.includes(m.nickname.toLowerCase()))return;
+    const nearBottom=feed.scrollHeight-feed.scrollTop-feed.clientHeight<100;
+    const item=document.createElement('article');item.className='chat-message';
+    const header=document.createElement('header'),user=document.createElement('b'),time=document.createElement('time'),actions=document.createElement('div'),body=document.createElement('p');
+    actions.className='chat-actions';user.textContent=m.nickname;time.textContent=new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});body.textContent=m.message;
+    const mute=document.createElement('button');mute.type='button';mute.textContent='Mute';mute.title='Hide messages from this nickname on your device';mute.onclick=()=>{if(!muted.includes(m.nickname.toLowerCase()))muted.push(m.nickname.toLowerCase());localStorage.setItem(muteKey,JSON.stringify(muted));feed.querySelectorAll('.chat-message').forEach(el=>{if(el.dataset.nick===m.nickname.toLowerCase())el.remove()})};
+    const report=document.createElement('button');report.type='button';report.textContent='Report';report.onclick=async()=>{if(!confirm('Report this message for review?'))return;report.disabled=true;try{await api('/report',{method:'POST',body:JSON.stringify({messageId:m.id,reason:'User report'})});report.textContent='Reported'}catch(err){report.disabled=false;setStatus('REPORT FAILED')}};
+    actions.append(mute,report);header.append(user,time,actions);item.append(header,body);item.dataset.nick=m.nickname.toLowerCase();feed.appendChild(item);if(nearBottom)feed.scrollTop=feed.scrollHeight;
+    while(feed.querySelectorAll('.chat-message').length>100)feed.querySelector('.chat-message')?.remove();
+  }
+  async function api(path,options={}){
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
+    try{const response=await fetch(CHAT_WORKER_URL+path,{...options,signal:controller.signal,headers:{'Content-Type':'application/json',...(options.headers||{})}});const data=await response.json();if(!response.ok)throw Error(data.error||'Request failed');return data}finally{clearTimeout(timer)}
+  }
+  async function refresh(){
+    if(disposed||loading||!configured||document.hidden||!area.isConnected)return;
+    loading=true;
+    try{const data=await api('/messages?after='+lastId);(data.messages||[]).forEach(render);setStatus('● CONNECTED')}catch(e){setStatus('○ OFFLINE / RETRYING')}finally{loading=false}
+  }
+  $('.chat-compose').addEventListener('submit',async e=>{
+    e.preventDefault();if(!configured){setStatus('SET CHAT WORKER URL FIRST');return}
+    if(!saveName())return;
+    const message=messageInput.value.trim();if(!message)return;
+    sendButton.disabled=true;
+    try{await api('/messages',{method:'POST',body:JSON.stringify({nickname,message,clientId})});messageInput.value='';await refresh()}catch(err){setStatus('SEND FAILED: '+err.message.slice(0,60))}finally{sendButton.disabled=false}
+  });
+  if(!configured){setStatus('SETUP REQUIRED');note('Chat is not connected yet. Deploy the chat Worker and replace CHAT_WORKER_URL in index.html.')}else{setStatus('CONNECTING');refresh();interval=setInterval(refresh,3000)}
+  const watcher=new MutationObserver(()=>{if(!win.isConnected){disposed=true;clearInterval(interval);watcher.disconnect()}});watcher.observe(document.body,{childList:true,subtree:true});
+}
+
 function openApp(id) {
   const name = APPS.find(app => app[0] === id)?.[1];
   if (!name) return;
@@ -1666,6 +1732,7 @@ function openApp(id) {
   if (id === "snake") snakeApp(area);
   if (id === "game2048") game2048App(area);
   if (id === "null") nullApp(area);
+  if (id === "chat") globalChatApp(area);
   addAppSidebar(area,id);
   launchAppGlitch(newWindow, () => {newWindow.classList.remove("app-awaiting-glitch");syncNullAtmosphere();});
 }
@@ -2794,7 +2861,7 @@ restoreTab();
     '> THREAD 07 READY\n> WAITING FOR INPUT_'
   ];
   /* Context-aware multi-turn conversations, shuffled for variety */
-  const appNames={browser:'Browser',files:'Files',editor:'Text Editor',terminal:'Terminal',calculator:'Calculator',cloaking:'Cloaking',about:'About',minesweeper:'Minesweeper',snake:'Snake',game2048:'2048',null:'[NULL]'};
+  const appNames={browser:'Browser',files:'Files',editor:'Text Editor',terminal:'Terminal',calculator:'Calculator',cloaking:'Cloaking',about:'About',minesweeper:'Minesweeper',snake:'Snake',game2048:'2048',null:'[NULL]',chat:'Global Chat'};
   const interactions={
     browser:[['<TILT HEAD> The internet is a very large room.','Yeah, and you are not invited to every website.','<GIGGLE> But I brought snacks.'],['Shall we look for something interesting?','Define interesting. Actually, do not.'],['So many little links to explore.','Try not to break any of them.']],
     files:[['<GIGGLE> So many secrets in these folders.','Stop snooping, Cyn.','<INNOCENT EXPRESSION> Just browsing.'],['Your files are organized. How delightful.','Hands off the files.'],['What is inside this little folder?','That is none of your business!']],
