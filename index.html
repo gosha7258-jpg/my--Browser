@@ -1042,6 +1042,7 @@ textarea {
 .chat-owner-message .chat-actions{margin-left:auto!important}
 .chat-owner-message .chat-actions button{padding:2px 5px;font-size:9px}
 @media(prefers-reduced-motion:reduce){.chat-owner-badge,.chat-owner-badge .owner-solver-symbol{animation:none}}
+.chat-top-actions{display:flex;align-items:center;gap:10px}.chat-clear{border:1px solid #e5cf5880;background:#28230f;color:#ffe88d;border-radius:5px;padding:5px 9px;font:700 10px Consolas,monospace;letter-spacing:.4px;cursor:pointer}.chat-clear:hover{background:#4c3b10}.chat-clear[hidden]{display:none!important}.chat-clear:disabled{opacity:.5;cursor:wait}
 </style>
 </head>
 
@@ -1691,8 +1692,8 @@ function nullApp(area){
 const CHAT_WORKER_URL = 'https://goshas-global-chat.gosha7258.workers.dev';
 function globalChatApp(area){
   const configured=!CHAT_WORKER_URL.includes('REPLACE-WITH-YOUR-CHAT-WORKER');
-  area.innerHTML=`<div class="chat-shell"><div class="chat-top"><div><strong>◈ GLOBAL CHAT</strong><div><small>GOSHA NETWORK // PUBLIC ROOM</small></div></div><span class="chat-state">CONNECTING</span></div><div class="chat-setup"><input class="chat-name" maxlength="20" placeholder="Guest nickname (3–20 characters)" aria-label="Chat nickname"><button class="chat-save">Set name</button></div><div class="chat-feed" role="log" aria-live="polite" aria-label="Chat messages"></div><form class="chat-compose"><input class="chat-input" maxlength="500" placeholder="Write a message…" aria-label="Message" required><button type="submit">SEND</button></form><div class="chat-notice">Unique guest nicknames · Don't share personal information · Mute and report messages as needed</div></div>`;
-  const $=sel=>area.querySelector(sel),feed=$('.chat-feed'),status=$('.chat-state'),nameInput=$('.chat-name'),messageInput=$('.chat-input'),sendButton=$('.chat-compose button');
+  area.innerHTML=`<div class="chat-shell"><div class="chat-top"><div><strong>◈ GLOBAL CHAT</strong><div><small>GOSHA NETWORK // PUBLIC ROOM</small></div></div><div class="chat-top-actions"><button class="chat-clear" type="button" hidden title="Delete all chat messages for everyone">CLEAR CHAT</button><span class="chat-state">CONNECTING</span></div></div><div class="chat-setup"><input class="chat-name" maxlength="20" placeholder="Guest nickname (3–20 characters)" aria-label="Chat nickname"><button class="chat-save">Set name</button></div><div class="chat-feed" role="log" aria-live="polite" aria-label="Chat messages"></div><form class="chat-compose"><input class="chat-input" maxlength="500" placeholder="Write a message…" aria-label="Message" required><button type="submit">SEND</button></form><div class="chat-notice">Unique guest nicknames · Don't share personal information · Mute and report messages as needed</div></div>`;
+  const $=sel=>area.querySelector(sel),feed=$('.chat-feed'),status=$('.chat-state'),nameInput=$('.chat-name'),messageInput=$('.chat-input'),sendButton=$('.chat-compose button'),clearButton=$('.chat-clear');
   const tokenKey='gosha-chat-owner-token-v1',nameKey='gosha-chat-nickname',muteKey='gosha-chat-muted';
   let token=localStorage.getItem(tokenKey);
   if(!token||!/^[0-9a-f]{64}$/i.test(token)){
@@ -1705,7 +1706,8 @@ function globalChatApp(area){
   if(ownerSession)nickname='gosha';
   let muted=[];try{muted=JSON.parse(localStorage.getItem(muteKey)||'[]')}catch{}
   nameInput.value=nickname;
-  let lastId=0,known=new Set(),loading=false,disposed=false,interval=null;
+  let lastId=0,known=new Set(),loading=false,disposed=false,interval=null,clearVersion=null;
+  clearButton.hidden=!ownerSession;
   const win=area.closest('.window');
   function setStatus(t){status.textContent=t}
   function note(t){const p=document.createElement('p');p.className='chat-notice';p.textContent=t;feed.appendChild(p)}
@@ -1743,7 +1745,7 @@ function globalChatApp(area){
   async function refresh(){
     if(disposed||loading||!configured||document.hidden||!area.isConnected)return;
     loading=true;
-    try{const data=await api('/messages?after='+lastId);(data.messages||[]).forEach(render);setStatus('● CONNECTED')}catch(e){setStatus('○ OFFLINE / RETRYING')}finally{loading=false}
+    try{const data=await api('/messages?after='+lastId);if(clearVersion!==null&&data.clearVersion!==clearVersion){feed.replaceChildren();known.clear();lastId=0;note('Chat history was cleared by the owner.')}clearVersion=data.clearVersion;(data.messages||[]).forEach(render);setStatus('● CONNECTED')}catch(e){setStatus('○ OFFLINE / RETRYING')}finally{loading=false}
   }
   $('.chat-compose').addEventListener('submit',async e=>{
     e.preventDefault();if(!configured){setStatus('SET CHAT WORKER URL FIRST');return}
@@ -1752,7 +1754,15 @@ function globalChatApp(area){
     sendButton.disabled=true;
     try{await api('/messages',{method:'POST',body:JSON.stringify({nickname,message,token,ownerSession})});messageInput.value='';await refresh()}catch(err){setStatus('SEND FAILED: '+err.message.slice(0,60))}finally{sendButton.disabled=false}
   });
-  window.addEventListener('gosha-owner-login',()=>{ownerSession=sessionStorage.getItem('gosha-owner-session')||'';nickname='gosha';nameInput.value='gosha';claimedName='';saveName();});
+  clearButton.addEventListener('click',async()=>{
+    if(!ownerSession)return;
+    if(!confirm('Clear ALL public chat messages for EVERYONE? This cannot be undone.'))return;
+    clearButton.disabled=true;setStatus('CLEARING CHAT...');
+    try{await api('/clear-chat',{method:'POST',body:JSON.stringify({token,ownerSession})});feed.replaceChildren();known.clear();lastId=0;clearVersion=null;note('You cleared the public chat.');setStatus('● CHAT CLEARED');await refresh()}
+    catch(err){setStatus('CLEAR FAILED: '+err.message.slice(0,60))}
+    finally{clearButton.disabled=false}
+  });
+  window.addEventListener('gosha-owner-login',()=>{ownerSession=sessionStorage.getItem('gosha-owner-session')||'';clearButton.hidden=!ownerSession;nickname='gosha';nameInput.value='gosha';claimedName='';saveName();});
   if(!configured){setStatus('SETUP REQUIRED');note('Chat is not connected yet. Deploy the chat Worker and replace CHAT_WORKER_URL in index.html.')}else{setStatus('CONNECTING');refresh();if(nickname)saveName();interval=setInterval(refresh,3000)}
   const watcher=new MutationObserver(()=>{if(!win.isConnected){disposed=true;clearInterval(interval);watcher.disconnect()}});watcher.observe(document.body,{childList:true,subtree:true});
 }
