@@ -1661,11 +1661,15 @@ function nullApp(area){
 const CHAT_WORKER_URL = 'https://goshas-global-chat.gosha7258.workers.dev';
 function globalChatApp(area){
   const configured=!CHAT_WORKER_URL.includes('REPLACE-WITH-YOUR-CHAT-WORKER');
-  area.innerHTML=`<div class="chat-shell"><div class="chat-top"><div><strong>◈ GLOBAL CHAT</strong><div><small>GOSHA NETWORK // PUBLIC ROOM</small></div></div><span class="chat-state">CONNECTING</span></div><div class="chat-setup"><input class="chat-name" maxlength="20" placeholder="Guest nickname (3–20 characters)" aria-label="Chat nickname"><button class="chat-save">Set name</button></div><div class="chat-feed" role="log" aria-live="polite" aria-label="Chat messages"></div><form class="chat-compose"><input class="chat-input" maxlength="500" placeholder="Write a message…" aria-label="Message" required><button type="submit">SEND</button></form><div class="chat-notice">Public room · Don't share personal information · Mute and report messages as needed</div></div>`;
+  area.innerHTML=`<div class="chat-shell"><div class="chat-top"><div><strong>◈ GLOBAL CHAT</strong><div><small>GOSHA NETWORK // PUBLIC ROOM</small></div></div><span class="chat-state">CONNECTING</span></div><div class="chat-setup"><input class="chat-name" maxlength="20" placeholder="Guest nickname (3–20 characters)" aria-label="Chat nickname"><button class="chat-save">Set name</button></div><div class="chat-feed" role="log" aria-live="polite" aria-label="Chat messages"></div><form class="chat-compose"><input class="chat-input" maxlength="500" placeholder="Write a message…" aria-label="Message" required><button type="submit">SEND</button></form><div class="chat-notice">Unique guest nicknames · Don't share personal information · Mute and report messages as needed</div></div>`;
   const $=sel=>area.querySelector(sel),feed=$('.chat-feed'),status=$('.chat-state'),nameInput=$('.chat-name'),messageInput=$('.chat-input'),sendButton=$('.chat-compose button');
-  const clientIdKey='gosha-chat-guest-id',nameKey='gosha-chat-nickname',muteKey='gosha-chat-muted';
-  let clientId=sessionStorage.getItem(clientIdKey);
-  if(!clientId){clientId=crypto.randomUUID();sessionStorage.setItem(clientIdKey,clientId)}
+  const tokenKey='gosha-chat-owner-token-v1',nameKey='gosha-chat-nickname',muteKey='gosha-chat-muted';
+  let token=localStorage.getItem(tokenKey);
+  if(!token||!/^[0-9a-f]{64}$/i.test(token)){
+    const bytes=crypto.getRandomValues(new Uint8Array(32));
+    token=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
+    localStorage.setItem(tokenKey,token);
+  }
   let nickname=localStorage.getItem(nameKey)||'';
   let muted=[];try{muted=JSON.parse(localStorage.getItem(muteKey)||'[]')}catch{}
   nameInput.value=nickname;
@@ -1674,7 +1678,19 @@ function globalChatApp(area){
   function setStatus(t){status.textContent=t}
   function note(t){const p=document.createElement('p');p.className='chat-notice';p.textContent=t;feed.appendChild(p)}
   function checkName(value){return /^[a-zA-Z0-9_ -]{3,20}$/.test(value)}
-  function saveName(){const n=nameInput.value.trim();if(!checkName(n)){setStatus('NAME: 3–20 LETTERS / NUMBERS');return false}nickname=n;localStorage.setItem(nameKey,n);setStatus('READY');return true}
+  let claimedName='';
+  async function saveName(){
+    const n=nameInput.value.trim();
+    if(!checkName(n)){setStatus('NAME: 3–20 LETTERS / NUMBERS');return false}
+    if(claimedName===n)return true;
+    const button=$('.chat-save');button.disabled=true;setStatus('CHECKING NAME...');
+    try{
+      const data=await api('/claim',{method:'POST',body:JSON.stringify({nickname:n,token})});
+      nickname=data.nickname;claimedName=nickname;
+      localStorage.setItem(nameKey,nickname);setStatus('● NAME RESERVED');return true;
+    }catch(err){setStatus(err.message.slice(0,80));return false}
+    finally{button.disabled=false}
+  }
   $('.chat-save').onclick=saveName;
   function render(m){
     if(known.has(m.id))return;known.add(m.id);lastId=Math.max(lastId,m.id);
@@ -1699,12 +1715,12 @@ function globalChatApp(area){
   }
   $('.chat-compose').addEventListener('submit',async e=>{
     e.preventDefault();if(!configured){setStatus('SET CHAT WORKER URL FIRST');return}
-    if(!saveName())return;
+    if(!(await saveName()))return;
     const message=messageInput.value.trim();if(!message)return;
     sendButton.disabled=true;
-    try{await api('/messages',{method:'POST',body:JSON.stringify({nickname,message,clientId})});messageInput.value='';await refresh()}catch(err){setStatus('SEND FAILED: '+err.message.slice(0,60))}finally{sendButton.disabled=false}
+    try{await api('/messages',{method:'POST',body:JSON.stringify({nickname,message,token})});messageInput.value='';await refresh()}catch(err){setStatus('SEND FAILED: '+err.message.slice(0,60))}finally{sendButton.disabled=false}
   });
-  if(!configured){setStatus('SETUP REQUIRED');note('Chat is not connected yet. Deploy the chat Worker and replace CHAT_WORKER_URL in index.html.')}else{setStatus('CONNECTING');refresh();interval=setInterval(refresh,3000)}
+  if(!configured){setStatus('SETUP REQUIRED');note('Chat is not connected yet. Deploy the chat Worker and replace CHAT_WORKER_URL in index.html.')}else{setStatus('CONNECTING');refresh();if(nickname)saveName();interval=setInterval(refresh,3000)}
   const watcher=new MutationObserver(()=>{if(!win.isConnected){disposed=true;clearInterval(interval);watcher.disconnect()}});watcher.observe(document.body,{childList:true,subtree:true});
 }
 
