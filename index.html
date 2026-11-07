@@ -1175,6 +1175,21 @@ body.lore-null-active #solver-dialogue{color:#e8e8e8!important;text-shadow:0 0 9
 body.lore-null-active #solver-glitch .solver-line{background:linear-gradient(90deg,transparent,#fff,#666,transparent)}
 body.lore-null-active #solver-glitch.active::before{background:repeating-linear-gradient(0deg,transparent 0 9px,#ffffff17 10px,#00000044 12px)}
 @media(prefers-reduced-motion:reduce){body.lore-null-active #desktop,body.lore-null-active #taskbar,body.lore-null-active .window{transition:none}}
+
+/* GOSHA MUSIC — built-in playlist */
+.gm-player{display:flex;flex-direction:column;gap:14px;color:#f4f0dc;max-width:750px;width:100%;margin:auto;font-family:Consolas,monospace}
+.gm-heading,.gm-library-title{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#ffe65c;font-weight:700;letter-spacing:1.1px}
+.gm-heading small,.gm-library-title span{font-size:10px;color:#aeb2c0;letter-spacing:.7px}
+.gm-now{display:flex;align-items:center;gap:18px;padding:20px;background:linear-gradient(125deg,#29251b,#141725 70%);border:1px solid #ffe65c55;border-radius:14px;min-height:142px}
+.gm-cover{display:grid;place-items:center;flex:none;width:100px;height:100px;background:radial-gradient(circle,#ffe65c33,#11131d 65%);border:1px solid #ffe65c88;border-radius:12px;font-size:52px;color:#ffe65c;text-shadow:0 0 25px #ffe65c}
+.gm-info{display:flex;flex-direction:column;gap:9px;min-width:0}.gm-info strong{font-size:clamp(16px,2.4vw,24px);overflow-wrap:anywhere}.gm-info span:last-child{color:#c3c5d0;font-size:12px}.gm-overline{color:#ffe65c;font-size:10px;letter-spacing:2px}
+.gm-progress{display:flex;align-items:center;gap:12px;color:#c2c4d0;font-size:11px}.gm-progress input{flex:1;min-width:30px}
+.gm-player input[type=range]{accent-color:#ffe65c;cursor:pointer}
+.gm-controls{display:flex;align-items:center;justify-content:center;gap:12px}.gm-controls button{min-width:45px;font-size:19px}.gm-controls .gm-play{min-width:58px;height:54px;font-size:25px}.gm-controls .gm-active{color:#ffe65c;border-color:#ffe65c;background:#ffe65c22}
+.gm-volume{display:flex;align-items:center;gap:10px;font-size:11px;color:#bfc1ce}.gm-volume input{flex:1}.gm-volume span:last-child{min-width:35px;text-align:right}
+.gm-tracks{display:flex;flex-direction:column;gap:7px}.gm-track{width:100%;display:flex;align-items:center;gap:14px;text-align:left;color:#e8e8ef;background:#151923;border:1px solid #ffffff20;border-radius:10px;padding:12px;cursor:pointer}.gm-track:hover,.gm-track.selected{border-color:#ffe65c99;background:#ffe65c14}.gm-track-number{color:#ffe65c;font-size:13px;width:20px}.gm-track-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}.gm-track-info strong{font-size:13px;overflow-wrap:anywhere}.gm-track-info small{font-size:10px;color:#aeb2c0}.gm-status{font-size:11px;color:#c2c5d0;margin:0;overflow-wrap:anywhere}
+@media(max-width:550px){.gm-heading{flex-wrap:wrap}.gm-now{padding:12px;gap:10px}.gm-cover{width:70px;height:70px;font-size:35px}.gm-controls{gap:6px}.gm-controls button{min-width:36px;padding:8px}}
+
 </style>
 <style>
 #breach-layer #breach-escape{z-index:2!important}
@@ -2485,15 +2500,76 @@ function filesApp(area){
   q('fsImport').onclick=()=>q('fsPick').click();q('fsPick').onchange=async e=>{for(const file of e.target.files){if(file.size>500000){alert('Text files must be under 500 KB');continue;}fs.files.push({folder,name:file.name,text:await file.text()});}if(!saveFS(fs))alert('Could not save imported files');render();e.target.value='';};render();
 }
 
-/* MUSIC PLAYER — user-selected local audio, never uploaded */
+/* MUSIC PLAYER — built-in GitHub Pages library */
+const GOSHA_MUSIC_TRACKS = [
+ {title:'Friesenjung',artist:'Music library',file:'Friesenjung 4.mp3'},
+ {title:'Hero',artist:'Music library',file:'Hero.mp3'},
+ {title:'All I Ever Wanted (Pitched)',artist:'Music library',file:'all i ever wanted - basshunter (pitched).mp3'},
+ {title:'Oh My Little Baby Boy (Looped)',artist:'Music library',file:'Oh my little baby boy - Best Part (looped) EPILEPSY WARNING.mp3'}
+];
 function musicApp(area){
- area.innerHTML=`<h2>MUSIC PLAYER</h2><p class="muted">Choose audio from your device. Music stays on your device; select files again after refreshing.</p><input class="field" id="musicPick" type="file" accept="audio/*" multiple><div id="musicList"></div><audio id="musicAudio" controls style="width:100%;margin-top:12px"></audio><div class="row"><button class="btn" id="musicPrev">◀ PREVIOUS</button><button class="btn" id="musicNext">NEXT ▶</button></div>`;
- const pick=area.querySelector('#musicPick'),list=area.querySelector('#musicList'),audio=area.querySelector('#musicAudio');let tracks=[],idx=-1;
- const play=i=>{if(!tracks.length)return;idx=(i+tracks.length)%tracks.length;audio.src=tracks[idx].url;audio.play().catch(()=>{});render();};
- function render(){list.replaceChildren();tracks.forEach((t,i)=>{const b=document.createElement('button');b.className='btn';b.style.cssText='display:block;margin:7px 0;width:100%;text-align:left';b.textContent=(i===idx?'▶ ':'♫ ')+t.name;b.onclick=()=>play(i);list.append(b);});}
- pick.onchange=()=>{tracks.forEach(t=>URL.revokeObjectURL(t.url));tracks=[...pick.files].filter(f=>f.type.startsWith('audio/')).map(f=>({name:f.name,url:URL.createObjectURL(f)}));idx=-1;render();if(tracks.length)play(0)};
- area.querySelector('#musicPrev').onclick=()=>play(idx-1);area.querySelector('#musicNext').onclick=()=>play(idx+1);audio.onended=()=>play(idx+1);
- const observer=new MutationObserver(()=>{if(!area.isConnected){audio.pause();tracks.forEach(t=>URL.revokeObjectURL(t.url));observer.disconnect();}});observer.observe(document.body,{childList:true});
+ area.innerHTML=`<section class="gm-player">
+  <div class="gm-heading"><span>♫ GOSHA // MUSIC</span><small>GITHUB LIBRARY • 4 TRACKS</small></div>
+  <div class="gm-now"><div class="gm-cover">♫</div><div class="gm-info"><span class="gm-overline">NOW PLAYING</span><strong id="gmTitle">Choose a track</strong><span id="gmArtist">Your music collection</span></div></div>
+  <div class="gm-progress"><span id="gmCurrent">0:00</span><input aria-label="Seek playback position" id="gmSeek" type="range" min="0" max="100" value="0" step="0.1"><span id="gmDuration">0:00</span></div>
+  <div class="gm-controls"><button class="btn" id="gmShuffle" title="Shuffle" aria-label="Shuffle">⇄</button><button class="btn" id="gmPrev" aria-label="Previous song">⏮</button><button class="primary gm-play" id="gmPlay" aria-label="Play or pause">▶</button><button class="btn" id="gmNext" aria-label="Next song">⏭</button><button class="btn" id="gmRepeat" title="Repeat off" aria-label="Repeat">↻</button></div>
+  <div class="gm-volume"><span>🔊 VOLUME</span><input id="gmVolume" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="Volume"><span id="gmVolumeValue">80%</span></div>
+  <div class="gm-library-title">TRACK LIBRARY <span>04 FILES</span></div><div id="gmTracks" class="gm-tracks"></div>
+  <p class="gm-status" id="gmStatus">Select a song to start listening.</p>
+  <audio id="gmAudio" preload="metadata"></audio>
+ </section>`;
+ const q=id=>area.querySelector('#'+id),audio=q('gmAudio');
+ const tracks=GOSHA_MUSIC_TRACKS.map(t=>({...t,url:'Music/'+encodeURIComponent(t.file)}));
+ let index=-1,shuffle=false,repeat=0,seeking=false;
+ const time=n=>Number.isFinite(n)?`${Math.floor(n/60)}:${String(Math.floor(n%60)).padStart(2,'0')}`:'0:00';
+ const status=message=>{q('gmStatus').textContent=message};
+ const setButton=(id,active)=>q(id).classList.toggle('gm-active',active);
+ function render(){
+  q('gmTitle').textContent=index>=0?tracks[index].title:'Choose a track';
+  q('gmArtist').textContent=index>=0?tracks[index].artist:'Your music collection';
+  q('gmPlay').textContent=!audio.paused?'Ⅱ':'▶';
+  q('gmPlay').setAttribute('aria-label',audio.paused?'Play':'Pause');
+  q('gmTracks').replaceChildren();
+  tracks.forEach((track,i)=>{
+   const button=document.createElement('button');button.type='button';button.className='gm-track'+(index===i?' selected':'');
+   const number=document.createElement('span');number.className='gm-track-number';number.textContent=index===i&&!audio.paused?'♫':String(i+1).padStart(2,'0');
+   const info=document.createElement('span');info.className='gm-track-info';
+   const name=document.createElement('strong');name.textContent=track.title;
+   const artist=document.createElement('small');artist.textContent=track.artist;
+   info.append(name,artist);const symbol=document.createElement('span');symbol.textContent=index===i&&!audio.paused?'Ⅱ':'▶';
+   button.append(number,info,symbol);button.onclick=()=>load(i,true);q('gmTracks').append(button);
+  });
+ }
+ function load(i,autoplay){
+  if(i<0||i>=tracks.length)return;
+  index=i;audio.src=tracks[index].url;audio.load();q('gmSeek').value='0';q('gmCurrent').textContent='0:00';q('gmDuration').textContent='0:00';
+  status('Loading '+tracks[index].title+'…');render();
+  if(autoplay)audio.play().then(()=>status('Playing '+tracks[index].title)).catch(()=>status('Press Play to start audio.'));
+ }
+ function next(direction=1,automatic=false){
+  if(!tracks.length)return;
+  if(automatic&&repeat===2){audio.currentTime=0;audio.play().catch(()=>{});return;}
+  if(automatic&&repeat===0&&!shuffle&&index===tracks.length-1){audio.pause();status('Playlist finished.');render();return;}
+  let i=index<0?0:(index+direction+tracks.length)%tracks.length;
+  if(shuffle&&tracks.length>1){do{i=Math.floor(Math.random()*tracks.length)}while(i===index)}
+  load(i,true);
+ }
+ q('gmPlay').onclick=()=>{if(index<0){load(0,true);return;}if(audio.paused)audio.play().catch(()=>status('Could not play this track.'));else audio.pause()};
+ q('gmPrev').onclick=()=>{if(audio.currentTime>3){audio.currentTime=0;return;}next(-1)};
+ q('gmNext').onclick=()=>next(1);
+ q('gmShuffle').onclick=()=>{shuffle=!shuffle;setButton('gmShuffle',shuffle);q('gmShuffle').title=shuffle?'Shuffle on':'Shuffle off'};
+ q('gmRepeat').onclick=()=>{repeat=(repeat+1)%3;setButton('gmRepeat',repeat!==0);q('gmRepeat').textContent=repeat===2?'↻₁':'↻';q('gmRepeat').title=['Repeat off','Repeat playlist','Repeat one'][repeat]};
+ q('gmVolume').oninput=e=>{audio.volume=Number(e.target.value);q('gmVolumeValue').textContent=Math.round(audio.volume*100)+'%'};
+ audio.volume=0.8;
+ q('gmSeek').addEventListener('pointerdown',()=>{seeking=true});
+ q('gmSeek').addEventListener('input',e=>{if(Number.isFinite(audio.duration))q('gmCurrent').textContent=time(audio.duration*Number(e.target.value)/100)});
+ q('gmSeek').addEventListener('change',e=>{if(Number.isFinite(audio.duration)&&audio.duration>0)audio.currentTime=audio.duration*Number(e.target.value)/100;seeking=false});
+ audio.ontimeupdate=()=>{if(!seeking&&Number.isFinite(audio.duration)&&audio.duration>0){q('gmSeek').value=String(audio.currentTime/audio.duration*100);q('gmCurrent').textContent=time(audio.currentTime)}};
+ audio.onloadedmetadata=()=>{q('gmDuration').textContent=time(audio.duration)};
+ audio.onplay=()=>{status('Now playing');render()};audio.onpause=()=>render();audio.onended=()=>next(1,true);
+ audio.onerror=()=>{if(index>=0)status('Cannot load Music/'+tracks[index].file+' — check its exact GitHub filename and publishing rights.')};
+ const observer=new MutationObserver(()=>{if(!area.isConnected){audio.pause();audio.removeAttribute('src');audio.load();observer.disconnect()}});
+ observer.observe(document.body,{childList:true,subtree:true});render();
 }
 
 /* PERSISTENT NOTES */
