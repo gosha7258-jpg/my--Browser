@@ -1958,7 +1958,7 @@ function globalChatApp(area){
     finally{clearButton.disabled=false}
   });
   window.addEventListener('gosha-owner-login',()=>{ownerSession=sessionStorage.getItem('gosha-owner-session')||'';clearButton.hidden=!ownerSession;nickname='gosha';nameInput.value='gosha';claimedName='';setStatus('OWNER CONNECTED — SETTING UP CHAT');saveName();});
-  window.addEventListener('gosha-owner-become',()=>{ownerSession=sessionStorage.getItem('gosha-owner-session')||'';if(!ownerSession)return;nickname=sessionStorage.getItem('gosha-owner-alias')||'gosha';nameInput.value=nickname;claimedName=nickname;localStorage.setItem(nameKey,nickname);clearButton.hidden=false;setStatus('● OWNER ALIAS: '+nickname);});
+  window.addEventListener('gosha-owner-become',()=>{ownerSession=sessionStorage.getItem('gosha-owner-session')||'';if(!ownerSession)return;nickname=sessionStorage.getItem('gosha-owner-alias')||'gosha';nameInput.value=nickname;claimedName=nickname;localStorage.setItem(nameKey,nickname);clearButton.hidden=false;setStatus('● OWNER ALIAS: '+(nickname.toLowerCase()==='nat321'?'HATRED':nickname));});
   window.addEventListener('gosha-owner-logout',()=>{ownerSession='';clearButton.hidden=true;clearButton.disabled=false;nickname='';claimedName='';nameInput.value='';setStatus('OWNER MODE OFF — SET A GUEST NAME');});
   window.addEventListener('gosha-chat-identity-out',()=>{ownerSession='';clearButton.hidden=true;clearButton.disabled=false;nickname='';claimedName='';nameInput.value='';setStatus('IDENTITY CLEARED — SET A GUEST NAME');});
   if(!configured){setStatus('SETUP REQUIRED');note('Chat is not connected yet. Deploy the chat Worker and replace CHAT_WORKER_URL in index.html.')}else{setStatus('CONNECTING');refresh();if(nickname)saveName();interval=setInterval(refresh,3000)}
@@ -2645,7 +2645,7 @@ Type ACTIVE to see current online sessions.
             sessionStorage.setItem('gosha-owner-alias',data.nickname);
             localStorage.setItem('gosha-chat-nickname',data.nickname);
             window.dispatchEvent(new Event('gosha-owner-become'));
-            output.textContent += 'OWNER ALIAS ACTIVE: '+data.nickname+' (OWNER)\nOpen Global Chat to send as this alias.\n\n';
+            output.textContent += 'OWNER ALIAS ACTIVE: '+(data.displayName||data.nickname)+' (OWNER)\n'+(data.nickname.toLowerCase()==='nat321'?'SOUL ACTIVATED. HATRED artwork and red chat styling enabled.\n':'')+'Open Global Chat to send as this alias.\n\n';
           }catch(error){output.textContent += 'ALIAS FAILED: '+error.message+'\n\n';}
         }
       }
