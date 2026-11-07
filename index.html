@@ -3552,6 +3552,14 @@ document.addEventListener('keydown',event=>{
 </script>
 <!-- [NULL] takeover: optimized real-orb expansion and multicolor system recovery glitch. -->
 <style>
+/* Higher-fidelity [NULL] event: GPU-composited accretion ring and restrained chromatic interference. */
+#breach-layer{transform:translateZ(0)}
+#breach-escape{backface-visibility:hidden;transform-style:flat;contain:layout style paint}
+#breach-aura{position:absolute;left:-190px;top:-190px;width:380px;height:380px;border-radius:50%;pointer-events:none;opacity:0;will-change:transform,opacity;transform-origin:center;mix-blend-mode:screen;background:conic-gradient(from var(--null-rotation,0deg),transparent 0deg,#fff4 24deg,transparent 53deg,#e9c94444 93deg,transparent 126deg,#a466ff77 188deg,transparent 231deg,#ff345444 288deg,transparent 330deg);mask-image:radial-gradient(circle,transparent 0 38%,#0000 41%,#000 49%,#0005 54%,transparent 68%);filter:blur(6px)}
+#breach-glitch{background:repeating-linear-gradient(0deg,transparent 0 11px,#fff2 12px,transparent 14px);will-change:opacity;transform:translateZ(0)}
+@media(prefers-reduced-motion:reduce){#breach-aura{display:none}}
+</style>
+<style>
 #breach-layer{position:fixed;inset:0;z-index:2147483000;pointer-events:none;overflow:hidden;isolation:isolate;contain:layout paint}
 #breach-escape{position:fixed;left:0;top:0;transform-origin:center;will-change:transform;pointer-events:none;max-width:none!important;max-height:none!important;transition:none!important}
 #breach-glitch{position:absolute;inset:0;opacity:0;pointer-events:none;contain:strict;background:repeating-linear-gradient(0deg,transparent 0 5px,#fff3 6px,transparent 8px);mix-blend-mode:screen}
@@ -3561,6 +3569,24 @@ document.addEventListener('keydown',event=>{
 #breach-darkness{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
 body.breach-corrupt .window{filter:grayscale(.65) contrast(1.15);transform:translate(var(--breach-pull-x,0px),var(--breach-pull-y,0px))!important}
 body.breach-corrupt .desktop-icon,body.breach-corrupt .desktop-shortcut{filter:grayscale(.8)}
+/* Intro-inspired cinematic warning, displayed AFTER the consumption glitch. */
+#breach-blackout{position:fixed;inset:0;background:#020104;z-index:2147483100;pointer-events:auto}
+#breach-warning{font-family:"Share Tech Mono",monospace!important;background:radial-gradient(ellipse at 50% 48%,#25050c 0%,#080307 52%,#010102 100%)!important;overflow:hidden;isolation:isolate}
+#breach-warning::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,#0008 0 1px,transparent 1px 4px),radial-gradient(ellipse at center,transparent 20%,#000b 100%);z-index:1}
+#breach-warning::after{content:"";position:absolute;inset:-100% 0;background:linear-gradient(transparent 48%,#ff254014 50%,transparent 52%);animation:screenSweep 3s linear infinite;pointer-events:none}
+#breach-warning .breach-warning-core{position:relative;z-index:2;display:flex;align-items:center;flex-direction:column;gap:16px;max-width:95vw}
+#breach-warning .breach-warning-tag{font-size:clamp(10px,1.3vw,15px);color:#ff697a;letter-spacing:.35em;text-shadow:0 0 12px #f23}
+#breach-warning strong{position:relative;display:block;font-size:clamp(40px,10vw,125px);line-height:1.15;font-weight:900;letter-spacing:.045em;text-transform:uppercase;color:#ff263e;text-shadow:-3px 0 #fff5,3px 0 #8900ff70,0 0 18px #ff163a,0 0 65px #8f001c;animation:breach-warning-jitter 2.3s steps(1,end) infinite}
+#breach-warning strong::before,#breach-warning strong::after{content:attr(data-text);position:absolute;inset:0;pointer-events:none;opacity:0}
+#breach-warning strong::before{color:#fff;clip-path:inset(17% 0 69% 0);animation:breach-text-slice 1.8s steps(1,end) infinite}
+#breach-warning strong::after{color:#ff506c;clip-path:inset(64% 0 19% 0);animation:breach-text-slice 2.3s steps(1,end) infinite reverse}
+#breach-warning .breach-warning-line{width:min(420px,75vw);height:2px;background:linear-gradient(90deg,transparent,#ff244d,#ffe6ec,transparent);box-shadow:0 0 18px #ff244d}
+#breach-warning small{margin:0;font-size:clamp(10px,1.4vw,15px);color:#e28b98;letter-spacing:.23em}
+#breach-warning .breach-warning-corner{position:absolute;z-index:2;left:24px;top:20px;font-size:11px;color:#c54a5a;letter-spacing:.14em;text-align:left;line-height:1.6}
+#breach-warning .breach-warning-bottom{position:absolute;z-index:2;bottom:22px;right:24px;color:#b63b50;font-size:11px;letter-spacing:.2em}
+@keyframes breach-warning-jitter{0%,90%,94%,100%{transform:translate(0)}91%{transform:translate(-3px,1px)}92%{transform:translate(4px,-2px)}93%{transform:translate(-1px,2px)}}
+@keyframes breach-text-slice{0%,84%,100%{opacity:0;transform:translateX(0)}85%,88%{opacity:.8;transform:translateX(-8px)}89%,91%{opacity:.7;transform:translateX(7px)}}
+@media(prefers-reduced-motion:reduce){#breach-warning strong,#breach-warning strong::before,#breach-warning strong::after,#breach-warning::after{animation:none!important}}
 #breach-warning{position:fixed;inset:0;z-index:2147483200;display:flex;align-items:center;justify-content:center;flex-direction:column;pointer-events:none;background:#040104;color:#ff263e;font-family:monospace;text-align:center;text-shadow:0 0 16px #ff163a,0 0 50px #850014;opacity:0;transition:opacity .35s}
 #breach-warning.show{opacity:1;pointer-events:auto}
 #breach-warning strong{font-size:clamp(36px,9vw,112px);letter-spacing:.08em}
@@ -3581,7 +3607,7 @@ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function bootReady(){if(started||document.getElementById('md-boot'))return;started=true;setTimeout(run,20000)}
 function observeBoot(){if(!document.getElementById('md-boot'))return bootReady();const observer=new MutationObserver(()=>{if(!document.getElementById('md-boot')){observer.disconnect();bootReady()}});observer.observe(document.body,{childList:true,subtree:true})}
-async function warning(){const el=document.createElement('div');el.id='breach-warning';el.setAttribute('role','status');el.innerHTML='<strong>stand back.</strong><small>SYSTEM REINITIALIZING // PLEASE WAIT</small>';document.body.append(el);requestAnimationFrame(()=>el.classList.add('show'));await sleep(6500);el.classList.remove('show');await sleep(450);el.remove()}
+async function warning(){const el=document.createElement('div');el.id='breach-warning';el.setAttribute('role','status');el.innerHTML='<div class="breach-warning-corner">SYS://CORE<br>INTEGRITY: 0%<br>STATUS: OVERRIDDEN</div><div class="breach-warning-core"><div class="breach-warning-tag">// EMERGENCY SYSTEM OVERRIDE //</div><strong data-text="stand back.">stand back.</strong><div class="breach-warning-line"></div><small>SYSTEM REINITIALIZING // PLEASE WAIT</small></div><div class="breach-warning-bottom">[NULL] // CONTAINMENT FAILED</div>';document.body.append(el);requestAnimationFrame(()=>el.classList.add('show'));await sleep(6500);el.classList.remove('show');await sleep(450);el.remove()}
 async function recovery(){const el=document.createElement('div');el.id='breach-recovery';document.body.append(el);await sleep(reduced?350:950);el.remove()}
 async function run(){
  let original=[...document.querySelectorAll('.null-orbit')].find(el=>el.isConnected&&el.getBoundingClientRect().width>0);
@@ -3601,24 +3627,28 @@ async function run(){
  const maxDist=Math.max(...corners.map(([x,y])=>Math.hypot(x-targetX,y-targetY)));
  const maxScale=Math.max(1,maxDist/Math.max(1,rect.width*.23)*1.7);
  const duration=reduced?1700:24000,start=performance.now();
+ const aura=document.createElement("div");aura.id="breach-aura";layer.insertBefore(aura,glitch);
  const windows=[...document.querySelectorAll('.window')];
  const centers=windows.map(win=>{const r=win.getBoundingClientRect();return {win,x:r.left+r.width/2,y:r.top+r.height/2}});
- let lastPaint=0,lastWindowUpdate=0;
+ let lastWindowUpdate=0;
  try{
   await new Promise(resolve=>{function animate(now){
    const t=Math.min(1,(now-start)/duration);
-   if(now-lastPaint<33&&t<1){requestAnimationFrame(animate);return}lastPaint=now;
-   const e=t*t*(3-2*t),cx=centerX+(targetX-centerX)*e,cy=centerY+(targetY-centerY)*e;
+   // Run at the display refresh rate; compositor-friendly transforms avoid layout thrash.
+   const e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2,cx=centerX+(targetX-centerX)*e,cy=centerY+(targetY-centerY)*e;
    const scale=1+e*maxScale;
-   const pulse=reduced?1:1+Math.sin(now/230)*(.012+t*.038);
+   const pulse=reduced?1:1+Math.sin(now/380)*(.009+t*.014)+Math.sin(now/127)*.004;
    original.style.transform=`translate3d(${cx-centerX}px,${cy-centerY}px,0) scale(${scale*pulse}) rotate(${t*8}deg)`;
+   aura.style.transform=`translate3d(${cx}px,${cy}px,0) scale(${Math.min(6,.5+e*5)})`;
+   aura.style.opacity=String(Math.min(.85,.22+t*.63));
+   aura.style.setProperty("--null-rotation",`${now*.012}deg`);
    // Avoid expensive per-frame drop-shadow/filter on the giant scaled orb.
    const intensity=Math.max(0,(t-.09)/.91);
-   glitch.style.opacity=String(reduced?0:Math.min(.9,intensity*(.22+.25*Math.sin(now/160)**2+.3*(t>.68?1:0))));
+   glitch.style.opacity=String(reduced?0:Math.min(.82,intensity*(.16+.16*Math.sin(now/160)**2+.24*(t>.68?1:0))));
    darkness.style.opacity=String(t<.73?0:Math.min(1,((t-.73)/.27)**2));
    if(t>.14)document.body.classList.add('breach-corrupt');
    // Cached window geometry: update only 5 times a second, not every animation frame.
-   if(t>.25&&now-lastWindowUpdate>200){lastWindowUpdate=now;
+   if(t>.25&&now-lastWindowUpdate>120){lastWindowUpdate=now;
     for(const {win,x,y} of centers){if(!win.isConnected)continue;const d=Math.hypot(x-cx,y-cy)||1,pull=(t-.25)*25;
      win.style.setProperty('--breach-pull-x',((cx-x)/d*pull).toFixed(1)+'px');
      win.style.setProperty('--breach-pull-y',((cy-y)/d*pull).toFixed(1)+'px');
@@ -3627,14 +3657,17 @@ async function run(){
    if(t<1)requestAnimationFrame(animate);else resolve();
   }requestAnimationFrame(animate)});
   await sleep(reduced?100:500);
+  // Cover the desktop before restoring the orb to its original app.
+  const veil=document.createElement('div');veil.id='breach-blackout';document.body.append(veil);
  }finally{
   original.removeAttribute('id');if(previousStyle===null)original.removeAttribute('style');else original.setAttribute('style',previousStyle);
   if(holder.parentNode){holder.parentNode.insertBefore(original,holder);holder.remove()}else if(parent?.isConnected)parent.append(original);
   layer.remove();document.body.classList.remove('breach-corrupt');
   windows.forEach(el=>{el.style.removeProperty('--breach-pull-x');el.style.removeProperty('--breach-pull-y')});
  }
- await warning();
- await recovery();
+ // Keep the desktop hidden after [NULL] consumes it; glitch first, warning second.
+ const blackout=document.getElementById('breach-blackout');
+ try{await recovery();await warning()}finally{blackout?.remove()}
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',observeBoot,{once:true});else observeBoot();
 })();
