@@ -3540,5 +3540,82 @@ document.addEventListener('keydown',event=>{
   },{passive:true,capture:true});
 })();
 </script>
+<!-- Screen fracture: begins 20 seconds after the reboot ends. Visual only. -->
+<style>
+#solver-screen-fracture{position:fixed;inset:0;width:100vw;height:100vh;z-index:2147483000;pointer-events:none;overflow:hidden;opacity:0;transition:opacity 2s ease}
+#solver-screen-fracture.is-visible{opacity:1}
+#solver-screen-fracture .fracture-line{fill:none;stroke:rgba(236,241,255,.78);stroke-width:1.05;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 3px rgba(220,235,255,.42));stroke-dasharray:var(--line-length);stroke-dashoffset:var(--line-length);animation:solver-crack-grow var(--duration) ease-out var(--delay) forwards}
+#solver-screen-fracture .fracture-shadow{stroke:rgba(0,0,0,.82);stroke-width:3;filter:none}
+@keyframes solver-crack-grow{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){#solver-screen-fracture{transition:none}#solver-screen-fracture .fracture-line{animation:none;stroke-dashoffset:0}}
+</style>
+<script>
+(function(){
+  'use strict';
+  const bootId='md-boot';
+  let started=false;
+  function startAfterBoot(){
+    if(started || document.getElementById(bootId))return;
+    started=true;
+    setTimeout(createCracks,20000);
+  }
+  function createCracks(){
+    if(document.getElementById('solver-screen-fracture'))return;
+    const ns='http://www.w3.org/2000/svg';
+    const svg=document.createElementNS(ns,'svg');
+    svg.setAttribute('id','solver-screen-fracture');
+    svg.setAttribute('viewBox','0 0 1000 650');
+    svg.setAttribute('preserveAspectRatio','none');
+    svg.setAttribute('aria-hidden','true');
+    const cx=510,cy=310;
+    // Angular radial branches with smaller offshoots, like fractured glass.
+    const branches=[
+      [[cx,cy],[474,273],[434,230],[408,184],[368,147],[342,85],[300,31]],
+      [[cx,cy],[541,273],[573,242],[611,198],[654,163],[685,101],[736,36]],
+      [[cx,cy],[558,324],[615,336],[668,357],[730,346],[811,382],[934,393]],
+      [[cx,cy],[532,362],[554,412],[591,466],[600,529],[652,608],[683,650]],
+      [[cx,cy],[467,341],[416,368],[371,412],[312,430],[268,493],[185,524],[102,600]],
+      [[cx,cy],[490,292],[461,290],[430,307],[384,295],[350,318]],
+      [[cx,cy],[512,274],[505,225],[524,178],[510,130],[527,63],[516,0]],
+      [[cx,cy],[480,320],[440,324],[408,347],[370,340],[338,359]],
+      [[434,230],[388,222],[359,196],[303,187]],
+      [[611,198],[634,219],[676,219],[717,241]],
+      [[668,357],[685,400],[734,434],[763,491]],
+      [[554,412],[520,441],[518,496],[483,546]],
+      [[371,412],[350,379],[301,373],[260,345]],
+      [[541,273],[568,286],[592,280],[623,299]],
+      [[416,368],[395,393],[383,438],[357,461]],
+      [[505,225],[471,199],[447,159],[410,146]],
+      [[730,346],[758,307],[812,294],[853,252]],
+      [[591,466],[625,463],[661,482],[690,474]]
+    ];
+    branches.forEach((points,i)=>{
+      const d=points.map((p,j)=>(j?'L':'M')+p[0]+' '+p[1]).join(' ');
+      const length=points.slice(1).reduce((sum,p,j)=>sum+Math.hypot(p[0]-points[j][0],p[1]-points[j][1]),0);
+      const delay=i<8?i*.95:7.5+(i-8)*.68;
+      for(const shadow of [true,false]){
+        const path=document.createElementNS(ns,'path');
+        path.setAttribute('d',d);
+        path.setAttribute('class','fracture-line'+(shadow?' fracture-shadow':''));
+        path.style.setProperty('--line-length',length.toFixed(1));
+        path.style.setProperty('--duration',(2.3+(i%3)*.6)+'s');
+        path.style.setProperty('--delay',delay+'s');
+        svg.appendChild(path);
+      }
+    });
+    document.body.appendChild(svg);
+    requestAnimationFrame(()=>svg.classList.add('is-visible'));
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',observeBoot,{once:true});
+  else observeBoot();
+  function observeBoot(){
+    if(!document.getElementById(bootId)){startAfterBoot();return;}
+    const observer=new MutationObserver(()=>{
+      if(!document.getElementById(bootId)){observer.disconnect();startAfterBoot();}
+    });
+    observer.observe(document.body,{childList:true,subtree:true});
+  }
+})();
+</script>
 </body>
 </html>
