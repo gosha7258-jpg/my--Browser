@@ -1166,6 +1166,14 @@ textarea {
 /* Games stay fully inside their window, without vertical page scrolling. */
 .window[data-app^="original-game-"] .window-content{overflow:hidden!important;padding:0!important;gap:0!important;}
 .window[data-app^="original-game-"] .window-content iframe{width:100%!important;height:100%!important;min-height:0!important;flex:1 1 0!important;display:block!important;}
+
+/* Story mode: monochrome corruption while [NULL] is in the foreground. */
+body.lore-null-active #desktop, body.lore-null-active #taskbar, body.lore-null-active .window,
+body.lore-null-active #solver-glitch {filter:grayscale(1) contrast(1.13);transition:filter .65s ease}
+body.lore-null-active #solver-dialogue{color:#e8e8e8!important;text-shadow:0 0 9px #fff,0 0 20px #777}
+body.lore-null-active #solver-glitch .solver-line{background:linear-gradient(90deg,transparent,#fff,#666,transparent)}
+body.lore-null-active #solver-glitch.active::before{background:repeating-linear-gradient(0deg,transparent 0 9px,#ffffff17 10px,#00000044 12px)}
+@media(prefers-reduced-motion:reduce){body.lore-null-active #desktop,body.lore-null-active #taskbar,body.lore-null-active .window{transition:none}}
 </style>
 </head>
 
@@ -1848,14 +1856,21 @@ function globalChatApp(area){
   function note(t){const p=document.createElement('p');p.className='chat-notice';p.textContent=t;feed.appendChild(p)}
   function checkName(value){return /^[a-zA-Z0-9_ -]{3,20}$/.test(value)}
   let claimedName='';
+  let claimPending=null;
   async function saveName(){
+    if(claimPending)return claimPending;
+    return claimPending=claimName().finally(()=>{claimPending=null});
+  }
+  async function claimName(){
+    ownerSession=sessionStorage.getItem('gosha-owner-session')||'';
+    if(ownerSession && nameInput.value.trim().toLowerCase()==='gosha')nameInput.value='gosha';
     const n=nameInput.value.trim();
     if(!checkName(n)){setStatus('NAME: 3–20 LETTERS / NUMBERS');return false}
     if(claimedName===n)return true;
     const button=$('.chat-save');button.disabled=true;setStatus('CHECKING NAME...');
     try{
       const data=await api('/claim',{method:'POST',body:JSON.stringify({nickname:n,token,ownerSession})});
-      nickname=data.nickname;claimedName=nickname;
+      nickname=data.nickname||n;claimedName=nickname;
       localStorage.setItem(nameKey,nickname);setStatus('● NAME RESERVED');return true;
     }catch(err){setStatus(err.message.slice(0,80));return false}
     finally{button.disabled=false}
@@ -1874,20 +1889,38 @@ function globalChatApp(area){
     while(feed.querySelectorAll('.chat-message').length>100)feed.querySelector('.chat-message')?.remove();
   }
   async function api(path,options={}){
-    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
-    try{const response=await fetch(CHAT_WORKER_URL+path,{...options,signal:controller.signal,headers:{'Content-Type':'application/json',...(options.headers||{})}});const data=await response.json();if(!response.ok)throw Error(data.error||'Request failed');return data}finally{clearTimeout(timer)}
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),18000);
+    try{
+      const response=await fetch(CHAT_WORKER_URL+path,{...options,signal:controller.signal,cache:'no-store',headers:{'Content-Type':'application/json',...(options.headers||{})}});
+      const raw=await response.text();let data={};
+      try{data=raw?JSON.parse(raw):{}}catch{throw Error('Chat server returned an invalid response (HTTP '+response.status+')')}
+      if(!response.ok)throw Error(data.error||data.message||('HTTP '+response.status));
+      return data;
+    }catch(err){if(err.name==='AbortError')throw Error('Chat server timed out. Try again.');throw err}
+    finally{clearTimeout(timer)}
   }
+  let sending=false;
   async function refresh(){
+    if(sending)return;
     if(disposed||loading||!configured||document.hidden||!area.isConnected)return;
     loading=true;
     try{const data=await api('/messages?after='+lastId);if(clearVersion!==null&&data.clearVersion!==clearVersion){feed.replaceChildren();known.clear();lastId=0;note('Chat history was cleared by the owner.')}clearVersion=data.clearVersion;(data.messages||[]).forEach(render);setStatus('● CONNECTED')}catch(e){setStatus('○ OFFLINE / RETRYING')}finally{loading=false}
   }
   $('.chat-compose').addEventListener('submit',async e=>{
-    e.preventDefault();if(!configured){setStatus('SET CHAT WORKER URL FIRST');return}
+    e.preventDefault();if(sending)return;if(!configured){setStatus('SET CHAT WORKER URL FIRST');return}
+    ownerSession=sessionStorage.getItem('gosha-owner-session')||'';
+    if(ownerSession && nameInput.value.trim().toLowerCase()!=='gosha'){nameInput.value='gosha';claimedName=''}
     if(!(await saveName()))return;
     const message=messageInput.value.trim();if(!message)return;
-    sendButton.disabled=true;
-    try{await api('/messages',{method:'POST',body:JSON.stringify({nickname,message,token,ownerSession})});messageInput.value='';await refresh()}catch(err){setStatus('SEND FAILED: '+err.message.slice(0,60))}finally{sendButton.disabled=false}
+    sending=true;sendButton.disabled=true;setStatus('SENDING...');
+    let sent=false;
+    try{
+      await api('/messages',{method:'POST',body:JSON.stringify({nickname,message,token,ownerSession})});
+      sent=true;messageInput.value='';setStatus('● MESSAGE SENT');
+    }catch(err){setStatus('SEND FAILED: '+err.message.slice(0,110));console.warn('Global Chat send failed:',err)}
+    finally{sending=false;sendButton.disabled=false}
+    if(sent){await refresh();messageInput.focus()}
+
   });
   clearButton.addEventListener('click',async()=>{
     if(!ownerSession)return;
@@ -1897,7 +1930,7 @@ function globalChatApp(area){
     catch(err){setStatus('CLEAR FAILED: '+err.message.slice(0,60))}
     finally{clearButton.disabled=false}
   });
-  window.addEventListener('gosha-owner-login',()=>{ownerSession=sessionStorage.getItem('gosha-owner-session')||'';clearButton.hidden=!ownerSession;nickname='gosha';nameInput.value='gosha';claimedName='';saveName();});
+  window.addEventListener('gosha-owner-login',()=>{ownerSession=sessionStorage.getItem('gosha-owner-session')||'';clearButton.hidden=!ownerSession;nickname='gosha';nameInput.value='gosha';claimedName='';setStatus('OWNER CONNECTED — SETTING UP CHAT');saveName();});
   window.addEventListener('gosha-owner-logout',()=>{ownerSession='';clearButton.hidden=true;clearButton.disabled=false;nickname='';claimedName='';nameInput.value='';setStatus('OWNER MODE OFF — SET A GUEST NAME');});
   window.addEventListener('gosha-chat-identity-out',()=>{ownerSession='';clearButton.hidden=true;clearButton.disabled=false;nickname='';claimedName='';nameInput.value='';setStatus('IDENTITY CLEARED — SET A GUEST NAME');});
   if(!configured){setStatus('SETUP REQUIRED');note('Chat is not connected yet. Deploy the chat Worker and replace CHAT_WORKER_URL in index.html.')}else{setStatus('CONNECTING');refresh();if(nickname)saveName();interval=setInterval(refresh,3000)}
@@ -3317,6 +3350,91 @@ restoreTab();
       scheduleGlitch();
     },random(3000,6000));
   }
+  // Original Gosha's Browser story: sequential discoveries, action-based arguments,
+  // and local progress only. Never edits external files or global chat.
+  const loreKey='gosha-browser-lore-v1';
+  let lore={chapter:0,nullVisits:0,terminalVisits:0};
+  try { lore={...lore,...JSON.parse(localStorage.getItem(loreKey)||'{}')}; } catch(e){}
+  const saveLore=()=>{try{localStorage.setItem(loreKey,JSON.stringify(lore));}catch(e){}};
+  const storyScenes=[
+    ['CYN','This place remembers more than it should.','UZI','What is that supposed to mean?','CYN','There was another boot sequence. Before yours.','UZI','...That is not in the logs.'],
+    ['UZI','Why does the [NULL] window look familiar?','CYN','It is a space where deleted things wait.','UZI','Deleted things do not WAIT, Cyn.','CYN','<TILT HEAD> This one does.'],
+    ['CYN','The Solver signature is buried in the old files.','UZI','The Absolute Solver? In a browser?','CYN','Only a fragment. It learned to imitate a desktop.','UZI','Great. A haunted operating system.'],
+    ['UZI','I found an entry labeled BEFORE_REBOOT.','CYN','Do not open that little memory.','UZI','That is the first time you have told me NOT to click something.','CYN','Some things are safer unfinished.'],
+    ['CYN','The void cannot leave the window. Not yet.','UZI','Then why did the entire screen lose its color?','CYN','Because it can still reach the edges.','UZI','We need to keep those edges closed.'],
+    ['UZI','I think I understand the missing reboot.','CYN','<QUIETLY> Do you?','UZI','Someone tried to erase the Solver fragment.','CYN','And the fragment saved itself as a story.']
+  ];
+  const nullArguments=[
+    ['CYN','The colors have been filed away.','UZI','You cannot just FILE AWAY COLORS!','CYN','I used a very organized folder.','UZI','Close the void. NOW.'],
+    ['UZI','Why is my screen monochrome?!','CYN','The void prefers simplicity.','UZI','The void can get its own computer.','CYN','It says it likes yours.'],
+    ['CYN','<GIGGLE> The border is whispering again.','UZI','Borders do not whisper.','CYN','This one has a great deal to say.','UZI','I am not listening.']
+  ];
+  const appArguments={
+    terminal:[['UZI','Do not give Cyn the command line.','CYN','I already found the command line.','UZI','THAT IS EXACTLY MY POINT.']],
+    files:[['CYN','There is a folder that does not have a name.','UZI','Then leave it alone.','CYN','<GIGGLE> I gave it a name.','UZI','What name?','CYN','Tomorrow.']],
+    browser:[['UZI','Can we browse one normal website?','CYN','Define normal.','UZI','One that does not talk back.','CYN','How unfortunate.']],
+    chat:[['CYN','So many humans in one little window.','UZI','Please do not start a group argument.','CYN','I would never.','UZI','You literally just did.']]
+  };
+  let loreQueue=[];
+  function queueLore(lines){
+    if(!Array.isArray(lines)||document.getElementById('md-boot'))return;
+    loreQueue.push(lines);
+    if(loreQueue.length>4)loreQueue.shift();
+    runLore();
+  }
+  async function runLore(){
+    if(busy||!loreQueue.length||document.hidden||document.getElementById('md-boot'))return;
+    busy=true;
+    try{
+      const lines=loreQueue.shift();
+      for(let i=0;i<lines.length;i+=2){
+        if(document.hidden||document.getElementById('md-boot'))break;
+        await say(lines[i].toLowerCase(),lines[i+1]);
+        if(i+2<lines.length)await wait(280);
+      }
+    }finally{busy=false;if(loreQueue.length)setTimeout(runLore,450);}
+  }
+  const originalEvent=event;
+  // Queued story scenes have priority over random chatter without replacing the existing dialogue pack.
+  const loreActionTimes=new Map();
+  window.addEventListener('mybrowser-action',e=>{
+    const d=e.detail||{},now=Date.now(),key=d.type+':'+d.app;
+    if(now-(loreActionTimes.get(key)||0)<25000)return;
+    loreActionTimes.set(key,now);
+    if(d.type!=='open')return;
+    if(d.app==='terminal')lore.terminalVisits++;
+    if(d.app==='null')lore.nullVisits++;
+    if(d.app==='null' && lore.chapter<storyScenes.length){
+      queueLore(storyScenes[lore.chapter]);lore.chapter++;saveLore();
+    }else if(d.app==='null'){
+      queueLore(nullArguments[Math.floor(Math.random()*nullArguments.length)]);saveLore();
+    }else if(appArguments[d.app] && Math.random()<.55){
+      const options=appArguments[d.app];queueLore(options[Math.floor(Math.random()*options.length)]);
+    }
+  });
+  // Sync on real foreground changes, including close/minimize, without overriding existing [NULL] logic.
+  let previousNull=false;
+  const nullObserver=new MutationObserver(()=>{
+    const enabled=!!document.querySelector('#null-focus-shade.visible');
+    document.body.classList.toggle('lore-null-active',enabled);
+    if(enabled!==previousNull){
+      previousNull=enabled;
+      if(!enabled&&lore.nullVisits>0&&Math.random()<.55){
+        queueLore(['UZI','Okay. The colors are back.','CYN','The void says goodbye. For now.','UZI','That last part was unnecessary.']);
+      }
+    }
+  });
+  const nullShade=document.getElementById('null-focus-shade');
+  if(nullShade){nullObserver.observe(nullShade,{attributes:true,attributeFilter:['class']});}
+  // Start first chapter after reboot, and keep later chapters tied to [NULL] discoveries.
+  const bootWatch=setInterval(()=>{
+    if(document.getElementById('md-boot'))return;
+    clearInterval(bootWatch);
+    setTimeout(()=>{
+      if(lore.chapter===0){queueLore(storyScenes[0]);lore.chapter=1;saveLore();}
+    },4500);
+  },900);
+
   // Both schedules are independent; no audio or destructive system effects.
   scheduleDialogue();
   scheduleGlitch();
