@@ -1259,12 +1259,14 @@ const APPS = [
   ["minesweeper", "Minesweeper"],
   ["snake", "Snake"],
   ["game2048", "2048"],
+  ["chess", "Multiplayer Chess"],
   ["null", "[NULL]"],
   ["chat", "Global Chat"],
   ["updates", "Update Logs"]
 ];
 
 const ICONS = {
+  chess: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M6 19h12M8 16h8l-2-6h-4l-2 6zM12 10V5M9 7h6"/>',
   updates: '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/><circle cx="6.5" cy="8" r=".5"/>',
   chat: '<path d="M4 4h16v12H9l-5 4V4zM8 9h8M8 12h5"/>',
   null: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/>',
@@ -1526,7 +1528,12 @@ function makeWindow(id, title) {
   const close = document.createElement("button");
   close.className = "close";
   close.textContent = "✕";
+  if (id === "null") {
+    close.disabled = true;
+    close.title = "[NULL] cannot be closed until the escape sequence ends";
+  }
   close.onclick = () => {
+    if (id === "null" && !window.__nullEscaped) return;
     window.dispatchEvent(new CustomEvent('mybrowser-action',{detail:{type:'close',app:id}}));
     if (win.dataset.closing === 'true') return;
     win.dataset.closing = 'true';
@@ -1997,6 +2004,106 @@ function updatesApp(area){
 }
 
 
+
+/* CHESS ONLINE — connected to your deployed Cloudflare Worker. */
+const CHESS_WORKER_URL = 'https://goshas-chess.gosha7258.workers.dev';
+let chessLibPromise;
+function loadChessLib(){
+ if(!chessLibPromise)chessLibPromise=import('https://esm.sh/chess.js@1.4.0');
+ return chessLibPromise;
+}
+function chessApp(area){
+ const css=document.createElement('style');css.textContent=`
+ .gosha-chess{height:100%;overflow:auto;padding:14px;background:#08090d;color:#f2f2f2;font-family:inherit}
+ .gosha-chess .ch-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:9px 0}
+ .gosha-chess input{background:#14161b;color:white;border:1px solid #54535a;border-radius:7px;padding:9px;min-width:0;max-width:170px}
+ .gosha-chess button{border:1px solid #7e7b6b;border-radius:7px;background:#24242c;color:white;padding:8px 12px;cursor:pointer}
+ .gosha-chess button:hover{border-color:#ffd657;background:#39332b}
+ .gosha-chess .ch-board{margin:12px auto;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));width:min(100%,460px);aspect-ratio:1;border:2px solid #bda96c}
+ .gosha-chess .ch-sq{border:0;border-radius:0;min-width:0;padding:0;display:flex;align-items:center;justify-content:center;font-family:"Segoe UI Symbol","DejaVu Sans",serif;font-size:clamp(18px,3.8vw,40px);line-height:1;touch-action:manipulation}
+ .gosha-chess .ch-sq.light{background:#d6c7a8;color:#1b1a20}.gosha-chess .ch-sq.dark{background:#776c65;color:#1b1a20}
+ .gosha-chess .ch-sq.sel{box-shadow:inset 0 0 0 4px #ffcf4a}.gosha-chess .ch-sq.legal{box-shadow:inset 0 0 0 4px #65e3a3}
+ .gosha-chess .ch-sq.white-piece{text-shadow:0 1px 1px #222,0 0 2px #222;color:#fffaf0}
+ .gosha-chess .ch-sq.black-piece{text-shadow:0 1px 1px #eee;color:#15151c}
+ .gosha-chess .ch-info{font-size:13px;color:#c8c8cb;line-height:1.5}
+ .gosha-chess .ch-code{font-size:22px;color:#ffd65c;letter-spacing:4px;font-weight:800}
+ `;
+ area.append(css);
+ const root=document.createElement('div');root.className='gosha-chess';
+ root.innerHTML=`<b>♟ MULTIPLAYER CHESS</b><div class="ch-info">Play online with a friend. Create a room, share its code, or join a room.</div>
+ <div class="ch-row"><input class="ch-name" maxlength="24" placeholder="Your nickname"><button class="ch-create">CREATE ROOM</button></div>
+ <div class="ch-row"><input class="ch-code-input" maxlength="6" placeholder="6-letter room code"><button class="ch-join">JOIN ROOM</button></div>
+ <div class="ch-row"><span class="ch-code"></span><button class="ch-copy" hidden>COPY CODE</button><button class="ch-leave" hidden>LEAVE</button></div>
+ <div class="ch-info ch-status">Enter a nickname to start.</div><div class="ch-info ch-players"></div>
+ <div class="ch-board"></div><div class="ch-row"><button class="ch-resign" hidden>RESIGN</button><button class="ch-refresh">REFRESH</button></div>
+ <div class="ch-info ch-history"></div>`;
+ area.append(root);
+ const $=q=>root.querySelector(q),board=$('.ch-board'),glyph={K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
+ let game=null,session=null,engine=null,selected='',busy=false,closed=false,poll=null;
+ const saved=localStorage.getItem('gosha-chess-session');
+ try{session=saved?JSON.parse(saved):null}catch{}
+ const configured=!CHESS_WORKER_URL.includes('REPLACE-WITH-');
+ function msg(v){$('.ch-status').textContent=v}
+ async function api(path,method='GET',data){
+  if(!configured)throw Error('Set CHESS_WORKER_URL in index.html after deploying the chess Worker.');
+  const c=new AbortController(),timeout=setTimeout(()=>c.abort(),9000);
+  try{const r=await fetch(CHESS_WORKER_URL+path,{method,headers:{'Content-Type':'application/json'},body:data?JSON.stringify(data):undefined,signal:c.signal,cache:'no-store'});const j=await r.json();if(!r.ok)throw Error(j.error||'Server error');return j}finally{clearTimeout(timeout)}
+ }
+ function store(){if(session)localStorage.setItem('gosha-chess-session',JSON.stringify(session));else localStorage.removeItem('gosha-chess-session')}
+ function name(){return $('.ch-name').value.trim().slice(0,24)}
+ async function setup(){
+  try{const mod=await loadChessLib();engine=new mod.Chess();if(game)render()}catch(e){msg('Chess rules library failed to load. Check your connection.')}
+ }
+ function render(){
+  $('.ch-code').textContent=session?.code||'';
+  $('.ch-copy').hidden=!session;$('.ch-leave').hidden=!session;$('.ch-resign').hidden=!game||game.status!=='playing';
+  if(!engine)return;
+  try{if(game?.fen)engine.load(game.fen);else engine.reset()}catch{engine.reset()}
+  const side=session?.color||'w',files='abcdefgh',rows=side==='b'?[1,2,3,4,5,6,7,8]:[8,7,6,5,4,3,2,1],cols=side==='b'?[...files].reverse():[...files];
+  board.replaceChildren();
+  const choices=selected?engine.moves({square:selected,verbose:true}).map(m=>m.to):[];
+  for(const rank of rows)for(const file of cols){
+   const square=file+rank,piece=engine.get(square),btn=document.createElement('button');
+   btn.type='button';btn.className='ch-sq '+(((files.indexOf(file)+rank)%2===0)?'light':'dark');
+   if(piece)btn.classList.add(piece.color==='w'?'white-piece':'black-piece');
+   if(selected===square)btn.classList.add('sel');else if(choices.includes(square))btn.classList.add('legal');
+   btn.textContent=piece?glyph[piece.color==='w'?piece.type.toUpperCase():piece.type]:'';
+   btn.title=square;btn.addEventListener('click',()=>clickSquare(square));board.append(btn);
+  }
+  $('.ch-players').textContent=game?`White: ${game.white||'Waiting...'} · Black: ${game.black||'Waiting...'}`:'';
+  if(!game){msg(configured?'Create or join a room.':'Set CHESS_WORKER_URL after deploying the Worker.');return}
+  const state=game.status==='waiting'?'Waiting for a second player...':game.status==='finished'?(game.result||'Game finished.'):engine.isCheckmate()?'Checkmate!':engine.isDraw()?'Draw.':`${engine.turn()==='w'?'White':'Black'} to move${engine.isCheck()?' — CHECK':''}${engine.turn()===side?' · YOUR TURN':''}`;
+  msg(state);$('.ch-history').textContent=(game.moves||[]).map((m,i)=>`${i%2===0?Math.floor(i/2)+1+'.':''} ${m.san||m.from+m.to}`).join(' ');
+ }
+ async function clickSquare(square){
+  if(!engine||!game||game.status!=='playing'||engine.turn()!==session.color||busy)return;
+  const piece=engine.get(square);
+  if(piece?.color===session.color){selected=square;render();return}
+  if(!selected)return;
+  const legal=engine.moves({square:selected,verbose:true}).filter(m=>m.to===square);
+  if(!legal.length){selected='';render();return}
+  let promotion='q';
+  if(legal.some(m=>m.promotion)){
+   const choice=(prompt('Promote to: Q (queen), R (rook), B (bishop), N (knight)','q')||'q').trim().toLowerCase();
+   if(!['q','r','b','n'].includes(choice))return;
+   promotion=choice;
+  }
+  busy=true;try{const result=await api('/rooms/'+session.code+'/move','POST',{token:session.token,from:selected,to:square,promotion,version:game.version});game=result.room;selected='';render()}catch(e){msg(e.message);await refresh()}finally{busy=false}
+ }
+ async function refresh(){
+  if(!session||busy)return;
+  try{const data=await api('/rooms/'+session.code+'?token='+encodeURIComponent(session.token));if(!game||data.room.version!==game.version||data.room.status!==game.status){game=data.room;render()}else{game=data.room}}catch(e){msg('Connection: '+e.message)}
+ }
+ $('.ch-create').onclick=async()=>{if(!name())return msg('Enter a nickname first.');try{const data=await api('/rooms','POST',{name:name()});session=data.session;game=data.room;store();selected='';render()}catch(e){msg(e.message)}};
+ $('.ch-join').onclick=async()=>{if(!name())return msg('Enter a nickname first.');const code=$('.ch-code-input').value.trim().toUpperCase();try{const data=await api('/rooms/'+encodeURIComponent(code)+'/join','POST',{name:name()});session=data.session;game=data.room;store();selected='';render()}catch(e){msg(e.message)}};
+ $('.ch-copy').onclick=()=>navigator.clipboard?.writeText(session.code).then(()=>msg('Room code copied.'));
+ $('.ch-leave').onclick=()=>{session=null;game=null;selected='';store();render()};
+ $('.ch-refresh').onclick=refresh;
+ $('.ch-resign').onclick=async()=>{if(!confirm('Resign this chess match?'))return;try{const data=await api('/rooms/'+session.code+'/resign','POST',{token:session.token});game=data.room;render()}catch(e){msg(e.message)}};
+ setup().then(()=>{if(session)refresh();else render()});
+ poll=setInterval(()=>{if(!root.isConnected){clearInterval(poll);closed=true;return}if(session)refresh()},1800);
+}
+
 function openApp(id) {
   if(id==='null' && window.__nullEscaped)return;
   const name = APPS.find(app => app[0] === id)?.[1];
@@ -2024,6 +2131,7 @@ function openApp(id) {
   if (id === "null") nullApp(area);
   if (id === "chat") globalChatApp(area);
   if (id === "updates") updatesApp(area);
+  if (id === "chess") chessApp(area);
   addAppSidebar(area,id);
   launchAppGlitch(newWindow, () => {newWindow.classList.remove("app-awaiting-glitch");syncNullAtmosphere();});
 }
@@ -3637,13 +3745,29 @@ body.breach-corrupt .desktop-icon,body.breach-corrupt .desktop-shortcut{filter:g
 let started=false;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
-function bootReady(){if(started||document.getElementById('md-boot'))return;started=true;setTimeout(run,20000)}
-function observeBoot(){if(!document.getElementById('md-boot'))return bootReady();const observer=new MutationObserver(()=>{if(!document.getElementById('md-boot')){observer.disconnect();bootReady()}});observer.observe(document.body,{childList:true,subtree:true})}
+// [NULL] is opt-in: no timer and no escape sequence before the user opens it.
+function bootReady(){
+  if(started || window.__nullEscaped)return;
+  started=true;
+  setTimeout(()=>{
+    // Only run if the [NULL] window still exists and its orb was created.
+    if(document.querySelector('.window[data-app="null"] .null-orbit') && !window.__nullEscaped)run();
+    else started=false;
+  },20000);
+}
+function observeBoot(){
+  window.addEventListener('mybrowser-action',event=>{
+    if(event.detail?.type==='open' && event.detail?.app==='null')bootReady();
+  });
+  // If [NULL] was already opened before this listener attached, honor that action.
+  if(document.querySelector('.window[data-app="null"]'))bootReady();
+}
 async function warning(){const el=document.createElement('div');el.id='breach-warning';el.setAttribute('role','status');el.innerHTML='<div class="breach-warning-corner">SYS://CORE<br>INTEGRITY: 0%<br>STATUS: OVERRIDDEN</div><div class="breach-warning-core"><div class="breach-warning-tag">// EMERGENCY SYSTEM OVERRIDE //</div><strong data-text="stand back.">stand back.</strong><div class="breach-warning-line"></div><small>SYSTEM REINITIALIZING // PLEASE WAIT</small></div><div class="breach-warning-bottom">[NULL] // CONTAINMENT FAILED</div>';document.body.append(el);requestAnimationFrame(()=>el.classList.add('show'));await sleep(6500);el.classList.remove('show');await sleep(450);el.remove()}
 async function recovery(){const el=document.createElement('div');el.id='breach-recovery';document.body.append(el);await sleep(reduced?180:500);el.remove()}
 async function run(){
+ if(window.__nullEscaped || !document.querySelector('.window[data-app="null"]'))return;
  let original=[...document.querySelectorAll('.null-orbit')].find(el=>el.isConnected&&el.getBoundingClientRect().width>0);
- if(!original){if(typeof openApp==='function')openApp('null');await sleep(400);original=[...document.querySelectorAll('.null-orbit')].find(el=>el.isConnected&&el.getBoundingClientRect().width>0)}
+ if(!original)return; // Never open [NULL] automatically.
  if(!original)return;
  const rect=original.getBoundingClientRect(),holder=document.createComment('Original [NULL] orb location');
  const parent=original.parentNode;parent.insertBefore(holder,original);
