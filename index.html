@@ -1899,6 +1899,7 @@ function globalChatApp(area){
   });
   window.addEventListener('gosha-owner-login',()=>{ownerSession=sessionStorage.getItem('gosha-owner-session')||'';clearButton.hidden=!ownerSession;nickname='gosha';nameInput.value='gosha';claimedName='';saveName();});
   window.addEventListener('gosha-owner-logout',()=>{ownerSession='';clearButton.hidden=true;clearButton.disabled=false;nickname='';claimedName='';nameInput.value='';setStatus('OWNER MODE OFF — SET A GUEST NAME');});
+  window.addEventListener('gosha-chat-identity-out',()=>{ownerSession='';clearButton.hidden=true;clearButton.disabled=false;nickname='';claimedName='';nameInput.value='';setStatus('IDENTITY CLEARED — SET A GUEST NAME');});
   if(!configured){setStatus('SETUP REQUIRED');note('Chat is not connected yet. Deploy the chat Worker and replace CHAT_WORKER_URL in index.html.')}else{setStatus('CONNECTING');refresh();if(nickname)saveName();interval=setInterval(refresh,3000)}
   const watcher=new MutationObserver(()=>{if(!win.isConnected){disposed=true;clearInterval(interval);watcher.disconnect()}});watcher.observe(document.body,{childList:true,subtree:true});
 }
@@ -2450,13 +2451,16 @@ Type ACTIVE to see current online sessions.
 
     if (cmd === "out") {
       const wasOwner = !!sessionStorage.getItem('gosha-owner-session');
+      const wasHatred = localStorage.getItem('gosha-chat-nickname') === 'HATRED';
       sessionStorage.removeItem('gosha-owner-session');
-      if (wasOwner) {
+      if (wasOwner || wasHatred) {
         localStorage.removeItem('gosha-chat-nickname');
-        window.dispatchEvent(new Event('gosha-owner-logout'));
-        output.textContent += "> OUT\nOWNER ACCESS DISABLED. Set a guest nickname in Global Chat.\n\n";
+        // Reset the open Global Chat window immediately, without a page refresh.
+        window.dispatchEvent(new Event('gosha-chat-identity-out'));
+        if (wasOwner) window.dispatchEvent(new Event('gosha-owner-logout'));
+        output.textContent += "> OUT\n" + (wasOwner ? "OWNER ACCESS DISABLED.\n" : "HATRED IDENTITY DISABLED.\n") + "Set a guest nickname in Global Chat.\n\n";
       } else {
-        output.textContent += "> OUT\nOwner mode is already off.\n\n";
+        output.textContent += "> OUT\nNo special chat identity is active.\n\n";
       }
       output.scrollTop = output.scrollHeight;
       return;
@@ -2483,7 +2487,7 @@ Type ACTIVE to see current online sessions.
 
     if (cmd === "help") {
       answer =
-        "HELP, DATE, TIME, ABOUT, APPS, ACTIVE, CLEAR, REBOOT, ECHO, OUT";
+        "HELP, DATE, TIME, ABOUT, APPS, ACTIVE, CLEAR, REBOOT, ECHO, OUT, NAT321";
     } else if (cmd === "date") {
       answer = new Date().toDateString();
     } else if (cmd === "time") {
