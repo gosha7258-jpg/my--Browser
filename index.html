@@ -1910,7 +1910,10 @@ function globalChatApp(area){
     e.preventDefault();if(sending)return;if(!configured){setStatus('SET CHAT WORKER URL FIRST');return}
     ownerSession=sessionStorage.getItem('gosha-owner-session')||'';
     if(ownerSession && nameInput.value.trim().toLowerCase()!=='gosha'){nameInput.value='gosha';claimedName=''}
-    if(!(await saveName()))return;
+    const reserved=await saveName();
+    if(!reserved && !ownerSession)return;
+    // Owner /claim may be restricted on some Worker versions; /messages still validates the owner session.
+    if(!reserved && ownerSession){nickname='gosha';setStatus('VERIFYING OWNER WITH SERVER...')}
     const message=messageInput.value.trim();if(!message)return;
     sending=true;sendButton.disabled=true;setStatus('SENDING...');
     let sent=false;
@@ -1919,7 +1922,14 @@ function globalChatApp(area){
       sent=true;messageInput.value='';setStatus('● MESSAGE SENT');
     }catch(err){setStatus('SEND FAILED: '+err.message.slice(0,110));console.warn('Global Chat send failed:',err)}
     finally{sending=false;sendButton.disabled=false}
-    if(sent){await refresh();messageInput.focus()}
+    if(sent){
+      // Refresh immediately; keep an owner-visible local confirmation if polling is delayed.
+      const deliveredText=message;
+      const bubble=document.createElement('div');bubble.className='chat-notice chat-local-confirm';
+      bubble.textContent='✓ Sent as '+nickname+': '+deliveredText;feed.appendChild(bubble);feed.scrollTop=feed.scrollHeight;
+      try{await refresh()}catch(err){console.warn('Chat refresh delayed:',err)}
+      messageInput.focus();
+    }
 
   });
   clearButton.addEventListener('click',async()=>{
@@ -3540,21 +3550,19 @@ document.addEventListener('keydown',event=>{
   },{passive:true,capture:true});
 })();
 </script>
-<!-- [NULL] takeover: original orb grows and consumes the desktop; no glass effects. -->
+<!-- [NULL] takeover: move the REAL [NULL] orb out of its app window. -->
 <style>
 #breach-layer{position:fixed;inset:0;z-index:2147483000;pointer-events:none;overflow:hidden;isolation:isolate}
-#breach-escape{position:absolute;left:50%;top:50%;width:min(72vw,390px);height:min(72vw,390px);transform:translate(-50%,-50%) scale(.035);transform-origin:center;will-change:transform,filter;filter:drop-shadow(0 0 20px #ddd0bc88)}
-#breach-escape .null-orbit{width:100%;height:100%;max-width:none;max-height:none;left:0;top:0;transform:none;pointer-events:none}
-#breach-glitch{position:absolute;inset:0;opacity:0;mix-blend-mode:screen;background:repeating-linear-gradient(0deg,transparent 0 3px,#ffffff17 4px,transparent 6px);pointer-events:none}
-#breach-darkness{position:absolute;inset:0;background:#000;opacity:0;transition:none}
-body.breach-corrupt .window{animation:breach-window-twitch .22s steps(2) infinite;filter:grayscale(.8) contrast(1.1);translate:var(--breach-pull-x,0px) var(--breach-pull-y,0px)}
-body.breach-corrupt .desktop-icon,body.breach-corrupt .desktop-shortcut{filter:grayscale(1) drop-shadow(0 0 5px #ddd8)}
-@keyframes breach-window-twitch{0%,100%{translate:0 0}35%{translate:1px -1px}70%{translate:-2px 1px}}
+#breach-escape{position:fixed;left:0;top:0;transform-origin:center;will-change:transform,filter;pointer-events:none;max-width:none!important;max-height:none!important;transition:none!important}
+#breach-glitch{position:absolute;inset:0;opacity:0;mix-blend-mode:screen;background:repeating-linear-gradient(0deg,transparent 0 3px,#ffffff22 4px,transparent 6px);pointer-events:none}
+#breach-darkness{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
+body.breach-corrupt .window{filter:grayscale(.85) contrast(1.15);transform:translate(var(--breach-pull-x,0px),var(--breach-pull-y,0px)) skewX(var(--breach-skew,0deg))!important}
+body.breach-corrupt .desktop-icon,body.breach-corrupt .desktop-shortcut{filter:grayscale(1)}
 #breach-warning{position:fixed;inset:0;z-index:2147483200;display:flex;align-items:center;justify-content:center;flex-direction:column;pointer-events:none;background:#040104;color:#ff263e;font-family:monospace;text-align:center;text-shadow:0 0 16px #ff163a,0 0 50px #850014;opacity:0;transition:opacity .6s}
 #breach-warning.show{opacity:1;pointer-events:auto}
 #breach-warning strong{font-size:clamp(36px,9vw,112px);letter-spacing:.08em}
 #breach-warning small{margin-top:20px;color:#b13b4d;letter-spacing:.25em;font-size:clamp(10px,1.5vw,16px)}
-@media(prefers-reduced-motion:reduce){body.breach-corrupt .window{animation:none!important}}
+@media(prefers-reduced-motion:reduce){body.breach-corrupt .window{transform:none!important}}
 </style>
 <script>
 (()=>{
@@ -3566,37 +3574,46 @@ function bootReady(){if(started||document.getElementById('md-boot'))return;start
 function observeBoot(){if(!document.getElementById('md-boot'))return bootReady();const o=new MutationObserver(()=>{if(!document.getElementById('md-boot')){o.disconnect();bootReady()}});o.observe(document.body,{childList:true,subtree:true})}
 async function warning(){const el=document.createElement('div');el.id='breach-warning';el.setAttribute('role','status');el.innerHTML='<strong>stand back.</strong><small>SYSTEM REINITIALIZING // PLEASE WAIT</small>';document.body.append(el);requestAnimationFrame(()=>el.classList.add('show'));await sleep(6500);el.classList.remove('show');await sleep(700);el.remove()}
 async function run(){
+ // Open the existing [NULL] application if necessary. No substitute orb is ever generated.
+ let original=[...document.querySelectorAll('.null-orbit')].find(el=>el.isConnected && el.getBoundingClientRect().width>0);
+ if(!original){openApp('null');await sleep(400);original=[...document.querySelectorAll('.null-orbit')].find(el=>el.isConnected && el.getBoundingClientRect().width>0)}
+ if(!original)return;
+ const rect=original.getBoundingClientRect(),holder=document.createComment('Original [NULL] orb location');
+ const parent=original.parentNode;parent.insertBefore(holder,original);
+ const previousStyle=original.getAttribute('style');
  const layer=document.createElement('div');layer.id='breach-layer';
- const orb=document.createElement('div');orb.id='breach-escape';
- const original=document.querySelector('.null-orbit');
- // Copy the existing [NULL] app orb so its original appearance is preserved.
- if(original){const clone=original.cloneNode(true);clone.removeAttribute('id');clone.removeAttribute('tabindex');clone.removeAttribute('role');orb.append(clone)}
- else{orb.innerHTML='<div class="null-orbit"><div class="null-glow"></div><div class="null-smoke"></div><div class="null-smoke-extra"></div><div class="null-void"><span>[null]</span></div></div>'}
  const glitch=document.createElement('div');glitch.id='breach-glitch';
  const darkness=document.createElement('div');darkness.id='breach-darkness';
- layer.append(orb,glitch,darkness);document.body.append(layer);
- const w=innerWidth,h=innerHeight,duration=reduced?1600:23000,start=performance.now();let last=0;
+ layer.append(original,glitch,darkness);document.body.append(layer);
+ original.id='breach-escape';original.style.cssText=`position:fixed!important;left:${rect.left}px!important;top:${rect.top}px!important;width:${rect.width}px!important;height:${rect.height}px!important;transform:none!important;max-width:none!important;max-height:none!important;transition:none!important;`;
+ const centerX=rect.left+rect.width/2,centerY=rect.top+rect.height/2;
+ const targetX=innerWidth/2,targetY=innerHeight/2;
+ const duration=reduced?1800:24000,start=performance.now();let last=0;
  try{
   await new Promise(resolve=>{function animate(now){
-   const t=Math.min(1,(now-start)/duration),eased=t*t*(3-2*t);
-   const scale=.035+eased*16.5;
-   const pulse=reduced?1:1+Math.sin(now/150)*(.025+t*.08);
-   orb.style.transform=`translate(-50%,-50%) scale(${scale*pulse}) rotate(${t*18}deg)`;
-   orb.style.filter=`drop-shadow(0 0 ${15+t*90}px #ded5c4aa) contrast(${1+t*.8})`;
-   glitch.style.opacity=String(reduced?0:Math.max(0,(t-.13)*1.1)*(.3+Math.random()*.55));
-   // The black center swallows the desktop; fully black before the warning.
-   darkness.style.opacity=String(t<.48?0:Math.min(1,Math.pow((t-.48)/.52,2.2)));
-   if(t>.15)document.body.classList.add('breach-corrupt');
-   if(t>.3&&now-last>130){last=now;for(const win of document.querySelectorAll('.window')){
-    const r=win.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dist=Math.hypot(cx-w/2,cy-h/2)||1,pull=Math.max(0,(t-.3)*18);
-    win.style.setProperty('--breach-pull-x',((w/2-cx)/dist*pull)+'px');win.style.setProperty('--breach-pull-y',((h/2-cy)/dist*pull)+'px');
+   const t=Math.min(1,(now-start)/duration),e=t*t*(3-2*t);
+   const cx=centerX+(targetX-centerX)*e,cy=centerY+(targetY-centerY)*e;
+   const maxDist=Math.max(Math.hypot(cx,cy),Math.hypot(innerWidth-cx,cy),Math.hypot(cx,innerHeight-cy),Math.hypot(innerWidth-cx,innerHeight-cy));
+   const scale=1+e*(maxDist/Math.max(1,rect.width*.23)*1.7);
+   const pulse=reduced?1:1+Math.sin(now/180)*(.012+t*.045);
+   original.style.transform=`translate(${cx-centerX}px,${cy-centerY}px) scale(${scale*pulse}) rotate(${t*10}deg)`;
+   original.style.filter=`drop-shadow(0 0 ${16+t*85}px #ded5c4aa) contrast(${1+t*.5})`;
+   glitch.style.opacity=String(reduced?0:Math.max(0,(t-.16)*1.2)*(.25+Math.random()*.65));
+   darkness.style.opacity=String(t<.68?0:Math.min(1,Math.pow((t-.68)/.32,2)));
+   if(t>.14)document.body.classList.add('breach-corrupt');
+   if(t>.25&&now-last>100){last=now;for(const win of document.querySelectorAll('.window')){
+    const r=win.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,d=Math.hypot(x-cx,y-cy)||1,pull=(t-.25)*25;
+    win.style.setProperty('--breach-pull-x',((cx-x)/d*pull)+'px');win.style.setProperty('--breach-pull-y',((cy-y)/d*pull)+'px');win.style.setProperty('--breach-skew',(Math.sin(now/90)*t*1.5)+'deg');
    }}
    if(t<1)requestAnimationFrame(animate);else resolve();
   }requestAnimationFrame(animate)});
-  await sleep(reduced?150:900);
+  await sleep(reduced?150:800);
  }finally{
+  // Put the EXACT same element back into [NULL], preserving its own effects and behavior.
+  original.removeAttribute('id');if(previousStyle===null)original.removeAttribute('style');else original.setAttribute('style',previousStyle);
+  if(holder.parentNode){holder.parentNode.insertBefore(original,holder);holder.remove()}else if(parent?.isConnected)parent.append(original);
   layer.remove();document.body.classList.remove('breach-corrupt');
-  document.querySelectorAll('.window').forEach(el=>{el.style.removeProperty('--breach-pull-x');el.style.removeProperty('--breach-pull-y')});
+  document.querySelectorAll('.window').forEach(el=>{for(const key of ['--breach-pull-x','--breach-pull-y','--breach-skew'])el.style.removeProperty(key)});
  }
  await warning();
 }
