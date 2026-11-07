@@ -3550,19 +3550,28 @@ document.addEventListener('keydown',event=>{
   },{passive:true,capture:true});
 })();
 </script>
-<!-- [NULL] takeover: move the REAL [NULL] orb out of its app window. -->
+<!-- [NULL] takeover: optimized real-orb expansion and multicolor system recovery glitch. -->
 <style>
-#breach-layer{position:fixed;inset:0;z-index:2147483000;pointer-events:none;overflow:hidden;isolation:isolate}
-#breach-escape{position:fixed;left:0;top:0;transform-origin:center;will-change:transform,filter;pointer-events:none;max-width:none!important;max-height:none!important;transition:none!important}
-#breach-glitch{position:absolute;inset:0;opacity:0;mix-blend-mode:screen;background:repeating-linear-gradient(0deg,transparent 0 3px,#ffffff22 4px,transparent 6px);pointer-events:none}
+#breach-layer{position:fixed;inset:0;z-index:2147483000;pointer-events:none;overflow:hidden;isolation:isolate;contain:layout paint}
+#breach-escape{position:fixed;left:0;top:0;transform-origin:center;will-change:transform;pointer-events:none;max-width:none!important;max-height:none!important;transition:none!important}
+#breach-glitch{position:absolute;inset:0;opacity:0;pointer-events:none;contain:strict;background:repeating-linear-gradient(0deg,transparent 0 5px,#fff3 6px,transparent 8px);mix-blend-mode:screen}
+#breach-glitch::before,#breach-glitch::after{content:"";position:absolute;inset:0;opacity:.7;pointer-events:none}
+#breach-glitch::before{background:repeating-linear-gradient(90deg,transparent 0 17%,#fff8 17.2%,transparent 17.7%,#ffe60088 19%,transparent 19.4%);animation:breach-slice .21s steps(3,end) infinite}
+#breach-glitch::after{background:repeating-linear-gradient(0deg,transparent 0 31px,#b96aff66 32px,transparent 35px,#ff244d55 43px,transparent 46px);animation:breach-slice .35s steps(2,end) infinite reverse}
 #breach-darkness{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
-body.breach-corrupt .window{filter:grayscale(.85) contrast(1.15);transform:translate(var(--breach-pull-x,0px),var(--breach-pull-y,0px)) skewX(var(--breach-skew,0deg))!important}
-body.breach-corrupt .desktop-icon,body.breach-corrupt .desktop-shortcut{filter:grayscale(1)}
-#breach-warning{position:fixed;inset:0;z-index:2147483200;display:flex;align-items:center;justify-content:center;flex-direction:column;pointer-events:none;background:#040104;color:#ff263e;font-family:monospace;text-align:center;text-shadow:0 0 16px #ff163a,0 0 50px #850014;opacity:0;transition:opacity .6s}
+body.breach-corrupt .window{filter:grayscale(.65) contrast(1.15);transform:translate(var(--breach-pull-x,0px),var(--breach-pull-y,0px))!important}
+body.breach-corrupt .desktop-icon,body.breach-corrupt .desktop-shortcut{filter:grayscale(.8)}
+#breach-warning{position:fixed;inset:0;z-index:2147483200;display:flex;align-items:center;justify-content:center;flex-direction:column;pointer-events:none;background:#040104;color:#ff263e;font-family:monospace;text-align:center;text-shadow:0 0 16px #ff163a,0 0 50px #850014;opacity:0;transition:opacity .35s}
 #breach-warning.show{opacity:1;pointer-events:auto}
 #breach-warning strong{font-size:clamp(36px,9vw,112px);letter-spacing:.08em}
 #breach-warning small{margin-top:20px;color:#b13b4d;letter-spacing:.25em;font-size:clamp(10px,1.5vw,16px)}
-@media(prefers-reduced-motion:reduce){body.breach-corrupt .window{transform:none!important}}
+#breach-recovery{position:fixed;inset:0;z-index:2147483300;pointer-events:none;overflow:hidden;background:transparent;contain:strict;animation:breach-recover .95s steps(8,end) both}
+#breach-recovery::before,#breach-recovery::after{content:"";position:absolute;inset:-12%;mix-blend-mode:screen;will-change:transform,opacity}
+#breach-recovery::before{background:repeating-linear-gradient(0deg,#fff 0 3px,#000 3px 13px,#ffea00 13px 19px,#8b40ff 19px 27px,#f20b32 27px 31px,#000 31px 46px);opacity:.83;animation:breach-slice .12s steps(4,end) infinite}
+#breach-recovery::after{background:repeating-linear-gradient(90deg,transparent 0 8%,#fff 8.2% 8.6%,transparent 9% 24%,#ffdf00 24.5% 25%,transparent 25.5% 41%,#a349ff 42% 43%,transparent 44% 64%,#ff1638 65% 66%,transparent 67%);opacity:.85;animation:breach-slice .19s steps(5,end) infinite reverse}
+@keyframes breach-slice{0%{transform:translate(0,0) skewX(0)}25%{transform:translate(-7%,2%) skewX(7deg)}50%{transform:translate(5%,-3%) skewX(-5deg)}75%{transform:translate(-3%,4%) skewX(4deg)}100%{transform:translate(0,0)}}
+@keyframes breach-recover{0%{opacity:0}8%,70%{opacity:1}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){body.breach-corrupt .window{transform:none!important}#breach-glitch::before,#breach-glitch::after,#breach-recovery::before,#breach-recovery::after{animation:none!important}#breach-recovery{animation:breach-recover .35s linear both}}
 </style>
 <script>
 (()=>{
@@ -3571,12 +3580,12 @@ let started=false;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function bootReady(){if(started||document.getElementById('md-boot'))return;started=true;setTimeout(run,20000)}
-function observeBoot(){if(!document.getElementById('md-boot'))return bootReady();const o=new MutationObserver(()=>{if(!document.getElementById('md-boot')){o.disconnect();bootReady()}});o.observe(document.body,{childList:true,subtree:true})}
-async function warning(){const el=document.createElement('div');el.id='breach-warning';el.setAttribute('role','status');el.innerHTML='<strong>stand back.</strong><small>SYSTEM REINITIALIZING // PLEASE WAIT</small>';document.body.append(el);requestAnimationFrame(()=>el.classList.add('show'));await sleep(6500);el.classList.remove('show');await sleep(700);el.remove()}
+function observeBoot(){if(!document.getElementById('md-boot'))return bootReady();const observer=new MutationObserver(()=>{if(!document.getElementById('md-boot')){observer.disconnect();bootReady()}});observer.observe(document.body,{childList:true,subtree:true})}
+async function warning(){const el=document.createElement('div');el.id='breach-warning';el.setAttribute('role','status');el.innerHTML='<strong>stand back.</strong><small>SYSTEM REINITIALIZING // PLEASE WAIT</small>';document.body.append(el);requestAnimationFrame(()=>el.classList.add('show'));await sleep(6500);el.classList.remove('show');await sleep(450);el.remove()}
+async function recovery(){const el=document.createElement('div');el.id='breach-recovery';document.body.append(el);await sleep(reduced?350:950);el.remove()}
 async function run(){
- // Open the existing [NULL] application if necessary. No substitute orb is ever generated.
- let original=[...document.querySelectorAll('.null-orbit')].find(el=>el.isConnected && el.getBoundingClientRect().width>0);
- if(!original){openApp('null');await sleep(400);original=[...document.querySelectorAll('.null-orbit')].find(el=>el.isConnected && el.getBoundingClientRect().width>0)}
+ let original=[...document.querySelectorAll('.null-orbit')].find(el=>el.isConnected&&el.getBoundingClientRect().width>0);
+ if(!original){if(typeof openApp==='function')openApp('null');await sleep(400);original=[...document.querySelectorAll('.null-orbit')].find(el=>el.isConnected&&el.getBoundingClientRect().width>0)}
  if(!original)return;
  const rect=original.getBoundingClientRect(),holder=document.createComment('Original [NULL] orb location');
  const parent=original.parentNode;parent.insertBefore(holder,original);
@@ -3588,34 +3597,44 @@ async function run(){
  original.id='breach-escape';original.style.cssText=`position:fixed!important;left:${rect.left}px!important;top:${rect.top}px!important;width:${rect.width}px!important;height:${rect.height}px!important;transform:none!important;max-width:none!important;max-height:none!important;transition:none!important;`;
  const centerX=rect.left+rect.width/2,centerY=rect.top+rect.height/2;
  const targetX=innerWidth/2,targetY=innerHeight/2;
- const duration=reduced?1800:24000,start=performance.now();let last=0;
+ const corners=[[0,0],[innerWidth,0],[0,innerHeight],[innerWidth,innerHeight]];
+ const maxDist=Math.max(...corners.map(([x,y])=>Math.hypot(x-targetX,y-targetY)));
+ const maxScale=Math.max(1,maxDist/Math.max(1,rect.width*.23)*1.7);
+ const duration=reduced?1700:24000,start=performance.now();
+ const windows=[...document.querySelectorAll('.window')];
+ const centers=windows.map(win=>{const r=win.getBoundingClientRect();return {win,x:r.left+r.width/2,y:r.top+r.height/2}});
+ let lastPaint=0,lastWindowUpdate=0;
  try{
   await new Promise(resolve=>{function animate(now){
-   const t=Math.min(1,(now-start)/duration),e=t*t*(3-2*t);
-   const cx=centerX+(targetX-centerX)*e,cy=centerY+(targetY-centerY)*e;
-   const maxDist=Math.max(Math.hypot(cx,cy),Math.hypot(innerWidth-cx,cy),Math.hypot(cx,innerHeight-cy),Math.hypot(innerWidth-cx,innerHeight-cy));
-   const scale=1+e*(maxDist/Math.max(1,rect.width*.23)*1.7);
-   const pulse=reduced?1:1+Math.sin(now/180)*(.012+t*.045);
-   original.style.transform=`translate(${cx-centerX}px,${cy-centerY}px) scale(${scale*pulse}) rotate(${t*10}deg)`;
-   original.style.filter=`drop-shadow(0 0 ${16+t*85}px #ded5c4aa) contrast(${1+t*.5})`;
-   glitch.style.opacity=String(reduced?0:Math.max(0,(t-.16)*1.2)*(.25+Math.random()*.65));
-   darkness.style.opacity=String(t<.68?0:Math.min(1,Math.pow((t-.68)/.32,2)));
+   const t=Math.min(1,(now-start)/duration);
+   if(now-lastPaint<33&&t<1){requestAnimationFrame(animate);return}lastPaint=now;
+   const e=t*t*(3-2*t),cx=centerX+(targetX-centerX)*e,cy=centerY+(targetY-centerY)*e;
+   const scale=1+e*maxScale;
+   const pulse=reduced?1:1+Math.sin(now/230)*(.012+t*.038);
+   original.style.transform=`translate3d(${cx-centerX}px,${cy-centerY}px,0) scale(${scale*pulse}) rotate(${t*8}deg)`;
+   // Avoid expensive per-frame drop-shadow/filter on the giant scaled orb.
+   const intensity=Math.max(0,(t-.09)/.91);
+   glitch.style.opacity=String(reduced?0:Math.min(.9,intensity*(.22+.25*Math.sin(now/160)**2+.3*(t>.68?1:0))));
+   darkness.style.opacity=String(t<.73?0:Math.min(1,((t-.73)/.27)**2));
    if(t>.14)document.body.classList.add('breach-corrupt');
-   if(t>.25&&now-last>100){last=now;for(const win of document.querySelectorAll('.window')){
-    const r=win.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,d=Math.hypot(x-cx,y-cy)||1,pull=(t-.25)*25;
-    win.style.setProperty('--breach-pull-x',((cx-x)/d*pull)+'px');win.style.setProperty('--breach-pull-y',((cy-y)/d*pull)+'px');win.style.setProperty('--breach-skew',(Math.sin(now/90)*t*1.5)+'deg');
-   }}
+   // Cached window geometry: update only 5 times a second, not every animation frame.
+   if(t>.25&&now-lastWindowUpdate>200){lastWindowUpdate=now;
+    for(const {win,x,y} of centers){if(!win.isConnected)continue;const d=Math.hypot(x-cx,y-cy)||1,pull=(t-.25)*25;
+     win.style.setProperty('--breach-pull-x',((cx-x)/d*pull).toFixed(1)+'px');
+     win.style.setProperty('--breach-pull-y',((cy-y)/d*pull).toFixed(1)+'px');
+    }
+   }
    if(t<1)requestAnimationFrame(animate);else resolve();
   }requestAnimationFrame(animate)});
-  await sleep(reduced?150:800);
+  await sleep(reduced?100:500);
  }finally{
-  // Put the EXACT same element back into [NULL], preserving its own effects and behavior.
   original.removeAttribute('id');if(previousStyle===null)original.removeAttribute('style');else original.setAttribute('style',previousStyle);
   if(holder.parentNode){holder.parentNode.insertBefore(original,holder);holder.remove()}else if(parent?.isConnected)parent.append(original);
   layer.remove();document.body.classList.remove('breach-corrupt');
-  document.querySelectorAll('.window').forEach(el=>{for(const key of ['--breach-pull-x','--breach-pull-y','--breach-skew'])el.style.removeProperty(key)});
+  windows.forEach(el=>{el.style.removeProperty('--breach-pull-x');el.style.removeProperty('--breach-pull-y')});
  }
  await warning();
+ await recovery();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',observeBoot,{once:true});else observeBoot();
 })();
