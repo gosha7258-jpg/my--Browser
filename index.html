@@ -1856,7 +1856,7 @@ function globalChatApp(area){
   }
   let nickname=localStorage.getItem(nameKey)||'';
   let ownerSession=sessionStorage.getItem('gosha-owner-session')||'';
-  if(ownerSession)nickname='gosha';
+  if(ownerSession)nickname=sessionStorage.getItem('gosha-owner-alias')||'gosha';
   let muted=[];try{muted=JSON.parse(localStorage.getItem(muteKey)||'[]')}catch{}
   nameInput.value=nickname;
   window.addEventListener('gosha-hatred-identity',()=>{
@@ -1879,6 +1879,7 @@ function globalChatApp(area){
   }
   async function claimName(){
     ownerSession=sessionStorage.getItem('gosha-owner-session')||'';
+    if(ownerSession && sessionStorage.getItem('gosha-owner-alias')){nickname=sessionStorage.getItem('gosha-owner-alias');claimedName=nickname;nameInput.value=nickname;return true;}
     if(ownerSession && nameInput.value.trim().toLowerCase()==='gosha')nameInput.value='gosha';
     const n=nameInput.value.trim();
     if(!checkName(n)){setStatus('NAME: 3–20 LETTERS / NUMBERS');return false}
@@ -1925,7 +1926,7 @@ function globalChatApp(area){
   $('.chat-compose').addEventListener('submit',async e=>{
     e.preventDefault();if(sending)return;if(!configured){setStatus('SET CHAT WORKER URL FIRST');return}
     ownerSession=sessionStorage.getItem('gosha-owner-session')||'';
-    if(ownerSession && nameInput.value.trim().toLowerCase()!=='gosha'){nameInput.value='gosha';claimedName=''}
+    if(ownerSession && !sessionStorage.getItem('gosha-owner-alias') && nameInput.value.trim().toLowerCase()!=='gosha'){nameInput.value='gosha';claimedName=''}
     const reserved=await saveName();
     if(!reserved && !ownerSession)return;
     // Owner /claim may be restricted on some Worker versions; /messages still validates the owner session.
@@ -1957,6 +1958,7 @@ function globalChatApp(area){
     finally{clearButton.disabled=false}
   });
   window.addEventListener('gosha-owner-login',()=>{ownerSession=sessionStorage.getItem('gosha-owner-session')||'';clearButton.hidden=!ownerSession;nickname='gosha';nameInput.value='gosha';claimedName='';setStatus('OWNER CONNECTED — SETTING UP CHAT');saveName();});
+  window.addEventListener('gosha-owner-become',()=>{ownerSession=sessionStorage.getItem('gosha-owner-session')||'';if(!ownerSession)return;nickname=sessionStorage.getItem('gosha-owner-alias')||'gosha';nameInput.value=nickname;claimedName=nickname;localStorage.setItem(nameKey,nickname);clearButton.hidden=false;setStatus('● OWNER ALIAS: '+nickname);});
   window.addEventListener('gosha-owner-logout',()=>{ownerSession='';clearButton.hidden=true;clearButton.disabled=false;nickname='';claimedName='';nameInput.value='';setStatus('OWNER MODE OFF — SET A GUEST NAME');});
   window.addEventListener('gosha-chat-identity-out',()=>{ownerSession='';clearButton.hidden=true;clearButton.disabled=false;nickname='';claimedName='';nameInput.value='';setStatus('IDENTITY CLEARED — SET A GUEST NAME');});
   if(!configured){setStatus('SETUP REQUIRED');note('Chat is not connected yet. Deploy the chat Worker and replace CHAT_WORKER_URL in index.html.')}else{setStatus('CONNECTING');refresh();if(nickname)saveName();interval=setInterval(refresh,3000)}
@@ -2609,6 +2611,7 @@ Type ACTIVE to see current online sessions.
         const result=await response.json();
         if(!response.ok)throw new Error(result.error||'Login failed');
         sessionStorage.setItem('gosha-owner-session',result.ownerSession);
+        sessionStorage.removeItem('gosha-owner-alias');
         localStorage.setItem('gosha-chat-nickname','gosha');
         window.dispatchEvent(new Event('gosha-owner-login'));
         output.textContent += 'OWNER ACCESS GRANTED. Global Chat name: gosha (OWNER)\n\n';
@@ -2617,10 +2620,44 @@ Type ACTIVE to see current online sessions.
       return;
     }
 
+    const becomeMatch = command.match(/^\/become\s+"([^"]+)"$/i);
+    if (cmd.startsWith('/become')) {
+      output.textContent += '> '+command+'\n';
+      if (!becomeMatch) {
+        output.textContent += 'Usage: /become "Username" (3–20 letters, numbers, spaces, _ or -)\n\n';
+      } else if (!sessionStorage.getItem('gosha-owner-session')) {
+        output.textContent += 'OWNER LOGIN REQUIRED. Authenticate in Terminal first.\n\n';
+      } else {
+        const nickname=becomeMatch[1].trim();
+        if(!/^[a-zA-Z0-9_ -]{3,20}$/.test(nickname)) {
+          output.textContent += 'INVALID NAME. Use 3–20 letters, numbers, spaces, _ or -.\n\n';
+        } else {
+          output.textContent += 'VERIFYING OWNER ALIAS...\n';
+          try {
+            const token=localStorage.getItem('gosha-chat-owner-token-v1')||'';
+            const ownerSession=sessionStorage.getItem('gosha-owner-session')||'';
+            const response=await fetch(CHAT_WORKER_URL+'/become',{
+              method:'POST',headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({nickname,token,ownerSession})
+            });
+            const data=await response.json();
+            if(!response.ok||!data.ok)throw Error(data.error||'Alias change rejected');
+            sessionStorage.setItem('gosha-owner-alias',data.nickname);
+            localStorage.setItem('gosha-chat-nickname',data.nickname);
+            window.dispatchEvent(new Event('gosha-owner-become'));
+            output.textContent += 'OWNER ALIAS ACTIVE: '+data.nickname+' (OWNER)\nOpen Global Chat to send as this alias.\n\n';
+          }catch(error){output.textContent += 'ALIAS FAILED: '+error.message+'\n\n';}
+        }
+      }
+      output.scrollTop=output.scrollHeight;
+      return;
+    }
+
     if (cmd === "out") {
       const wasOwner = !!sessionStorage.getItem('gosha-owner-session');
       const wasHatred = localStorage.getItem('gosha-chat-nickname') === 'HATRED';
       sessionStorage.removeItem('gosha-owner-session');
+      sessionStorage.removeItem('gosha-owner-alias');
       if (wasOwner || wasHatred) {
         localStorage.removeItem('gosha-chat-nickname');
         // Reset the open Global Chat window immediately, without a page refresh.
@@ -2655,7 +2692,7 @@ Type ACTIVE to see current online sessions.
 
     if (cmd === "help") {
       answer =
-        "HELP, DATE, TIME, ABOUT, APPS, ACTIVE, CLEAR, REBOOT, ECHO, OUT, NAT321";
+        "HELP, DATE, TIME, ABOUT, APPS, ACTIVE, CLEAR, REBOOT, ECHO, OUT, NAT321, /BECOME \"NAME\"";
     } else if (cmd === "date") {
       answer = new Date().toDateString();
     } else if (cmd === "time") {
