@@ -1931,7 +1931,7 @@ function globalChatApp(area){
     const reserved=await saveName();
     if(!reserved && !ownerSession)return;
     // Owner /claim may be restricted on some Worker versions; /messages still validates the owner session.
-    if(!reserved && ownerSession){nickname='gosha';setStatus('VERIFYING OWNER WITH SERVER...')}
+    if(!reserved && ownerSession){nickname=sessionStorage.getItem('gosha-owner-alias')||'gosha';setStatus('VERIFYING OWNER WITH SERVER...')}
     const message=messageInput.value.trim();if(!message)return;
     sending=true;sendButton.disabled=true;setStatus('SENDING...');
     let sent=false;
@@ -2662,7 +2662,7 @@ Type ACTIVE to see current online sessions.
             sessionStorage.setItem('gosha-owner-alias',data.nickname);
             localStorage.setItem('gosha-chat-nickname',data.nickname);
             window.dispatchEvent(new Event('gosha-owner-become'));
-            output.textContent += 'ACCOUNT ACTIVE: '+(data.displayName||data.nickname)+' (OWNER)\n'+(data.nickname.toLowerCase()==='nat321'?'SOUL ACTIVATED. HATRED artwork and red chat styling enabled.\n':'')+'Open Global Chat to send as this alias.\n\n';
+            output.textContent += 'ACCOUNT ACTIVE: '+(data.displayName||data.nickname)+' (OWNER)\nExisting usernames can be used as display aliases without changing their accounts.\n'+(data.nickname.toLowerCase()==='nat321'?'SOUL ACTIVATED. HATRED artwork and red chat styling enabled.\n':'')+'Open Global Chat to send as this alias.\n\n';
           }catch(error){output.textContent += 'ALIAS FAILED: '+error.message+'\n\n';}
         }
       }
