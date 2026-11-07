@@ -2014,23 +2014,30 @@ function loadChessLib(){
 }
 function chessApp(area){
  const css=document.createElement('style');css.textContent=`
- .gosha-chess{height:100%;overflow:auto;padding:14px;background:#08090d;color:#f2f2f2;font-family:inherit}
- .gosha-chess .ch-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:9px 0}
- .gosha-chess input{background:#14161b;color:white;border:1px solid #54535a;border-radius:7px;padding:9px;min-width:0;max-width:170px}
- .gosha-chess button{border:1px solid #7e7b6b;border-radius:7px;background:#24242c;color:white;padding:8px 12px;cursor:pointer}
- .gosha-chess button:hover{border-color:#ffd657;background:#39332b}
- .gosha-chess .ch-board{margin:12px auto;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));width:min(100%,460px);aspect-ratio:1;border:2px solid #bda96c}
- .gosha-chess .ch-sq{border:0;border-radius:0;min-width:0;padding:0;display:flex;align-items:center;justify-content:center;font-family:"Segoe UI Symbol","DejaVu Sans",serif;font-size:clamp(18px,3.8vw,40px);line-height:1;touch-action:manipulation}
- .gosha-chess .ch-sq.light{background:#d6c7a8;color:#1b1a20}.gosha-chess .ch-sq.dark{background:#776c65;color:#1b1a20}
- .gosha-chess .ch-sq.sel{box-shadow:inset 0 0 0 4px #ffcf4a}.gosha-chess .ch-sq.legal{box-shadow:inset 0 0 0 4px #65e3a3}
- .gosha-chess .ch-sq.white-piece{text-shadow:0 1px 1px #222,0 0 2px #222;color:#fffaf0}
- .gosha-chess .ch-sq.black-piece{text-shadow:0 1px 1px #eee;color:#15151c}
- .gosha-chess .ch-info{font-size:13px;color:#c8c8cb;line-height:1.5}
- .gosha-chess .ch-code{font-size:22px;color:#ffd65c;letter-spacing:4px;font-weight:800}
+ .gosha-chess{height:100%;overflow:auto;padding:16px;background:radial-gradient(ellipse at 50% 0%,#30230d 0%,#0a0a12 45%,#040408 100%);color:#f4f0d6;font-family:Consolas,monospace;letter-spacing:.25px}
+ .gosha-chess> b{display:block;font:800 clamp(18px,3vw,25px) Orbitron,Consolas,monospace;letter-spacing:3px;color:#ffe45c;text-shadow:0 0 10px #ffda39a8,0 0 28px #ffca3260;margin-bottom:9px}
+ .gosha-chess .ch-row{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:11px 0}
+ .gosha-chess input{background:#0a0a13;color:#ffeeb2;border:1px solid #ffe45c66;border-radius:4px;padding:10px;min-width:0;max-width:180px;outline:none;font:12px Consolas,monospace}
+ .gosha-chess input:focus{border-color:#ffe45c;box-shadow:0 0 14px #ffe45c55}
+ .gosha-chess button:not(.ch-sq){border:1px solid #ffe45c88;border-radius:4px;background:linear-gradient(120deg,#2d2718,#151521);color:#ffe66c;padding:9px 12px;cursor:pointer;font:700 11px Consolas,monospace;letter-spacing:1px}
+ .gosha-chess button:not(.ch-sq):hover{border-color:#fff4a4;background:#3b341b;box-shadow:0 0 12px #ffe45c55}
+ .gosha-chess .ch-board{box-sizing:border-box!important;display:grid!important;grid-template-columns:repeat(8,minmax(0,1fr))!important;grid-template-rows:repeat(8,minmax(0,1fr))!important;gap:0!important;width:min(100%,min(460px,calc(100vh - 260px)))!important;height:auto!important;aspect-ratio:1/1!important;margin:18px auto!important;border:2px solid #ffe45c!important;box-shadow:0 0 0 5px #0b0b12,0 0 0 6px #ffe45c44,0 0 28px #ffd32a55,inset 0 0 22px #000!important;overflow:hidden!important;align-items:stretch!important;justify-items:stretch!important}
+ .gosha-chess .ch-board .ch-sq{box-sizing:border-box!important;display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;aspect-ratio:1/1!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;box-shadow:none;font-family:'Segoe UI Symbol','DejaVu Sans',serif!important;font-size:clamp(20px,4vw,43px)!important;line-height:1!important;letter-spacing:0!important;touch-action:manipulation;cursor:pointer;transition:background .14s,filter .14s}
+ .gosha-chess .ch-sq.light{background:#55505b!important;color:#f8f3d4}.gosha-chess .ch-sq.dark{background:#1a1a25!important;color:#f8f3d4}
+ .gosha-chess .ch-sq:hover{filter:brightness(1.32)}
+ .gosha-chess .ch-board .ch-sq.sel{box-shadow:inset 0 0 0 4px #ffe45c,inset 0 0 22px #ffe45c66!important;background:#64542c!important}
+ .gosha-chess .ch-board .ch-sq.legal{box-shadow:inset 0 0 0 3px #b77dff,inset 0 0 20px #b77dff55!important}
+ .gosha-chess .ch-sq.white-piece{color:#fff6c8!important;text-shadow:0 2px 1px #100d10,0 0 5px #ffe45c,0 0 12px #ffe45c70!important}
+ .gosha-chess .ch-sq.black-piece{color:#12131c!important;-webkit-text-stroke:.6px #c5b4ed;text-shadow:0 0 4px #c8a6ff,0 0 11px #a66aff!important}
+ .gosha-chess .ch-info{font:12px/1.6 Consolas,monospace;color:#c9c4d9;letter-spacing:.3px}
+ .gosha-chess .ch-status{color:#ffe45c;border-left:3px solid #ffe45c;padding:8px 11px;background:#ffe45c0d}
+ .gosha-chess .ch-code{font-size:22px;color:#ffe45c;letter-spacing:5px;font-weight:800;text-shadow:0 0 14px #ffe45c88}
+ .gosha-chess .ch-history{max-height:90px;overflow:auto;color:#c9a6ff}
+ @media(max-width:600px){.gosha-chess{padding:9px}.gosha-chess .ch-board{width:min(100%,calc(100vh - 300px))!important}.gosha-chess .ch-board .ch-sq{font-size:clamp(17px,6vw,35px)!important}}
  `;
  area.append(css);
  const root=document.createElement('div');root.className='gosha-chess';
- root.innerHTML=`<b>♟ MULTIPLAYER CHESS</b><div class="ch-info">Play online with a friend. Create a room, share its code, or join a room.</div>
+ root.innerHTML=`<b>⌬ SOLVER // CHESS</b><div class="ch-info">[ ABSOLUTE SOLVER NETWORK ] · Establish a room connection. Challenge another operator.</div>
  <div class="ch-row"><input class="ch-name" maxlength="24" placeholder="Your nickname"><button class="ch-create">CREATE ROOM</button></div>
  <div class="ch-row"><input class="ch-code-input" maxlength="6" placeholder="6-letter room code"><button class="ch-join">JOIN ROOM</button></div>
  <div class="ch-row"><span class="ch-code"></span><button class="ch-copy" hidden>COPY CODE</button><button class="ch-leave" hidden>LEAVE</button></div>
