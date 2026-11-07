@@ -3274,6 +3274,8 @@ document.addEventListener('keydown',event=>{
     else last=0;
   }
   window.addEventListener('pointerdown',function(e){
+    // Keep click effects disabled until the cinematic reboot overlay is gone.
+    if(document.getElementById('md-boot'))return;
     if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
     const x=e.clientX,y=e.clientY;
     rings.push({x,y,age:0});
