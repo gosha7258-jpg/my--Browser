@@ -3540,22 +3540,31 @@ document.addEventListener('keydown',event=>{
   },{passive:true,capture:true});
 })();
 </script>
-<!-- Screen fracture: begins 20 seconds after the reboot ends. Visual only. -->
+<!-- Screen fracture and shatter: starts 20 seconds after the first reboot. -->
 <style>
-#solver-screen-fracture{position:fixed;inset:0;width:100vw;height:100vh;z-index:2147483000;pointer-events:none;overflow:hidden;opacity:0;transition:opacity 2s ease}
+#solver-screen-fracture{position:fixed;inset:0;width:100vw;height:100vh;z-index:2147483000;pointer-events:none;overflow:hidden;opacity:0;transition:opacity .5s ease}
 #solver-screen-fracture.is-visible{opacity:1}
-#solver-screen-fracture .fracture-line{fill:none;stroke:rgba(236,241,255,.78);stroke-width:1.05;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 3px rgba(220,235,255,.42));stroke-dasharray:var(--line-length);stroke-dashoffset:var(--line-length);animation:solver-crack-grow var(--duration) ease-out var(--delay) forwards}
-#solver-screen-fracture .fracture-shadow{stroke:rgba(0,0,0,.82);stroke-width:3;filter:none}
+#solver-screen-fracture .fracture-line{fill:none;stroke:rgba(236,241,255,.86);stroke-width:1.15;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 3px rgba(220,235,255,.6));stroke-dasharray:var(--line-length);stroke-dashoffset:var(--line-length);animation:solver-crack-grow var(--duration) ease-out var(--delay) forwards}
+#solver-screen-fracture .fracture-shadow{stroke:rgba(0,0,0,.92);stroke-width:3.4;filter:none}
 @keyframes solver-crack-grow{to{stroke-dashoffset:0}}
-@media (prefers-reduced-motion:reduce){#solver-screen-fracture{transition:none}#solver-screen-fracture .fracture-line{animation:none;stroke-dashoffset:0}}
+#solver-shatter{position:fixed;inset:0;z-index:2147483100;pointer-events:none;overflow:hidden;background:rgba(0,0,0,0);transition:background 1.5s ease}
+#solver-shatter.shattered{background:rgba(0,0,0,.99)}
+#solver-shatter canvas{display:block;width:100%;height:100%}
+#solver-standback{position:fixed;inset:0;z-index:2147483200;pointer-events:none;display:flex;justify-content:center;align-items:center;flex-direction:column;background:#050307;color:#ff263e;font-family:monospace;text-align:center;opacity:0;transition:opacity .75s ease;text-shadow:0 0 12px #f40028,0 0 45px #870012}
+#solver-standback.show{opacity:1;pointer-events:auto}
+#solver-standback .standback-text{font-size:clamp(36px,9vw,110px);font-weight:900;letter-spacing:.12em;animation:standback-flicker 2s steps(1,end) infinite}
+#solver-standback .standback-sub{margin-top:22px;font-size:clamp(11px,1.5vw,17px);letter-spacing:.26em;color:#ad4350}
+@keyframes standback-flicker{0%,91%,94%,100%{opacity:1}92%,93%{opacity:.4}}
+@media(prefers-reduced-motion:reduce){#solver-screen-fracture .fracture-line{animation:none;stroke-dashoffset:0}#solver-standback .standback-text{animation:none}}
 </style>
 <script>
 (function(){
   'use strict';
   const bootId='md-boot';
   let started=false;
-  function startAfterBoot(){
-    if(started || document.getElementById(bootId))return;
+  const reducedMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function afterBoot(){
+    if(started||document.getElementById(bootId))return;
     started=true;
     setTimeout(createCracks,20000);
   }
@@ -3563,12 +3572,11 @@ document.addEventListener('keydown',event=>{
     if(document.getElementById('solver-screen-fracture'))return;
     const ns='http://www.w3.org/2000/svg';
     const svg=document.createElementNS(ns,'svg');
-    svg.setAttribute('id','solver-screen-fracture');
+    svg.id='solver-screen-fracture';
     svg.setAttribute('viewBox','0 0 1000 650');
     svg.setAttribute('preserveAspectRatio','none');
     svg.setAttribute('aria-hidden','true');
     const cx=510,cy=310;
-    // Angular radial branches with smaller offshoots, like fractured glass.
     const branches=[
       [[cx,cy],[474,273],[434,230],[408,184],[368,147],[342,85],[300,31]],
       [[cx,cy],[541,273],[573,242],[611,198],[654,163],[685,101],[736,36]],
@@ -3605,13 +3613,70 @@ document.addEventListener('keydown',event=>{
     });
     document.body.appendChild(svg);
     requestAnimationFrame(()=>svg.classList.add('is-visible'));
+    setTimeout(()=>shatterScreen(svg),reducedMotion?1500:16500);
+  }
+  function shatterScreen(cracks){
+    const layer=document.createElement('div');layer.id='solver-shatter';
+    const canvas=document.createElement('canvas');layer.appendChild(canvas);document.body.appendChild(layer);
+    const ctx=canvas.getContext('2d');
+    const w=innerWidth,h=innerHeight,dpr=Math.min(devicePixelRatio||1,2);
+    canvas.width=Math.ceil(w*dpr);canvas.height=Math.ceil(h*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const cell=reducedMotion?95:38;
+    const cols=Math.ceil(w/cell),rows=Math.ceil(h/cell);
+    const shards=[];
+    for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
+      const px=x*cell,py=y*cell,cx=px+cell/2,cy=py+cell/2;
+      const a=Math.random()*Math.PI*2;
+      const radius=cell*(.3+Math.random()*.35);
+      const vertices=3+Math.floor(Math.random()*3),poly=[];
+      for(let k=0;k<vertices;k++){
+        const theta=a+2*Math.PI*k/vertices;
+        poly.push([Math.cos(theta)*radius,Math.sin(theta)*radius]);
+      }
+      shards.push({cx,cy,poly,vx:(cx-w/2)*(.002+Math.random()*.004)+(Math.random()-.5)*4,
+        vy:(cy-h/2)*(.002+Math.random()*.004)+(Math.random()-.5)*3,
+        spin:(Math.random()-.5)*.13,rotation:0,opacity:1,
+        tint:Math.random()>.75?'rgba(174,157,201,.87)':'rgba(34,32,47,.94)'});
+    }
+    cracks.remove();
+    layer.classList.add('shattered');
+    let frame=0;
+    function draw(){
+      frame++;
+      ctx.clearRect(0,0,w,h);
+      for(const p of shards){
+        p.cx+=p.vx;p.cy+=p.vy;p.vy+=.075;p.rotation+=p.spin;
+        p.opacity=Math.max(0,1-frame/105);
+        if(!p.opacity)continue;
+        ctx.save();ctx.translate(p.cx,p.cy);ctx.rotate(p.rotation);ctx.globalAlpha=p.opacity;
+        ctx.beginPath();p.poly.forEach((v,i)=>i?ctx.lineTo(v[0],v[1]):ctx.moveTo(v[0],v[1]));ctx.closePath();
+        ctx.fillStyle=p.tint;ctx.fill();ctx.strokeStyle='rgba(233,230,255,.65)';ctx.lineWidth=.9;ctx.stroke();ctx.restore();
+      }
+      if(frame<110)requestAnimationFrame(draw);
+      else {layer.remove();showStandBack();}
+    }
+    if(reducedMotion){layer.remove();showStandBack();}
+    else requestAnimationFrame(draw);
+  }
+  function showStandBack(){
+    const overlay=document.createElement('div');overlay.id='solver-standback';
+    overlay.setAttribute('role','status');
+    overlay.innerHTML='<div class="standback-text">stand back.</div><div class="standback-sub">SYSTEM REINITIALIZING // PLEASE WAIT</div>';
+    document.body.appendChild(overlay);
+    requestAnimationFrame(()=>overlay.classList.add('show'));
+    // One-time cinematic event. Restore the desktop without restarting the whole page.
+    setTimeout(()=>{
+      overlay.classList.remove('show');
+      setTimeout(()=>overlay.remove(),800);
+    },6500);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',observeBoot,{once:true});
   else observeBoot();
   function observeBoot(){
-    if(!document.getElementById(bootId)){startAfterBoot();return;}
+    if(!document.getElementById(bootId)){afterBoot();return;}
     const observer=new MutationObserver(()=>{
-      if(!document.getElementById(bootId)){observer.disconnect();startAfterBoot();}
+      if(!document.getElementById(bootId)){observer.disconnect();afterBoot();}
     });
     observer.observe(document.body,{childList:true,subtree:true});
   }
