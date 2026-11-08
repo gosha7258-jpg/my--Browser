@@ -1212,6 +1212,23 @@ body.lore-null-active #solver-glitch.active::before{background:repeating-linear-
 .gv-pluto-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;color:#ffe65c;font:800 18px Consolas,monospace;letter-spacing:1px}
 .gv-pluto-heading span{font:11px Consolas,monospace;color:#d0c5df}
 .gv-pluto p{color:#c9c9d4;font:13px/1.5 Arial,sans-serif;margin:8px 0 12px}
+
+/* MURDER DRONES streaming-style catalog */
+.md-feature{padding:24px 22px;border:1px solid #ffe65c55;border-radius:14px;background:radial-gradient(ellipse at 92% 15%,#ffe65c25,transparent 48%),linear-gradient(120deg,#16101f,#080b13);box-shadow:inset 0 1px #ffffff19}
+.md-feature-kicker{font:700 10px Consolas,monospace;letter-spacing:2px;color:#ffdc60}
+.md-feature h2{font:900 clamp(27px,4vw,42px) Arial,sans-serif;letter-spacing:3px;color:#fff4b5;margin:10px 0 6px;text-shadow:0 0 18px #ffc40060}
+.md-feature p{color:#c9c9d4;margin:0 0 15px;font-size:13px}
+.md-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:12px}
+.md-episode{padding:0;border:1px solid #ffffff26;border-radius:11px;overflow:hidden;background:#111521;color:#fff;text-align:left;cursor:pointer;transition:transform .18s,border-color .18s,box-shadow .18s}
+.md-episode:hover,.md-episode:focus-visible{transform:translateY(-3px);border-color:#ffe65c;box-shadow:0 7px 24px #0008,0 0 15px #ffc40022}
+.md-episode-cover{position:relative;aspect-ratio:16/9;background:linear-gradient(125deg,#292236,#0a0b11);overflow:hidden}
+.md-episode-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.md-episode-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#070a10d9;border:1px solid #ffe65c9c;color:#ffe65c;box-shadow:0 0 15px #0009}
+.md-episode-meta{padding:11px 12px;display:flex;flex-direction:column;gap:5px}
+.md-episode-meta small{font:10px Consolas,monospace;letter-spacing:1.2px;color:#ffe65c}
+.md-episode-meta strong{font:700 14px Arial,sans-serif}
+@media(max-width:520px){.md-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.md-feature{padding:17px}}
+
 </style>
 <style>
 #breach-layer #breach-escape{z-index:2!important}
@@ -2526,38 +2543,62 @@ function filesApp(area){
 }
 
 
-/* MOVIE PLAYER — official Pluto TV access plus supported video links. */
+/* MOVIE PLAYER — official GLITCH Murder Drones episodes + video links. */
+const MD_EPISODES = [
+ {name:'Pilot',id:'mImFz8mkaHo'},
+ {name:'Heartbeat',id:'7z8DO1KhPFo'},
+ {name:'The Promening',id:'djsJqNAGMuY'},
+ {name:'Cabin Fever',id:'63bUBEIhpNk'},
+ {name:'Home',id:'rk0HBqSqpgg'},
+ {name:'Dead End',id:'U7i6fi3z9Nk'},
+ {name:'Mass Destruction',id:'EOqw86OGIB0'},
+ {name:'Absolute End',id:'caR9ouipm8o'}
+];
+const MD_OFFICIAL_PLAYLIST = 'https://www.youtube.com/playlist?list=PLHovnlOusNLiJz3sm0d5i2Evwa2LDLdrg';
 const GOSHA_VIDEO_FILES = [
   // {title:'My Video', file:'my-video.mp4'},
 ];
 function videoApp(area){
  area.innerHTML=`<section class="gv-player">
-  <div class="gv-head"><span>▣ GOSHA // MOVIE PLAYER</span><small>PLUTO TV + VIDEO LINKS</small></div>
-  <div class="gv-pluto"><div class="gv-pluto-heading">PLUTO TV <span>FREE MOVIES & LIVE TV</span></div>
-  <p>Browse Pluto TV's official movie library. Playback availability depends on Pluto TV and your network.</p>
-  <div class="gv-tools"><button class="primary" id="gvPlutoOpen">▶ OPEN PLUTO TV</button><button class="btn" id="gvPlutoEmbed">TRY INSIDE APP</button><button class="btn" id="gvPlutoBack" style="display:none">BACK TO VIDEO LINKS</button></div>
-  <div class="gv-muted" id="gvPlutoStatus">Pluto TV may block embedded playback. If so, use OPEN PLUTO TV.</div></div>
+  <div class="gv-head"><span>▣ GOSHA // MOVIE PLAYER</span><small>MURDER DRONES + VIDEO LINKS</small></div>
+  <div class="md-feature"><div class="md-feature-kicker">GLITCH PRODUCTIONS · COMPLETE SERIES</div><h2>MURDER DRONES</h2><p>All 8 episodes · Official GLITCH YouTube videos</p><div class="gv-tools"><button class="primary" id="mdStart">▶ WATCH EPISODE 1</button><button class="btn" id="mdOfficial">OPEN OFFICIAL PLAYLIST</button></div></div>
+  <div class="gv-tools"><input class="field" id="mdSearch" placeholder="Search episodes..." aria-label="Search Murder Drones episodes"><span class="gv-muted">SEASON 1 · 8 EPISODES</span></div>
+  <div class="md-grid" id="mdEpisodes"></div>
   <div class="gv-screen" id="gvScreen"><video id="gvMedia" playsinline preload="metadata" controls></video></div>
-  <div class="gv-muted" id="gvTitle">Paste a video link to start watching.</div>
+  <div class="gv-muted" id="gvTitle">Select an episode or paste a video link.</div>
   <div class="gv-tools"><input class="field" id="gvLink" type="url" placeholder="Paste Google, YouTube, Drive, or MP4 video URL" aria-label="Video URL" style="flex:1;min-width:170px"><button class="primary" id="gvAdd">▶ PLAY LINK</button></div>
   <div class="gv-tools"><button class="btn" id="gvPrev" title="Previous video">⏮</button><button class="btn" id="gvNext" title="Next video">⏭</button><span class="gv-muted" id="gvTime">0:00 / 0:00</span><input class="gv-seek" id="gvSeek" aria-label="Video position" type="range" min="0" max="100" value="0" step="0.1"><button class="btn" id="gvFull">⛶ FULLSCREEN</button></div>
   <div class="gv-tools"><button class="btn" id="gvPickButton">＋ OPEN VIDEO FILES</button><input id="gvPick" type="file" accept="video/*,.mp4,.webm,.ogv" multiple hidden><span class="gv-muted">YouTube, Google Drive, Google redirect, or direct video URLs; local files stay on your device</span></div>
   <div class="gv-muted">VIDEO PLAYLIST</div><div id="gvLibrary" class="gv-library"></div>
-  <div class="gv-muted" id="gvStatus">Paste a link and press PLAY LINK. Some websites do not allow embedding.</div>
+  <div class="gv-muted" id="gvStatus">Choose a Murder Drones episode above or paste a supported video link. YouTube embedding and school network rules still apply.</div>
  </section>`;
  const q=id=>area.querySelector('#'+id),video=q('gvMedia'),screen=q('gvScreen'),library=q('gvLibrary');
- const plutoURL='https://pluto.tv/';
- q('gvPlutoOpen').onclick=()=>window.open(plutoURL,'_blank','noopener,noreferrer');
- q('gvPlutoEmbed').onclick=()=>{
-   video.pause();video.style.display='none';
-   screen.querySelector('iframe')?.remove();
-   const frame=document.createElement('iframe');frame.src=plutoURL;frame.title='Pluto TV official website';
-   frame.allow='autoplay; fullscreen; picture-in-picture';frame.allowFullscreen=true;
-   frame.style.cssText='width:100%;height:100%;min-height:220px;border:0;background:#000';
-   screen.append(frame);q('gvPlutoBack').style.display='inline-block';
-   q('gvPlutoStatus').textContent='If the screen is blank or blocked, Pluto TV does not allow embedding here. Use OPEN PLUTO TV instead.';
- };
- q('gvPlutoBack').onclick=()=>{screen.querySelector('iframe')?.remove();video.style.display='block';q('gvPlutoBack').style.display='none';q('gvPlutoStatus').textContent='Returned to video links.';};
+ const mdGrid=q('mdEpisodes');
+ function renderMDEpisodes(filter=''){
+  mdGrid.replaceChildren();
+  MD_EPISODES.forEach((ep,i)=>{
+   if(!(ep.name+' episode '+(i+1)).toLowerCase().includes(filter.toLowerCase()))return;
+   const card=document.createElement('button');card.type='button';card.className='md-episode';
+   const cover=document.createElement('div');cover.className='md-episode-cover';
+   const img=document.createElement('img');img.src='https://i.ytimg.com/vi/'+ep.id+'/hqdefault.jpg';img.alt='Episode '+(i+1)+' thumbnail';img.loading='lazy';
+   const play=document.createElement('span');play.className='md-episode-play';play.textContent='▶';cover.append(img,play);
+   const meta=document.createElement('div');meta.className='md-episode-meta';
+   const number=document.createElement('small');number.textContent='EPISODE '+String(i+1).padStart(2,'0');
+   const title=document.createElement('strong');title.textContent=ep.name;meta.append(number,title);
+   card.append(cover,meta);card.onclick=()=>watchMD(i);mdGrid.append(card);
+  });
+  if(!mdGrid.childElementCount){const empty=document.createElement('p');empty.className='gv-muted';empty.textContent='No matching episodes.';mdGrid.append(empty)}
+ }
+ function watchMD(i){
+  const ep=MD_EPISODES[i];if(!ep)return;
+  entries.push({title:'Murder Drones · Episode '+(i+1)+': '+ep.name,kind:'youtube',src:'https://www.youtube-nocookie.com/embed/'+ep.id+'?autoplay=1&rel=0',source:'GLITCH OFFICIAL'});
+  select(entries.length-1);
+  q('gvStatus').textContent='Official GLITCH YouTube embed. If blocked by your network, use the official playlist link.';
+ }
+ q('mdStart').onclick=()=>watchMD(0);
+ q('mdOfficial').onclick=()=>window.open(MD_OFFICIAL_PLAYLIST,'_blank','noopener,noreferrer');
+ q('mdSearch').oninput=e=>renderMDEpisodes(e.target.value.trim());
+ renderMDEpisodes();
  let entries=GOSHA_VIDEO_FILES.map(v=>({title:v.title||v.file,src:'Videos/'+encodeURIComponent(v.file),kind:'direct',source:'GITHUB'})),index=-1;
  const urls=[];
  const fmt=n=>Number.isFinite(n)?Math.floor(n/60)+':'+String(Math.floor(n%60)).padStart(2,'0'):'0:00';
