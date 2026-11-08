@@ -2663,17 +2663,45 @@ const GOSHA_MUSIC_TRACKS = [
 ];
 function musicApp(area){
  area.innerHTML=`<section class="gm-player">
-  <div class="gm-heading"><span>♫ GOSHA // MUSIC</span><small>GITHUB LIBRARY • 4 TRACKS</small></div>
+  <div class="gm-heading"><span>♫ GOSHA // MUSIC</span><small>GITHUB MUSIC LIBRARY</small></div>
   <div class="gm-now"><div class="gm-cover">♫</div><div class="gm-info"><span class="gm-overline">NOW PLAYING</span><strong id="gmTitle">Choose a track</strong><span id="gmArtist">Your music collection</span></div></div>
   <div class="gm-progress"><span id="gmCurrent">0:00</span><input aria-label="Seek playback position" id="gmSeek" type="range" min="0" max="100" value="0" step="0.1"><span id="gmDuration">0:00</span></div>
   <div class="gm-controls"><button class="btn" id="gmShuffle" title="Shuffle" aria-label="Shuffle">⇄</button><button class="btn" id="gmPrev" aria-label="Previous song">⏮</button><button class="primary gm-play" id="gmPlay" aria-label="Play or pause">▶</button><button class="btn" id="gmNext" aria-label="Next song">⏭</button><button class="btn" id="gmRepeat" title="Repeat off" aria-label="Repeat">↻</button></div>
   <div class="gm-volume"><span>🔊 VOLUME</span><input id="gmVolume" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="Volume"><span id="gmVolumeValue">80%</span></div>
-  <div class="gm-library-title">TRACK LIBRARY <span>04 FILES</span></div><div id="gmTracks" class="gm-tracks"></div>
+  <div class="gm-library-title">TRACK LIBRARY <span id="gmCount">04 FILES</span></div><div id="gmTracks" class="gm-tracks"></div>
+  <div class="row" style="flex-wrap:wrap"><button class="btn" id="gmRefresh" type="button">↻ Refresh GitHub Songs</button><span class="muted" id="gmSource">Built-in songs ready</span></div>
   <p class="gm-status" id="gmStatus">Select a song to start listening.</p>
   <audio id="gmAudio" preload="metadata"></audio>
  </section>`;
  const q=id=>area.querySelector('#'+id),audio=q('gmAudio');
  const tracks=GOSHA_MUSIC_TRACKS.map(t=>({...t,url:'Music/'+encodeURIComponent(t.file)}));
+ const initialFiles=new Set(tracks.map(t=>t.file.toLowerCase()));
+ async function refreshGitHubSongs(){
+  const refresh=q('gmRefresh');refresh.disabled=true;
+  q('gmSource').textContent='Checking Music/tracks.json…';
+  try{
+   const response=await fetch('Music/tracks.json?refresh='+Date.now(),{cache:'no-store'});
+   if(!response.ok)throw new Error('HTTP '+response.status);
+   const list=await response.json();
+   if(!Array.isArray(list))throw new Error('tracks.json must contain a JSON array');
+   const added=[];const seen=new Set(initialFiles);
+   for(const entry of list){
+    if(!entry||typeof entry.file!=='string')continue;
+    const file=entry.file.trim();
+    if(!file||file.includes('/')||file.includes('\\')||file==='.'||file==='..')continue;
+    const key=file.toLowerCase();if(seen.has(key))continue;seen.add(key);
+    added.push({title:String(entry.title||file.replace(/\.mp3$/i,'')).slice(0,100),artist:String(entry.artist||'GitHub Music').slice(0,100),file,url:'Music/'+encodeURIComponent(file)});
+   }
+   tracks.splice(GOSHA_MUSIC_TRACKS.length,tracks.length-GOSHA_MUSIC_TRACKS.length,...added);
+   q('gmSource').textContent='GitHub playlist loaded';
+   status('Loaded '+added.length+' additional song'+(added.length===1?'':'s')+' from GitHub.');
+   render();
+  }catch(error){
+   q('gmSource').textContent='Playlist unavailable';
+   status('Could not load Music/tracks.json: '+error.message+'. Built-in songs still work.');
+  }finally{refresh.disabled=false}
+ }
+ q('gmRefresh').onclick=refreshGitHubSongs;
  let index=-1,shuffle=false,repeat=0,seeking=false;
  const time=n=>Number.isFinite(n)?`${Math.floor(n/60)}:${String(Math.floor(n%60)).padStart(2,'0')}`:'0:00';
  const status=message=>{q('gmStatus').textContent=message};
@@ -2683,6 +2711,7 @@ function musicApp(area){
   q('gmArtist').textContent=index>=0?tracks[index].artist:'Your music collection';
   q('gmPlay').textContent=!audio.paused?'Ⅱ':'▶';
   q('gmPlay').setAttribute('aria-label',audio.paused?'Play':'Pause');
+  q('gmCount').textContent=String(tracks.length).padStart(2,'0')+' FILES';
   q('gmTracks').replaceChildren();
   tracks.forEach((track,i)=>{
    const button=document.createElement('button');button.type='button';button.className='gm-track'+(index===i?' selected':'');
@@ -2723,7 +2752,7 @@ function musicApp(area){
  audio.onplay=()=>{status('Now playing');render()};audio.onpause=()=>render();audio.onended=()=>next(1,true);
  audio.onerror=()=>{if(index>=0)status('Cannot load Music/'+tracks[index].file+' — check its exact GitHub filename and publishing rights.')};
  const observer=new MutationObserver(()=>{if(!area.isConnected){audio.pause();audio.removeAttribute('src');audio.load();observer.disconnect()}});
- observer.observe(document.body,{childList:true,subtree:true});render();
+ observer.observe(document.body,{childList:true,subtree:true});render();refreshGitHubSongs();
 }
 
 /* PERSISTENT NOTES */
