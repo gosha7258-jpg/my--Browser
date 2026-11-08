@@ -1229,6 +1229,25 @@ body.lore-null-active #solver-glitch.active::before{background:repeating-linear-
 .md-episode-meta strong{font:700 14px Arial,sans-serif}
 @media(max-width:520px){.md-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.md-feature{padding:17px}}
 
+
+/* Movie Player: the video itself occupies the entire app content. */
+.window[data-app="video"] .window-content.movie-only-content {
+  padding:0!important;
+  margin:0!important;
+  gap:0!important;
+  overflow:hidden!important;
+  background:#000!important;
+}
+.movie-only-video {
+  display:block;
+  width:100%;
+  height:100%;
+  flex:1;
+  min-height:0;
+  object-fit:contain;
+  background:#000;
+}
+
 </style>
 <style>
 #breach-layer #breach-escape{z-index:2!important}
@@ -2199,7 +2218,7 @@ function openApp(id) {
   if (id === "chat") globalChatApp(area);
   if (id === "updates") updatesApp(area);
   if (id === "chess") chessApp(area);
-  addAppSidebar(area,id);
+  if (id !== "video") addAppSidebar(area,id);
   launchAppGlitch(newWindow, () => {newWindow.classList.remove("app-awaiting-glitch");syncNullAtmosphere();});
 }
 
@@ -2543,115 +2562,24 @@ function filesApp(area){
 }
 
 
-/* MOVIE PLAYER — official GLITCH Murder Drones episodes + video links. */
-const MD_EPISODES = [
- {name:'Pilot',id:'mImFz8mkaHo'},
- {name:'Heartbeat',id:'7z8DO1KhPFo'},
- {name:'The Promening',id:'djsJqNAGMuY'},
- {name:'Cabin Fever',id:'63bUBEIhpNk'},
- {name:'Home',id:'rk0HBqSqpgg'},
- {name:'Dead End',id:'U7i6fi3z9Nk'},
- {name:'Mass Destruction',id:'EOqw86OGIB0'},
- {name:'Absolute End',id:'caR9ouipm8o'}
-];
-const MD_OFFICIAL_PLAYLIST = 'https://www.youtube.com/playlist?list=PLHovnlOusNLiJz3sm0d5i2Evwa2LDLdrg';
-const GOSHA_VIDEO_FILES = [
-  // {title:'My Video', file:'my-video.mp4'},
-];
+/* MOVIE PLAYER — single looping video, no library or extra interface. */
 function videoApp(area){
- area.innerHTML=`<section class="gv-player">
-  <div class="gv-head"><span>▣ GOSHA // MOVIE PLAYER</span><small>FEATURED LOOP + VIDEO LINKS</small></div>
-  <div class="md-feature"><div class="md-feature-kicker">GLITCH PRODUCTIONS · COMPLETE SERIES</div><h2>MURDER DRONES</h2><p>All 8 episodes · Official GLITCH YouTube videos</p><div class="gv-tools"><button class="primary" id="mdStart">▶ WATCH EPISODE 1</button><button class="btn" id="mdOfficial">OPEN OFFICIAL PLAYLIST</button></div></div>
-  <div class="gv-tools"><input class="field" id="mdSearch" placeholder="Search episodes..." aria-label="Search Murder Drones episodes"><span class="gv-muted">SEASON 1 · 8 EPISODES</span></div>
-  <div class="md-grid" id="mdEpisodes"></div>
-  <div class="gv-screen" id="gvScreen"><video id="gvMedia" playsinline preload="metadata" controls></video></div>
-  <div class="gv-muted" id="gvTitle">Featured video plays on a loop when Movie Player opens.</div>
-  <div class="gv-tools"><input class="field" id="gvLink" type="url" placeholder="Paste Google, YouTube, Drive, or MP4 video URL" aria-label="Video URL" style="flex:1;min-width:170px"><button class="primary" id="gvAdd">▶ PLAY LINK</button></div>
-  <div class="gv-tools"><button class="btn" id="gvPrev" title="Previous video">⏮</button><button class="btn" id="gvNext" title="Next video">⏭</button><span class="gv-muted" id="gvTime">0:00 / 0:00</span><input class="gv-seek" id="gvSeek" aria-label="Video position" type="range" min="0" max="100" value="0" step="0.1"><button class="btn" id="gvFull">⛶ FULLSCREEN</button></div>
-  <div class="gv-tools"><button class="btn" id="gvPickButton">＋ OPEN VIDEO FILES</button><input id="gvPick" type="file" accept="video/*,.mp4,.webm,.ogv" multiple hidden><span class="gv-muted">YouTube, Google Drive, Google redirect, or direct video URLs; local files stay on your device</span></div>
-  <div class="gv-muted">VIDEO PLAYLIST</div><div id="gvLibrary" class="gv-library"></div>
-  <div class="gv-muted" id="gvStatus">Your featured video starts automatically and loops. If autoplay is blocked, press Play.</div>
- </section>`;
- const q=id=>area.querySelector('#'+id),video=q('gvMedia'),screen=q('gvScreen'),library=q('gvLibrary');
- const mdGrid=q('mdEpisodes');
- function renderMDEpisodes(filter=''){
-  mdGrid.replaceChildren();
-  MD_EPISODES.forEach((ep,i)=>{
-   if(!(ep.name+' episode '+(i+1)).toLowerCase().includes(filter.toLowerCase()))return;
-   const card=document.createElement('button');card.type='button';card.className='md-episode';
-   const cover=document.createElement('div');cover.className='md-episode-cover';
-   const img=document.createElement('img');img.src='https://i.ytimg.com/vi/'+ep.id+'/hqdefault.jpg';img.alt='Episode '+(i+1)+' thumbnail';img.loading='lazy';
-   const play=document.createElement('span');play.className='md-episode-play';play.textContent='▶';cover.append(img,play);
-   const meta=document.createElement('div');meta.className='md-episode-meta';
-   const number=document.createElement('small');number.textContent='EPISODE '+String(i+1).padStart(2,'0');
-   const title=document.createElement('strong');title.textContent=ep.name;meta.append(number,title);
-   card.append(cover,meta);card.onclick=()=>watchMD(i);mdGrid.append(card);
+  area.classList.add('movie-only-content');
+  area.innerHTML = `<video class="movie-only-video" autoplay muted loop playsinline controls preload="auto" aria-label="Movie Player video">
+    <source src="movie-loop.mp4" type="video/mp4">
+    Your browser does not support MP4 video playback.
+  </video>`;
+  const video = area.querySelector('video');
+  video.play().catch(() => {
+    // Some browsers require the viewer to press Play even for muted video.
   });
-  if(!mdGrid.childElementCount){const empty=document.createElement('p');empty.className='gv-muted';empty.textContent='No matching episodes.';mdGrid.append(empty)}
- }
- function watchMD(i){
-  const ep=MD_EPISODES[i];if(!ep)return;
-  entries.push({title:'Murder Drones · Episode '+(i+1)+': '+ep.name,kind:'youtube',src:'https://www.youtube-nocookie.com/embed/'+ep.id+'?autoplay=1&rel=0',source:'GLITCH OFFICIAL'});
-  select(entries.length-1);
-  q('gvStatus').textContent='Official GLITCH YouTube embed. If blocked by your network, use the official playlist link.';
- }
- q('mdStart').onclick=()=>watchMD(0);
- q('mdOfficial').onclick=()=>window.open(MD_OFFICIAL_PLAYLIST,'_blank','noopener,noreferrer');
- q('mdSearch').oninput=e=>renderMDEpisodes(e.target.value.trim());
- renderMDEpisodes();
- let entries=[{title:'Featured Loop',src:'movie-loop.mp4',kind:'direct',source:'GITHUB',repeat:true},...GOSHA_VIDEO_FILES.map(v=>({title:v.title||v.file,src:'Videos/'+encodeURIComponent(v.file),kind:'direct',source:'GITHUB'}))],index=-1;
- const urls=[];
- const fmt=n=>Number.isFinite(n)?Math.floor(n/60)+':'+String(Math.floor(n%60)).padStart(2,'0'):'0:00';
- function parseLink(raw){
-  let url;try{url=new URL(raw.trim())}catch{return null}
-  if(!['https:','http:'].includes(url.protocol))return null;
-  const host=url.hostname.toLowerCase().replace(/^www\./,'');
-  // Google Search sometimes wraps a real video address in /url?url=... or /url?q=...
-  if((host==='google.com'||host.endsWith('.google.com'))&&url.pathname==='/url'){
-   const target=url.searchParams.get('url')||url.searchParams.get('q');
-   if(target&&target!==raw&&/^https?:\/\//i.test(target))return parseLink(target);
-  }
-  // Google Drive shared video links can be embedded using Drive's preview player.
-  if(host==='drive.google.com'){
-   const match=url.pathname.match(/^\/file\/d\/([a-zA-Z0-9_-]+)/);
-   const driveId=(match&&match[1])||(url.pathname==='/open'||url.pathname==='/uc'?url.searchParams.get('id'):null);
-   if(driveId&&/^[a-zA-Z0-9_-]+$/.test(driveId))return {kind:'embed',src:'https://drive.google.com/file/d/'+encodeURIComponent(driveId)+'/preview',title:'Google Drive video',source:'GOOGLE DRIVE'};
-  }
-  let id=null;
-  if(host==='youtu.be')id=url.pathname.split('/')[1];
-  else if(host==='youtube.com'||host==='m.youtube.com'||host==='music.youtube.com'){
-   if(url.pathname==='/watch')id=url.searchParams.get('v');
-   else if(/^\/(shorts|embed|live)\//.test(url.pathname))id=url.pathname.split('/')[2];
-  }
-  if(id&&/^[a-zA-Z0-9_-]{11}$/.test(id))return {kind:'youtube',src:'https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0',title:'YouTube · '+id,source:'YOUTUBE'};
-  if(/\.(mp4|webm|ogv|ogg|m4v)$/i.test(url.pathname))return {kind:'direct',src:url.href,title:decodeURIComponent(url.pathname.split('/').pop()||'Linked video'),source:'LINK'};
-  return null;
- }
- function render(){library.replaceChildren();entries.forEach((entry,i)=>{const b=document.createElement('button');b.className='gv-entry'+(i===index?' active':'');b.textContent=(i===index?'▶  ':'▷  ')+entry.title+' · '+entry.source;b.onclick=()=>select(i);library.append(b)});if(!entries.length){const t=document.createElement('div');t.className='gv-muted';t.textContent='No videos yet. Paste a link above to start.';library.append(t)}}
- async function select(i){
-  if(i<0||i>=entries.length)return;
-  index=i;const item=entries[i];video.pause();video.loop=Boolean(item.repeat);video.removeAttribute('src');video.load();
-  const old=screen.querySelector('iframe');if(old)old.remove();
-  const isYT=item.kind==='youtube'||item.kind==='embed';video.style.display=isYT?'none':'block';
-  q('gvSeek').disabled=isYT;q('gvTime').textContent=isYT?'YouTube controls':'0:00 / 0:00';q('gvSeek').value='0';
-  q('gvTitle').textContent=item.title;render();
-  if(isYT){const frame=document.createElement('iframe');frame.src=item.src;frame.title=item.title;frame.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';frame.style.cssText='width:100%;height:100%;min-height:220px;border:0;background:#000';screen.append(frame);q('gvStatus').textContent=item.kind==='embed'?'Google Drive preview: the video must be shared with viewers.':'YouTube playback uses its embedded controls.';return;}
-  video.src=item.src;video.load();q('gvStatus').textContent='Loading video…';try{await video.play()}catch{q('gvStatus').textContent='Press play on the video to start.'}
- }
- function addLink(){const item=parseLink(q('gvLink').value);if(!item){q('gvStatus').textContent='Paste a YouTube, Google Drive, Google video redirect, or direct video-file link. Google search results and ordinary webpages cannot play directly.';return;}entries.push(item);q('gvLink').value='';select(entries.length-1)}
- q('gvAdd').onclick=addLink;q('gvLink').onkeydown=e=>{if(e.key==='Enter')addLink()};
- q('gvPickButton').onclick=()=>q('gvPick').click();
- q('gvPick').onchange=e=>{for(const file of e.target.files){if(!file.type.startsWith('video/')&&!/\.(mp4|webm|ogv)$/i.test(file.name))continue;const url=URL.createObjectURL(file);urls.push(url);entries.push({title:file.name,src:url,kind:'direct',source:'LOCAL'})}render();if(index<0&&entries.length)select(0);e.target.value=''};
- q('gvPrev').onclick=()=>{if(entries.length)select(index<=0?entries.length-1:index-1)};
- q('gvNext').onclick=()=>{if(entries.length)select((index+1)%entries.length)};
- q('gvFull').onclick=()=>{const target=screen.querySelector('iframe')||video;if(target.requestFullscreen)target.requestFullscreen().catch(()=>{q('gvStatus').textContent='Fullscreen was blocked by your browser.'})};
- video.ontimeupdate=()=>{q('gvTime').textContent=fmt(video.currentTime)+' / '+fmt(video.duration);if(Number.isFinite(video.duration)&&video.duration>0)q('gvSeek').value=String(100*video.currentTime/video.duration)};
- q('gvSeek').oninput=e=>{if(Number.isFinite(video.duration)&&video.duration>0)video.currentTime=Number(e.target.value)*video.duration/100};
- video.onended=()=>{if(entries.length>1)select((index+1)%entries.length)};
- video.onerror=()=>{q('gvStatus').textContent='This video could not load. The host may block playback, or the link may not be a direct video file.'};
- video.onplaying=()=>{q('gvStatus').textContent='Now playing.'};
- const observer=new MutationObserver(()=>{if(!area.isConnected){video.pause();const frame=screen.querySelector('iframe');if(frame)frame.remove();urls.forEach(URL.revokeObjectURL);observer.disconnect()}});
- observer.observe(document.body,{childList:true,subtree:true});render();select(0);
+  const observer = new MutationObserver(() => {
+    if (!area.isConnected) {
+      video.pause();
+      observer.disconnect();
+    }
+  });
+  observer.observe(document.body, {childList:true, subtree:true});
 }
 
 /* MUSIC PLAYER — built-in GitHub Pages library */
