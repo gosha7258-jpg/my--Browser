@@ -1206,6 +1206,12 @@ body.lore-null-active #solver-glitch.active::before{background:repeating-linear-
 .gv-entry:hover,.gv-entry.active{border-color:#ffe65c;background:#ffe65c1b}
 .gv-muted{color:#b8bdc9;font:12px Consolas,monospace}
 
+
+/* Movie Player — Pluto TV access panel */
+.gv-pluto{padding:15px;border:1px solid #ffe65c55;border-radius:12px;background:linear-gradient(135deg,#1c1827,#11131b);box-shadow:inset 0 1px #ffffff16}
+.gv-pluto-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;color:#ffe65c;font:800 18px Consolas,monospace;letter-spacing:1px}
+.gv-pluto-heading span{font:11px Consolas,monospace;color:#d0c5df}
+.gv-pluto p{color:#c9c9d4;font:13px/1.5 Arial,sans-serif;margin:8px 0 12px}
 </style>
 <style>
 #breach-layer #breach-escape{z-index:2!important}
@@ -1280,7 +1286,7 @@ const APPS = [
   ["browser", "Browser"],
   ["files", "File Explorer"],
   ["music", "Music Player"],
-  ["video", "Video Player"],
+  ["video", "Movie Player"],
   ["notesapp", "Notes"],
   ["tasks", "Task Manager"],
   ["editor", "Text Editor"],
@@ -2520,13 +2526,17 @@ function filesApp(area){
 }
 
 
-/* VIDEO PLAYER — paste direct video links or YouTube links, or open local files. */
+/* MOVIE PLAYER — official Pluto TV access plus supported video links. */
 const GOSHA_VIDEO_FILES = [
   // {title:'My Video', file:'my-video.mp4'},
 ];
 function videoApp(area){
  area.innerHTML=`<section class="gv-player">
-  <div class="gv-head"><span>▣ GOSHA // VIDEO</span><small>LINK VIDEO PLAYER</small></div>
+  <div class="gv-head"><span>▣ GOSHA // MOVIE PLAYER</span><small>PLUTO TV + VIDEO LINKS</small></div>
+  <div class="gv-pluto"><div class="gv-pluto-heading">PLUTO TV <span>FREE MOVIES & LIVE TV</span></div>
+  <p>Browse Pluto TV's official movie library. Playback availability depends on Pluto TV and your network.</p>
+  <div class="gv-tools"><button class="primary" id="gvPlutoOpen">▶ OPEN PLUTO TV</button><button class="btn" id="gvPlutoEmbed">TRY INSIDE APP</button><button class="btn" id="gvPlutoBack" style="display:none">BACK TO VIDEO LINKS</button></div>
+  <div class="gv-muted" id="gvPlutoStatus">Pluto TV may block embedded playback. If so, use OPEN PLUTO TV.</div></div>
   <div class="gv-screen" id="gvScreen"><video id="gvMedia" playsinline preload="metadata" controls></video></div>
   <div class="gv-muted" id="gvTitle">Paste a video link to start watching.</div>
   <div class="gv-tools"><input class="field" id="gvLink" type="url" placeholder="Paste Google, YouTube, Drive, or MP4 video URL" aria-label="Video URL" style="flex:1;min-width:170px"><button class="primary" id="gvAdd">▶ PLAY LINK</button></div>
@@ -2536,6 +2546,18 @@ function videoApp(area){
   <div class="gv-muted" id="gvStatus">Paste a link and press PLAY LINK. Some websites do not allow embedding.</div>
  </section>`;
  const q=id=>area.querySelector('#'+id),video=q('gvMedia'),screen=q('gvScreen'),library=q('gvLibrary');
+ const plutoURL='https://pluto.tv/';
+ q('gvPlutoOpen').onclick=()=>window.open(plutoURL,'_blank','noopener,noreferrer');
+ q('gvPlutoEmbed').onclick=()=>{
+   video.pause();video.style.display='none';
+   screen.querySelector('iframe')?.remove();
+   const frame=document.createElement('iframe');frame.src=plutoURL;frame.title='Pluto TV official website';
+   frame.allow='autoplay; fullscreen; picture-in-picture';frame.allowFullscreen=true;
+   frame.style.cssText='width:100%;height:100%;min-height:220px;border:0;background:#000';
+   screen.append(frame);q('gvPlutoBack').style.display='inline-block';
+   q('gvPlutoStatus').textContent='If the screen is blank or blocked, Pluto TV does not allow embedding here. Use OPEN PLUTO TV instead.';
+ };
+ q('gvPlutoBack').onclick=()=>{screen.querySelector('iframe')?.remove();video.style.display='block';q('gvPlutoBack').style.display='none';q('gvPlutoStatus').textContent='Returned to video links.';};
  let entries=GOSHA_VIDEO_FILES.map(v=>({title:v.title||v.file,src:'Videos/'+encodeURIComponent(v.file),kind:'direct',source:'GITHUB'})),index=-1;
  const urls=[];
  const fmt=n=>Number.isFinite(n)?Math.floor(n/60)+':'+String(Math.floor(n%60)).padStart(2,'0'):'0:00';
