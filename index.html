@@ -2560,17 +2560,17 @@ const GOSHA_VIDEO_FILES = [
 ];
 function videoApp(area){
  area.innerHTML=`<section class="gv-player">
-  <div class="gv-head"><span>▣ GOSHA // MOVIE PLAYER</span><small>MURDER DRONES + VIDEO LINKS</small></div>
+  <div class="gv-head"><span>▣ GOSHA // MOVIE PLAYER</span><small>FEATURED LOOP + VIDEO LINKS</small></div>
   <div class="md-feature"><div class="md-feature-kicker">GLITCH PRODUCTIONS · COMPLETE SERIES</div><h2>MURDER DRONES</h2><p>All 8 episodes · Official GLITCH YouTube videos</p><div class="gv-tools"><button class="primary" id="mdStart">▶ WATCH EPISODE 1</button><button class="btn" id="mdOfficial">OPEN OFFICIAL PLAYLIST</button></div></div>
   <div class="gv-tools"><input class="field" id="mdSearch" placeholder="Search episodes..." aria-label="Search Murder Drones episodes"><span class="gv-muted">SEASON 1 · 8 EPISODES</span></div>
   <div class="md-grid" id="mdEpisodes"></div>
   <div class="gv-screen" id="gvScreen"><video id="gvMedia" playsinline preload="metadata" controls></video></div>
-  <div class="gv-muted" id="gvTitle">Select an episode or paste a video link.</div>
+  <div class="gv-muted" id="gvTitle">Featured video plays on a loop when Movie Player opens.</div>
   <div class="gv-tools"><input class="field" id="gvLink" type="url" placeholder="Paste Google, YouTube, Drive, or MP4 video URL" aria-label="Video URL" style="flex:1;min-width:170px"><button class="primary" id="gvAdd">▶ PLAY LINK</button></div>
   <div class="gv-tools"><button class="btn" id="gvPrev" title="Previous video">⏮</button><button class="btn" id="gvNext" title="Next video">⏭</button><span class="gv-muted" id="gvTime">0:00 / 0:00</span><input class="gv-seek" id="gvSeek" aria-label="Video position" type="range" min="0" max="100" value="0" step="0.1"><button class="btn" id="gvFull">⛶ FULLSCREEN</button></div>
   <div class="gv-tools"><button class="btn" id="gvPickButton">＋ OPEN VIDEO FILES</button><input id="gvPick" type="file" accept="video/*,.mp4,.webm,.ogv" multiple hidden><span class="gv-muted">YouTube, Google Drive, Google redirect, or direct video URLs; local files stay on your device</span></div>
   <div class="gv-muted">VIDEO PLAYLIST</div><div id="gvLibrary" class="gv-library"></div>
-  <div class="gv-muted" id="gvStatus">Choose a Murder Drones episode above or paste a supported video link. YouTube embedding and school network rules still apply.</div>
+  <div class="gv-muted" id="gvStatus">Your featured video starts automatically and loops. If autoplay is blocked, press Play.</div>
  </section>`;
  const q=id=>area.querySelector('#'+id),video=q('gvMedia'),screen=q('gvScreen'),library=q('gvLibrary');
  const mdGrid=q('mdEpisodes');
@@ -2599,7 +2599,7 @@ function videoApp(area){
  q('mdOfficial').onclick=()=>window.open(MD_OFFICIAL_PLAYLIST,'_blank','noopener,noreferrer');
  q('mdSearch').oninput=e=>renderMDEpisodes(e.target.value.trim());
  renderMDEpisodes();
- let entries=GOSHA_VIDEO_FILES.map(v=>({title:v.title||v.file,src:'Videos/'+encodeURIComponent(v.file),kind:'direct',source:'GITHUB'})),index=-1;
+ let entries=[{title:'Featured Loop',src:'movie-loop.mp4',kind:'direct',source:'GITHUB',repeat:true},...GOSHA_VIDEO_FILES.map(v=>({title:v.title||v.file,src:'Videos/'+encodeURIComponent(v.file),kind:'direct',source:'GITHUB'}))],index=-1;
  const urls=[];
  const fmt=n=>Number.isFinite(n)?Math.floor(n/60)+':'+String(Math.floor(n%60)).padStart(2,'0'):'0:00';
  function parseLink(raw){
@@ -2630,7 +2630,7 @@ function videoApp(area){
  function render(){library.replaceChildren();entries.forEach((entry,i)=>{const b=document.createElement('button');b.className='gv-entry'+(i===index?' active':'');b.textContent=(i===index?'▶  ':'▷  ')+entry.title+' · '+entry.source;b.onclick=()=>select(i);library.append(b)});if(!entries.length){const t=document.createElement('div');t.className='gv-muted';t.textContent='No videos yet. Paste a link above to start.';library.append(t)}}
  async function select(i){
   if(i<0||i>=entries.length)return;
-  index=i;const item=entries[i];video.pause();video.removeAttribute('src');video.load();
+  index=i;const item=entries[i];video.pause();video.loop=Boolean(item.repeat);video.removeAttribute('src');video.load();
   const old=screen.querySelector('iframe');if(old)old.remove();
   const isYT=item.kind==='youtube'||item.kind==='embed';video.style.display=isYT?'none':'block';
   q('gvSeek').disabled=isYT;q('gvTime').textContent=isYT?'YouTube controls':'0:00 / 0:00';q('gvSeek').value='0';
@@ -2651,7 +2651,7 @@ function videoApp(area){
  video.onerror=()=>{q('gvStatus').textContent='This video could not load. The host may block playback, or the link may not be a direct video file.'};
  video.onplaying=()=>{q('gvStatus').textContent='Now playing.'};
  const observer=new MutationObserver(()=>{if(!area.isConnected){video.pause();const frame=screen.querySelector('iframe');if(frame)frame.remove();urls.forEach(URL.revokeObjectURL);observer.disconnect()}});
- observer.observe(document.body,{childList:true,subtree:true});render();
+ observer.observe(document.body,{childList:true,subtree:true});render();select(0);
 }
 
 /* MUSIC PLAYER — built-in GitHub Pages library */
@@ -2752,7 +2752,7 @@ function musicApp(area){
  audio.onplay=()=>{status('Now playing');render()};audio.onpause=()=>render();audio.onended=()=>next(1,true);
  audio.onerror=()=>{if(index>=0)status('Cannot load Music/'+tracks[index].file+' — check its exact GitHub filename and publishing rights.')};
  const observer=new MutationObserver(()=>{if(!area.isConnected){audio.pause();audio.removeAttribute('src');audio.load();observer.disconnect()}});
- observer.observe(document.body,{childList:true,subtree:true});render();refreshGitHubSongs();
+ observer.observe(document.body,{childList:true,subtree:true});render();select(0);refreshGitHubSongs();
 }
 
 /* PERSISTENT NOTES */
