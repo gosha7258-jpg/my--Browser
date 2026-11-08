@@ -2680,7 +2680,7 @@ function musicApp(area){
  audio.onplay=()=>{status('Now playing');render()};audio.onpause=()=>render();audio.onended=()=>next(1,true);
  audio.onerror=()=>{if(index>=0)status('Cannot load Music/'+tracks[index].file+' — check its exact GitHub filename and publishing rights.')};
  const observer=new MutationObserver(()=>{if(!area.isConnected){audio.pause();audio.removeAttribute('src');audio.load();observer.disconnect()}});
- observer.observe(document.body,{childList:true,subtree:true});render();select(0);refreshGitHubSongs();
+ observer.observe(document.body,{childList:true,subtree:true});render();load(0,false);refreshGitHubSongs();
 }
 
 /* PERSISTENT NOTES */
