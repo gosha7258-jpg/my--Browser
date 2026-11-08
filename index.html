@@ -2520,40 +2520,64 @@ function filesApp(area){
 }
 
 
-/* VIDEO PLAYER — local files or videos hosted in the GitHub Videos/ folder.
-   To publish a video, upload it to Videos/ and add its filename below. */
+/* VIDEO PLAYER — paste direct video links or YouTube links, or open local files. */
 const GOSHA_VIDEO_FILES = [
   // {title:'My Video', file:'my-video.mp4'},
 ];
 function videoApp(area){
  area.innerHTML=`<section class="gv-player">
-  <div class="gv-head"><span>▣ GOSHA // VIDEO</span><small>GITHUB VIDEO LIBRARY</small></div>
-  <div class="gv-screen"><video id="gvMedia" playsinline preload="metadata" controls></video></div>
-  <div class="gv-muted" id="gvTitle">Choose a video from your library or computer.</div>
-  <div class="gv-tools"><button class="btn" id="gvPrev" title="Previous video">⏮</button><button class="btn" id="gvNext" title="Next video">⏭</button><span class="gv-muted" id="gvTime">0:00 / 0:00</span><input class="gv-seek" id="gvSeek" aria-label="Video position" type="range" min="0" max="100" value="0" step="0.1"><button class="btn" id="gvFull">⛶ VIDEO FULLSCREEN</button></div>
-  <div class="gv-tools"><button class="btn" id="gvPickButton">＋ OPEN VIDEO FILES</button><input id="gvPick" type="file" accept="video/*,.mp4,.webm,.ogv" multiple hidden><span class="gv-muted">MP4 / WEBM · local files stay on your device</span></div>
-  <div class="gv-muted">VIDEO LIBRARY</div><div id="gvLibrary" class="gv-library"></div>
-  <div class="gv-muted" id="gvStatus">GitHub videos go in Videos/ and must be listed in GOSHA_VIDEO_FILES.</div>
+  <div class="gv-head"><span>▣ GOSHA // VIDEO</span><small>LINK VIDEO PLAYER</small></div>
+  <div class="gv-screen" id="gvScreen"><video id="gvMedia" playsinline preload="metadata" controls></video></div>
+  <div class="gv-muted" id="gvTitle">Paste a video link to start watching.</div>
+  <div class="gv-tools"><input class="field" id="gvLink" type="url" placeholder="Paste YouTube or direct MP4 / WebM URL" aria-label="Video URL" style="flex:1;min-width:170px"><button class="primary" id="gvAdd">▶ PLAY LINK</button></div>
+  <div class="gv-tools"><button class="btn" id="gvPrev" title="Previous video">⏮</button><button class="btn" id="gvNext" title="Next video">⏭</button><span class="gv-muted" id="gvTime">0:00 / 0:00</span><input class="gv-seek" id="gvSeek" aria-label="Video position" type="range" min="0" max="100" value="0" step="0.1"><button class="btn" id="gvFull">⛶ FULLSCREEN</button></div>
+  <div class="gv-tools"><button class="btn" id="gvPickButton">＋ OPEN VIDEO FILES</button><input id="gvPick" type="file" accept="video/*,.mp4,.webm,.ogv" multiple hidden><span class="gv-muted">YouTube links or direct MP4 / WebM URLs; local files stay on your device</span></div>
+  <div class="gv-muted">VIDEO PLAYLIST</div><div id="gvLibrary" class="gv-library"></div>
+  <div class="gv-muted" id="gvStatus">Paste a link and press PLAY LINK. Some websites do not allow embedding.</div>
  </section>`;
- const q=id=>area.querySelector('#'+id),video=q('gvMedia'),library=q('gvLibrary');
- let entries=GOSHA_VIDEO_FILES.map(v=>({title:v.title||v.file,src:'Videos/'+encodeURIComponent(v.file),local:false})),index=-1;
+ const q=id=>area.querySelector('#'+id),video=q('gvMedia'),screen=q('gvScreen'),library=q('gvLibrary');
+ let entries=GOSHA_VIDEO_FILES.map(v=>({title:v.title||v.file,src:'Videos/'+encodeURIComponent(v.file),kind:'direct',source:'GITHUB'})),index=-1;
  const urls=[];
  const fmt=n=>Number.isFinite(n)?Math.floor(n/60)+':'+String(Math.floor(n%60)).padStart(2,'0'):'0:00';
- function render(){library.replaceChildren();entries.forEach((entry,i)=>{const b=document.createElement('button');b.className='gv-entry'+(i===index?' active':'');b.textContent=(i===index?'▶  ':'▷  ')+entry.title+(entry.local?' · LOCAL':' · GITHUB');b.onclick=()=>select(i);library.append(b)});if(!entries.length){const t=document.createElement('div');t.className='gv-muted';t.textContent='No videos added yet. Open a video file or upload MP4s to GitHub.';library.append(t)}}
- async function select(i){if(i<0||i>=entries.length)return;index=i;const item=entries[i];video.src=item.src;video.load();q('gvTitle').textContent=item.title;q('gvStatus').textContent=item.local?'Playing from your device.':'Loading video from GitHub Pages…';render();try{await video.play()}catch{q('gvStatus').textContent='Press play to start the video.'}}
+ function parseLink(raw){
+  let url;try{url=new URL(raw.trim())}catch{return null}
+  if(!['https:','http:'].includes(url.protocol))return null;
+  const host=url.hostname.toLowerCase().replace(/^www\./,'');
+  let id=null;
+  if(host==='youtu.be')id=url.pathname.split('/')[1];
+  else if(host==='youtube.com'||host==='m.youtube.com'||host==='music.youtube.com'){
+   if(url.pathname==='/watch')id=url.searchParams.get('v');
+   else if(/^\/(shorts|embed|live)\//.test(url.pathname))id=url.pathname.split('/')[2];
+  }
+  if(id&&/^[a-zA-Z0-9_-]{11}$/.test(id))return {kind:'youtube',src:'https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0',title:'YouTube · '+id,source:'YOUTUBE'};
+  if(/\.(mp4|webm|ogv|ogg|m4v)$/i.test(url.pathname))return {kind:'direct',src:url.href,title:decodeURIComponent(url.pathname.split('/').pop()||'Linked video'),source:'LINK'};
+  return null;
+ }
+ function render(){library.replaceChildren();entries.forEach((entry,i)=>{const b=document.createElement('button');b.className='gv-entry'+(i===index?' active':'');b.textContent=(i===index?'▶  ':'▷  ')+entry.title+' · '+entry.source;b.onclick=()=>select(i);library.append(b)});if(!entries.length){const t=document.createElement('div');t.className='gv-muted';t.textContent='No videos yet. Paste a link above to start.';library.append(t)}}
+ async function select(i){
+  if(i<0||i>=entries.length)return;
+  index=i;const item=entries[i];video.pause();video.removeAttribute('src');video.load();
+  const old=screen.querySelector('iframe');if(old)old.remove();
+  const isYT=item.kind==='youtube';video.style.display=isYT?'none':'block';
+  q('gvSeek').disabled=isYT;q('gvTime').textContent=isYT?'YouTube controls':'0:00 / 0:00';q('gvSeek').value='0';
+  q('gvTitle').textContent=item.title;render();
+  if(isYT){const frame=document.createElement('iframe');frame.src=item.src;frame.title=item.title;frame.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';frame.style.cssText='width:100%;height:100%;min-height:220px;border:0;background:#000';screen.append(frame);q('gvStatus').textContent='YouTube playback uses its embedded controls.';return;}
+  video.src=item.src;video.load();q('gvStatus').textContent='Loading video…';try{await video.play()}catch{q('gvStatus').textContent='Press play on the video to start.'}
+ }
+ function addLink(){const item=parseLink(q('gvLink').value);if(!item){q('gvStatus').textContent='Enter a valid YouTube link or a direct .mp4, .webm, .ogv, .ogg, or .m4v URL. Regular webpage links cannot play directly.';return;}entries.push(item);q('gvLink').value='';select(entries.length-1)}
+ q('gvAdd').onclick=addLink;q('gvLink').onkeydown=e=>{if(e.key==='Enter')addLink()};
  q('gvPickButton').onclick=()=>q('gvPick').click();
- q('gvPick').onchange=e=>{for(const file of e.target.files){if(!file.type.startsWith('video/')&&!/\.(mp4|webm|ogv)$/i.test(file.name))continue;const url=URL.createObjectURL(file);urls.push(url);entries.push({title:file.name,src:url,local:true})}render();if(index<0&&entries.length)select(0);e.target.value=''};
+ q('gvPick').onchange=e=>{for(const file of e.target.files){if(!file.type.startsWith('video/')&&!/\.(mp4|webm|ogv)$/i.test(file.name))continue;const url=URL.createObjectURL(file);urls.push(url);entries.push({title:file.name,src:url,kind:'direct',source:'LOCAL'})}render();if(index<0&&entries.length)select(0);e.target.value=''};
  q('gvPrev').onclick=()=>{if(entries.length)select(index<=0?entries.length-1:index-1)};
  q('gvNext').onclick=()=>{if(entries.length)select((index+1)%entries.length)};
- q('gvFull').onclick=()=>{if(video.requestFullscreen)video.requestFullscreen().catch(()=>{q('gvStatus').textContent='Fullscreen was blocked by your browser.'})};
+ q('gvFull').onclick=()=>{const target=screen.querySelector('iframe')||video;if(target.requestFullscreen)target.requestFullscreen().catch(()=>{q('gvStatus').textContent='Fullscreen was blocked by your browser.'})};
  video.ontimeupdate=()=>{q('gvTime').textContent=fmt(video.currentTime)+' / '+fmt(video.duration);if(Number.isFinite(video.duration)&&video.duration>0)q('gvSeek').value=String(100*video.currentTime/video.duration)};
  q('gvSeek').oninput=e=>{if(Number.isFinite(video.duration)&&video.duration>0)video.currentTime=Number(e.target.value)*video.duration/100};
  video.onended=()=>{if(entries.length>1)select((index+1)%entries.length)};
- video.onerror=()=>{q('gvStatus').textContent='Could not load this video. Check the filename, GitHub folder, and format.'};
+ video.onerror=()=>{q('gvStatus').textContent='This video could not load. The host may block playback, or the link may not be a direct video file.'};
  video.onplaying=()=>{q('gvStatus').textContent='Now playing.'};
- const observer=new MutationObserver(()=>{if(!area.isConnected){video.pause();urls.forEach(URL.revokeObjectURL);observer.disconnect()}});
- observer.observe(document.body,{childList:true,subtree:true});
- render();
+ const observer=new MutationObserver(()=>{if(!area.isConnected){video.pause();const frame=screen.querySelector('iframe');if(frame)frame.remove();urls.forEach(URL.revokeObjectURL);observer.disconnect()}});
+ observer.observe(document.body,{childList:true,subtree:true});render();
 }
 
 /* MUSIC PLAYER — built-in GitHub Pages library */
