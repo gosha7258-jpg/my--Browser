@@ -1190,6 +1190,22 @@ body.lore-null-active #solver-glitch.active::before{background:repeating-linear-
 .gm-tracks{display:flex;flex-direction:column;gap:7px}.gm-track{width:100%;display:flex;align-items:center;gap:14px;text-align:left;color:#e8e8ef;background:#151923;border:1px solid #ffffff20;border-radius:10px;padding:12px;cursor:pointer}.gm-track:hover,.gm-track.selected{border-color:#ffe65c99;background:#ffe65c14}.gm-track-number{color:#ffe65c;font-size:13px;width:20px}.gm-track-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}.gm-track-info strong{font-size:13px;overflow-wrap:anywhere}.gm-track-info small{font-size:10px;color:#aeb2c0}.gm-status{font-size:11px;color:#c2c5d0;margin:0;overflow-wrap:anywhere}
 @media(max-width:550px){.gm-heading{flex-wrap:wrap}.gm-now{padding:12px;gap:10px}.gm-cover{width:70px;height:70px;font-size:35px}.gm-controls{gap:6px}.gm-controls button{min-width:36px;padding:8px}}
 
+
+/* GOSHA VIDEO PLAYER */
+.gv-player{display:flex;flex-direction:column;gap:12px;min-height:0;height:100%;color:#f4f2df}
+.gv-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;color:#ffe65c;font:700 15px Consolas,monospace}
+.gv-head small{font-size:10px;color:#b5b8c8}
+.gv-screen{background:#030408;border:1px solid #ffe65c55;border-radius:12px;overflow:hidden;position:relative;min-height:170px;flex:1;display:flex;align-items:center;justify-content:center}
+.gv-screen video{width:100%;height:100%;max-height:100%;object-fit:contain;background:#000;display:block}
+.gv-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.gv-tools .btn,.gv-tools .primary{padding:8px 11px}
+.gv-tools input[type=range]{accent-color:#ffe65c}
+.gv-seek{flex:1;min-width:100px}
+.gv-library{max-height:135px;overflow:auto;display:grid;gap:6px}
+.gv-entry{padding:10px 12px;border:1px solid #ffffff2c;border-radius:8px;background:#141824;color:white;text-align:left;cursor:pointer;overflow-wrap:anywhere}
+.gv-entry:hover,.gv-entry.active{border-color:#ffe65c;background:#ffe65c1b}
+.gv-muted{color:#b8bdc9;font:12px Consolas,monospace}
+
 </style>
 <style>
 #breach-layer #breach-escape{z-index:2!important}
@@ -1264,6 +1280,7 @@ const APPS = [
   ["browser", "Browser"],
   ["files", "File Explorer"],
   ["music", "Music Player"],
+  ["video", "Video Player"],
   ["notesapp", "Notes"],
   ["tasks", "Task Manager"],
   ["editor", "Text Editor"],
@@ -1287,6 +1304,7 @@ const ICONS = {
   chat: '<path d="M4 4h16v12H9l-5 4V4zM8 9h8M8 12h5"/>',
   null: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/>',
   browser: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"/>',
+  video: '<rect x="2" y="4" width="20" height="16" rx="3"/><path d="m10 8 6 4-6 4z"/>',
   music: '<path d="M9 18V5l12-2v13M9 9l12-2"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
   notesapp: '<path d="M5 3h14v18H5zM8 8h8M8 12h8M8 16h6"/>',
   tasks: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M6 16l4-5 3 3 5-7"/>',
@@ -2143,6 +2161,7 @@ function openApp(id) {
   if (id === "browser") browserApp(area);
   if (id === "files") filesApp(area);
   if (id === "music") musicApp(area);
+  if (id === "video") videoApp(area);
   if (id === "notesapp") notesApp(area);
   if (id === "tasks") taskManagerApp(area);
   if (id === "editor") editorApp(area);
@@ -2498,6 +2517,43 @@ function filesApp(area){
   q('fsHome').onclick=()=>{folder='';render()};q('fsFolder').onclick=()=>{const name=prompt('New folder name:')?.trim();if(!name)return;if(fs.folders.includes(name)){alert('Folder already exists');return;}fs.folders.push(name);if(!saveFS(fs))alert('Browser storage is full');render()};q('fsFile').onclick=()=>edit(-1);
   q('fsCancel').onclick=()=>q('fsEdit').style.display='none';q('fsSave').onclick=()=>{const name=q('fsName').value.trim()||'Untitled.txt',text=q('fsText').value;if(editIndex<0)fs.files.push({folder,name,text});else Object.assign(fs.files[editIndex],{name,text});if(!saveFS(fs))alert('Could not save: browser storage may be full');q('fsEdit').style.display='none';render()};
   q('fsImport').onclick=()=>q('fsPick').click();q('fsPick').onchange=async e=>{for(const file of e.target.files){if(file.size>500000){alert('Text files must be under 500 KB');continue;}fs.files.push({folder,name:file.name,text:await file.text()});}if(!saveFS(fs))alert('Could not save imported files');render();e.target.value='';};render();
+}
+
+
+/* VIDEO PLAYER — local files or videos hosted in the GitHub Videos/ folder.
+   To publish a video, upload it to Videos/ and add its filename below. */
+const GOSHA_VIDEO_FILES = [
+  // {title:'My Video', file:'my-video.mp4'},
+];
+function videoApp(area){
+ area.innerHTML=`<section class="gv-player">
+  <div class="gv-head"><span>▣ GOSHA // VIDEO</span><small>GITHUB VIDEO LIBRARY</small></div>
+  <div class="gv-screen"><video id="gvMedia" playsinline preload="metadata" controls></video></div>
+  <div class="gv-muted" id="gvTitle">Choose a video from your library or computer.</div>
+  <div class="gv-tools"><button class="btn" id="gvPrev" title="Previous video">⏮</button><button class="btn" id="gvNext" title="Next video">⏭</button><span class="gv-muted" id="gvTime">0:00 / 0:00</span><input class="gv-seek" id="gvSeek" aria-label="Video position" type="range" min="0" max="100" value="0" step="0.1"><button class="btn" id="gvFull">⛶ VIDEO FULLSCREEN</button></div>
+  <div class="gv-tools"><button class="btn" id="gvPickButton">＋ OPEN VIDEO FILES</button><input id="gvPick" type="file" accept="video/*,.mp4,.webm,.ogv" multiple hidden><span class="gv-muted">MP4 / WEBM · local files stay on your device</span></div>
+  <div class="gv-muted">VIDEO LIBRARY</div><div id="gvLibrary" class="gv-library"></div>
+  <div class="gv-muted" id="gvStatus">GitHub videos go in Videos/ and must be listed in GOSHA_VIDEO_FILES.</div>
+ </section>`;
+ const q=id=>area.querySelector('#'+id),video=q('gvMedia'),library=q('gvLibrary');
+ let entries=GOSHA_VIDEO_FILES.map(v=>({title:v.title||v.file,src:'Videos/'+encodeURIComponent(v.file),local:false})),index=-1;
+ const urls=[];
+ const fmt=n=>Number.isFinite(n)?Math.floor(n/60)+':'+String(Math.floor(n%60)).padStart(2,'0'):'0:00';
+ function render(){library.replaceChildren();entries.forEach((entry,i)=>{const b=document.createElement('button');b.className='gv-entry'+(i===index?' active':'');b.textContent=(i===index?'▶  ':'▷  ')+entry.title+(entry.local?' · LOCAL':' · GITHUB');b.onclick=()=>select(i);library.append(b)});if(!entries.length){const t=document.createElement('div');t.className='gv-muted';t.textContent='No videos added yet. Open a video file or upload MP4s to GitHub.';library.append(t)}}
+ async function select(i){if(i<0||i>=entries.length)return;index=i;const item=entries[i];video.src=item.src;video.load();q('gvTitle').textContent=item.title;q('gvStatus').textContent=item.local?'Playing from your device.':'Loading video from GitHub Pages…';render();try{await video.play()}catch{q('gvStatus').textContent='Press play to start the video.'}}
+ q('gvPickButton').onclick=()=>q('gvPick').click();
+ q('gvPick').onchange=e=>{for(const file of e.target.files){if(!file.type.startsWith('video/')&&!/\.(mp4|webm|ogv)$/i.test(file.name))continue;const url=URL.createObjectURL(file);urls.push(url);entries.push({title:file.name,src:url,local:true})}render();if(index<0&&entries.length)select(0);e.target.value=''};
+ q('gvPrev').onclick=()=>{if(entries.length)select(index<=0?entries.length-1:index-1)};
+ q('gvNext').onclick=()=>{if(entries.length)select((index+1)%entries.length)};
+ q('gvFull').onclick=()=>{if(video.requestFullscreen)video.requestFullscreen().catch(()=>{q('gvStatus').textContent='Fullscreen was blocked by your browser.'})};
+ video.ontimeupdate=()=>{q('gvTime').textContent=fmt(video.currentTime)+' / '+fmt(video.duration);if(Number.isFinite(video.duration)&&video.duration>0)q('gvSeek').value=String(100*video.currentTime/video.duration)};
+ q('gvSeek').oninput=e=>{if(Number.isFinite(video.duration)&&video.duration>0)video.currentTime=Number(e.target.value)*video.duration/100};
+ video.onended=()=>{if(entries.length>1)select((index+1)%entries.length)};
+ video.onerror=()=>{q('gvStatus').textContent='Could not load this video. Check the filename, GitHub folder, and format.'};
+ video.onplaying=()=>{q('gvStatus').textContent='Now playing.'};
+ const observer=new MutationObserver(()=>{if(!area.isConnected){video.pause();urls.forEach(URL.revokeObjectURL);observer.disconnect()}});
+ observer.observe(document.body,{childList:true,subtree:true});
+ render();
 }
 
 /* MUSIC PLAYER — built-in GitHub Pages library */
