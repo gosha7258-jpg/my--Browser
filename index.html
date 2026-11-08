@@ -2529,9 +2529,9 @@ function videoApp(area){
   <div class="gv-head"><span>▣ GOSHA // VIDEO</span><small>LINK VIDEO PLAYER</small></div>
   <div class="gv-screen" id="gvScreen"><video id="gvMedia" playsinline preload="metadata" controls></video></div>
   <div class="gv-muted" id="gvTitle">Paste a video link to start watching.</div>
-  <div class="gv-tools"><input class="field" id="gvLink" type="url" placeholder="Paste YouTube or direct MP4 / WebM URL" aria-label="Video URL" style="flex:1;min-width:170px"><button class="primary" id="gvAdd">▶ PLAY LINK</button></div>
+  <div class="gv-tools"><input class="field" id="gvLink" type="url" placeholder="Paste Google, YouTube, Drive, or MP4 video URL" aria-label="Video URL" style="flex:1;min-width:170px"><button class="primary" id="gvAdd">▶ PLAY LINK</button></div>
   <div class="gv-tools"><button class="btn" id="gvPrev" title="Previous video">⏮</button><button class="btn" id="gvNext" title="Next video">⏭</button><span class="gv-muted" id="gvTime">0:00 / 0:00</span><input class="gv-seek" id="gvSeek" aria-label="Video position" type="range" min="0" max="100" value="0" step="0.1"><button class="btn" id="gvFull">⛶ FULLSCREEN</button></div>
-  <div class="gv-tools"><button class="btn" id="gvPickButton">＋ OPEN VIDEO FILES</button><input id="gvPick" type="file" accept="video/*,.mp4,.webm,.ogv" multiple hidden><span class="gv-muted">YouTube links or direct MP4 / WebM URLs; local files stay on your device</span></div>
+  <div class="gv-tools"><button class="btn" id="gvPickButton">＋ OPEN VIDEO FILES</button><input id="gvPick" type="file" accept="video/*,.mp4,.webm,.ogv" multiple hidden><span class="gv-muted">YouTube, Google Drive, Google redirect, or direct video URLs; local files stay on your device</span></div>
   <div class="gv-muted">VIDEO PLAYLIST</div><div id="gvLibrary" class="gv-library"></div>
   <div class="gv-muted" id="gvStatus">Paste a link and press PLAY LINK. Some websites do not allow embedding.</div>
  </section>`;
@@ -2543,6 +2543,17 @@ function videoApp(area){
   let url;try{url=new URL(raw.trim())}catch{return null}
   if(!['https:','http:'].includes(url.protocol))return null;
   const host=url.hostname.toLowerCase().replace(/^www\./,'');
+  // Google Search sometimes wraps a real video address in /url?url=... or /url?q=...
+  if((host==='google.com'||host.endsWith('.google.com'))&&url.pathname==='/url'){
+   const target=url.searchParams.get('url')||url.searchParams.get('q');
+   if(target&&target!==raw&&/^https?:\/\//i.test(target))return parseLink(target);
+  }
+  // Google Drive shared video links can be embedded using Drive's preview player.
+  if(host==='drive.google.com'){
+   const match=url.pathname.match(/^\/file\/d\/([a-zA-Z0-9_-]+)/);
+   const driveId=(match&&match[1])||(url.pathname==='/open'||url.pathname==='/uc'?url.searchParams.get('id'):null);
+   if(driveId&&/^[a-zA-Z0-9_-]+$/.test(driveId))return {kind:'embed',src:'https://drive.google.com/file/d/'+encodeURIComponent(driveId)+'/preview',title:'Google Drive video',source:'GOOGLE DRIVE'};
+  }
   let id=null;
   if(host==='youtu.be')id=url.pathname.split('/')[1];
   else if(host==='youtube.com'||host==='m.youtube.com'||host==='music.youtube.com'){
@@ -2558,13 +2569,13 @@ function videoApp(area){
   if(i<0||i>=entries.length)return;
   index=i;const item=entries[i];video.pause();video.removeAttribute('src');video.load();
   const old=screen.querySelector('iframe');if(old)old.remove();
-  const isYT=item.kind==='youtube';video.style.display=isYT?'none':'block';
+  const isYT=item.kind==='youtube'||item.kind==='embed';video.style.display=isYT?'none':'block';
   q('gvSeek').disabled=isYT;q('gvTime').textContent=isYT?'YouTube controls':'0:00 / 0:00';q('gvSeek').value='0';
   q('gvTitle').textContent=item.title;render();
-  if(isYT){const frame=document.createElement('iframe');frame.src=item.src;frame.title=item.title;frame.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';frame.style.cssText='width:100%;height:100%;min-height:220px;border:0;background:#000';screen.append(frame);q('gvStatus').textContent='YouTube playback uses its embedded controls.';return;}
+  if(isYT){const frame=document.createElement('iframe');frame.src=item.src;frame.title=item.title;frame.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';frame.style.cssText='width:100%;height:100%;min-height:220px;border:0;background:#000';screen.append(frame);q('gvStatus').textContent=item.kind==='embed'?'Google Drive preview: the video must be shared with viewers.':'YouTube playback uses its embedded controls.';return;}
   video.src=item.src;video.load();q('gvStatus').textContent='Loading video…';try{await video.play()}catch{q('gvStatus').textContent='Press play on the video to start.'}
  }
- function addLink(){const item=parseLink(q('gvLink').value);if(!item){q('gvStatus').textContent='Enter a valid YouTube link or a direct .mp4, .webm, .ogv, .ogg, or .m4v URL. Regular webpage links cannot play directly.';return;}entries.push(item);q('gvLink').value='';select(entries.length-1)}
+ function addLink(){const item=parseLink(q('gvLink').value);if(!item){q('gvStatus').textContent='Paste a YouTube, Google Drive, Google video redirect, or direct video-file link. Google search results and ordinary webpages cannot play directly.';return;}entries.push(item);q('gvLink').value='';select(entries.length-1)}
  q('gvAdd').onclick=addLink;q('gvLink').onkeydown=e=>{if(e.key==='Enter')addLink()};
  q('gvPickButton').onclick=()=>q('gvPick').click();
  q('gvPick').onchange=e=>{for(const file of e.target.files){if(!file.type.startsWith('video/')&&!/\.(mp4|webm|ogv)$/i.test(file.name))continue;const url=URL.createObjectURL(file);urls.push(url);entries.push({title:file.name,src:url,kind:'direct',source:'LOCAL'})}render();if(index<0&&entries.length)select(0);e.target.value=''};
