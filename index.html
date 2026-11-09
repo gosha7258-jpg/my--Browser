@@ -1300,7 +1300,7 @@ body.gosha-custom-cursor *::after {
 
   <div class="boot-right">
     SYS://CORE<br>
-    VER: 026<br>
+    VER: 027<br>
     STATUS: UNKNOWN
   </div>
 
@@ -2128,6 +2128,20 @@ function chessApp(area){
  .gosha-chess .ch-status{color:#ffe45c;border-left:3px solid #ffe45c;padding:8px 11px;background:#ffe45c0d}
  .gosha-chess .ch-code{font-size:22px;color:#ffe45c;letter-spacing:5px;font-weight:800;text-shadow:0 0 14px #ffe45c88}
  .gosha-chess .ch-history{max-height:90px;overflow:auto;color:#c9a6ff}
+ /* SOLVER: live, center-board move classification */
+ .gosha-chess .ch-board-wrap{position:relative;width:min(100%,min(460px,calc(100vh - 260px)));margin:18px auto;isolation:isolate}
+ .gosha-chess .ch-board-wrap .ch-board{width:100%!important;margin:0!important}
+ .gosha-chess .ch-analysis{position:absolute;inset:0;z-index:8;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;visibility:hidden;background:radial-gradient(ellipse,#050509c9 0%,#05050968 45%,transparent 75%)}
+ .gosha-chess .ch-analysis.active{visibility:visible;animation:ch-analysis-pop 1.75s ease both}
+ .gosha-chess .ch-analysis-card{min-width:60%;max-width:93%;text-align:center;padding:18px 12px;border:1px solid var(--signal,#ffe65c);background:linear-gradient(145deg,#090b12f5,#16101bf0);box-shadow:0 0 25px color-mix(in srgb,var(--signal,#ffe65c) 55%,transparent),inset 0 0 24px #000;border-radius:3px;clip-path:polygon(0 12px,12px 0,calc(100% - 12px) 0,100% 12px,100% calc(100% - 12px),calc(100% - 12px) 100%,12px 100%,0 calc(100% - 12px))}
+ .gosha-chess .ch-analysis-kicker{font:700 10px Consolas,monospace;letter-spacing:2px;color:var(--signal,#ffe65c)}
+ .gosha-chess .ch-analysis-label{font:900 clamp(22px,5vw,39px) Orbitron,Consolas,monospace;letter-spacing:2px;color:var(--signal,#ffe65c);text-shadow:0 0 15px var(--signal,#ffe65c);margin:10px 0}
+ .gosha-chess .ch-analysis-detail{font:11px Consolas,monospace;color:#e2dce7}
+ .gosha-chess .ch-analysis[data-grade="brilliant"]{--signal:#ffe65c}.gosha-chess .ch-analysis[data-grade="blunder"]{--signal:#ff405a}.gosha-chess .ch-analysis[data-grade="mistake"]{--signal:#ff9b48}.gosha-chess .ch-analysis[data-grade="miss"]{--signal:#b782ff}.gosha-chess .ch-analysis[data-grade="good"]{--signal:#9bd6c5}
+ @keyframes ch-analysis-pop{0%{opacity:0;transform:scale(.88);filter:brightness(2)}12%{opacity:1;transform:scale(1.025);filter:brightness(1.4)}23%,77%{opacity:1;transform:scale(1);filter:brightness(1)}100%{opacity:0;transform:scale(1.015)}}
+ @media(max-width:600px){.gosha-chess .ch-board-wrap{width:min(100%,calc(100vh - 300px))}}
+ @media(prefers-reduced-motion:reduce){.gosha-chess .ch-analysis.active{animation:ch-analysis-pop 1.75s ease both}}
+
  @media(max-width:600px){.gosha-chess{padding:9px}.gosha-chess .ch-board{width:min(100%,calc(100vh - 300px))!important}.gosha-chess .ch-board .ch-sq{font-size:clamp(17px,6vw,35px)!important}}
  `;
  area.append(css);
@@ -2137,11 +2151,57 @@ function chessApp(area){
  <div class="ch-row"><input class="ch-code-input" maxlength="6" placeholder="6-letter room code"><button class="ch-join">JOIN ROOM</button></div>
  <div class="ch-row"><span class="ch-code"></span><button class="ch-copy" hidden>COPY CODE</button><button class="ch-leave" hidden>LEAVE</button></div>
  <div class="ch-info ch-status">Enter a nickname to start.</div><div class="ch-info ch-players"></div>
- <div class="ch-board"></div><div class="ch-row"><button class="ch-resign" hidden>RESIGN</button><button class="ch-refresh">REFRESH</button></div>
+ <div class="ch-board-wrap"><div class="ch-board"></div><div class="ch-analysis" aria-live="polite"><div class="ch-analysis-card"><div class="ch-analysis-kicker">[ ABSOLUTE SOLVER // LIVE SCAN ]</div><div class="ch-analysis-label"></div><div class="ch-analysis-detail"></div></div></div></div><div class="ch-row"><button class="ch-resign" hidden>RESIGN</button><button class="ch-refresh">REFRESH</button></div>
  <div class="ch-info ch-history"></div>`;
  area.append(root);
  const $=q=>root.querySelector(q),board=$('.ch-board'),glyph={K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
  let game=null,session=null,engine=null,selected='',busy=false,closed=false,poll=null;
+ let lastAnalyzedKey=null,analysisTimer=null;
+ const pieceValue={p:1,n:3,b:3,r:5,q:9,k:100};
+ // Lightweight rule-based estimate; not a Stockfish or Chess.com engine rating.
+ function classifyLastMove(moves){
+  if(!engine||!moves?.length)return null;
+  try{
+   const probe=new engine.constructor();let before=null,last=null;
+   for(const entry of moves){
+    before=new engine.constructor(probe.fen());
+    last=probe.move(entry.san||{from:entry.from,to:entry.to,promotion:entry.promotion||'q'});
+    if(!last)return null;
+   }
+   const actor=last.color,enemy=actor==='w'?'b':'w';
+   const destination=probe.get(last.to);
+   const threatened=destination&&probe.isAttacked(last.to,enemy);
+   const protectedByUs=destination&&probe.isAttacked(last.to,actor);
+   const lostValue=threatened&&!protectedByUs?(pieceValue[destination.type]||0):0;
+   const captured=last.captured?(pieceValue[last.captured]||0):0;
+   const previousCaptures=before.moves({verbose:true}).filter(x=>x.captured).map(x=>pieceValue[x.captured]||0);
+   const bestCapture=Math.max(0,...previousCaptures);
+   const moveGain=captured-lostValue;
+   if(probe.isCheckmate())return {grade:'brilliant',label:'CHECKMATE',detail:'TERMINAL POSITION DETECTED'};
+   if(lostValue>=5&&moveGain<=-3)return {grade:'blunder',label:'?? BLUNDER',detail:'MAJOR MATERIAL AT RISK'};
+   if(lostValue>=3&&moveGain<=-2)return {grade:'mistake',label:'? MISTAKE',detail:'UNPROTECTED PIECE DETECTED'};
+   if(bestCapture>=5&&captured===0)return {grade:'miss',label:'○ MISS',detail:'VALUABLE CAPTURE OVERLOOKED'};
+   if(captured>=3&&last.flags?.includes('c')&&probe.isCheck())return {grade:'brilliant',label:'!! BRILLIANT',detail:'FORCING TACTICAL STRIKE'};
+   return {grade:'good',label:'✓ MOVE LOGGED',detail:'ANALYSIS IN PROGRESS'};
+  }catch{return null}
+ }
+ function showMoveAnalysis(){
+  const moves=game?.moves||[];
+  if(!moves.length){lastAnalyzedKey=null;return}
+  const last=moves[moves.length-1];
+  const key=(session?.code||'')+':'+moves.length+':'+(last.san||last.from+last.to);
+  if(key===lastAnalyzedKey)return;
+  lastAnalyzedKey=key;
+  const result=classifyLastMove(moves);
+  if(!result)return;
+  const panel=$('.ch-analysis');
+  panel.dataset.grade=result.grade;
+  panel.querySelector('.ch-analysis-label').textContent=result.label;
+  panel.querySelector('.ch-analysis-detail').textContent=result.detail+' // ESTIMATED';
+  panel.classList.remove('active');void panel.offsetWidth;panel.classList.add('active');
+  clearTimeout(analysisTimer);analysisTimer=setTimeout(()=>panel.classList.remove('active'),1750);
+ }
+
  const saved=localStorage.getItem('gosha-chess-session');
  try{session=saved?JSON.parse(saved):null}catch{}
  const configured=!CHESS_WORKER_URL.includes('REPLACE-WITH-');
@@ -2176,6 +2236,7 @@ function chessApp(area){
   if(!game){msg(configured?'Create or join a room.':'Set CHESS_WORKER_URL after deploying the Worker.');return}
   const state=game.status==='waiting'?'Waiting for a second player...':game.status==='finished'?(game.result||'Game finished.'):engine.isCheckmate()?'Checkmate!':engine.isDraw()?'Draw.':`${engine.turn()==='w'?'White':'Black'} to move${engine.isCheck()?' — CHECK':''}${engine.turn()===side?' · YOUR TURN':''}`;
   msg(state);$('.ch-history').textContent=(game.moves||[]).map((m,i)=>`${i%2===0?Math.floor(i/2)+1+'.':''} ${m.san||m.from+m.to}`).join(' ');
+  showMoveAnalysis();
  }
  async function clickSquare(square){
   if(!engine||!game||game.status!=='playing'||engine.turn()!==session.color||busy)return;
