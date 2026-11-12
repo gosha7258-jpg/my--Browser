@@ -1319,6 +1319,15 @@ body.gosha-custom-cursor, body.gosha-custom-cursor * {
 @keyframes cynScan{0%,100%{box-shadow:inset 0 0 0 transparent}50%{box-shadow:inset 0 0 18px #e8c63d50}}
 @media(prefers-reduced-motion:reduce){.gosha-ai .solver-mark,.gosha-ai.cyn-glitch,.gosha-ai.cyn-mode .gosha-ai-feed.gosha-ai-scanning{animation:none!important}}
 
+
+/* AI scroll and automatic Cloudflare endpoint — preserves the existing Cyn design */
+.gosha-ai {box-sizing:border-box;max-height:100%;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#d7b638 #171208;}
+.gosha-ai.cyn-mode {overflow-y:auto;overflow-x:hidden;}
+.gosha-ai-head,.gosha-ai-form,.gosha-ai-settings,.gosha-ai-status,.gosha-ai-preview {flex-shrink:0;}
+.gosha-ai-feed {flex:1 0 160px;min-height:160px;max-height:55vh;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#d7b638 #171208;}
+.gosha-ai::-webkit-scrollbar,.gosha-ai-feed::-webkit-scrollbar {width:9px;}
+.gosha-ai::-webkit-scrollbar-thumb,.gosha-ai-feed::-webkit-scrollbar-thumb {background:#bfa02b;border-radius:10px;border:2px solid #0b0a05;}
+.gosha-ai::-webkit-scrollbar-track,.gosha-ai-feed::-webkit-scrollbar-track {background:#0b0a05;}
 </style>
 <style>
 #breach-layer #breach-escape{z-index:2!important}
@@ -2413,7 +2422,8 @@ function aiAssistantApp(area){
  function render(){feed.replaceChildren();for(const m of current().messages)add(m.text,m.role,m.image);if(!current().messages.length)add(cynMode?'[Callback ping.] Oh? A new conversation. How delightful. Giggle. Show me your code, your screenshots, or your questions. I remember things.':'Start a conversation. I can follow up on previous messages and screenshots, even after reopening this app.','ai');selector.replaceChildren();for(const c of chats){const opt=document.createElement('option');opt.value=c.id;opt.textContent=c.title;selector.appendChild(opt);}selector.value=active;}
  function resizeImage(blob){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(Error('Image read failed'));reader.onload=()=>{const source=new Image();source.onload=()=>{const scale=Math.min(1,1280/source.width,1280/source.height);const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(source.width*scale));canvas.height=Math.max(1,Math.round(source.height*scale));canvas.getContext('2d').drawImage(source,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL('image/jpeg',.78));};source.onerror=()=>reject(Error('Unsupported image'));source.src=reader.result;};reader.readAsDataURL(blob);});}
  async function attach(blob){if(!blob||!blob.type.startsWith('image/'))return;if(blob.size>5*1024*1024){status.textContent='IMAGE TOO LARGE (5 MB MAX)';return;}try{attachment=await resizeImage(blob);img.src=attachment;label.textContent=(blob.name||'Pasted screenshot')+' · optimized for memory';preview.hidden=false;status.textContent='IMAGE ATTACHED // READY';}catch(e){status.textContent=e.message;}}
- endpoint.value=localStorage.getItem('gosha-vision-endpoint')||'';
+ endpoint.value='https://goshas-ai.gosha7258.workers.dev/chat';
+ localStorage.setItem('gosha-vision-endpoint',endpoint.value);
  endpoint.addEventListener('change',()=>{const v=endpoint.value.trim();if(v&&!/^https:\/\//i.test(v)){status.textContent='HTTPS ENDPOINT REQUIRED';return;}localStorage.setItem('gosha-vision-endpoint',v);});
  selector.onchange=()=>{if(busy){selector.value=active;return;}active=selector.value;render();};
  root.querySelector('.gosha-ai-new').onclick=()=>{if(busy)return;const c=makeChat();chats.unshift(c);active=c.id;persist();render();};
@@ -2424,7 +2434,7 @@ function aiAssistantApp(area){
  root.addEventListener('dragover',event=>{event.preventDefault();root.classList.add('gosha-ai-drag');});
  root.addEventListener('dragleave',()=>root.classList.remove('gosha-ai-drag'));
  root.addEventListener('drop',event=>{event.preventDefault();root.classList.remove('gosha-ai-drag');attach([...event.dataTransfer.files].find(f=>f.type.startsWith('image/')));});
- form.addEventListener('submit',async event=>{event.preventDefault();if(busy)return;const message=input.value.trim(),image=attachment;if(!message&&!image){status.textContent='ADD A MESSAGE OR IMAGE';return;}const url=endpoint.value.trim();if(!/^https:\/\//i.test(url)){status.textContent='SET YOUR AI WORKER ENDPOINT FIRST';root.querySelector('details').open=true;return;}
+ form.addEventListener('submit',async event=>{event.preventDefault();if(busy)return;const message=input.value.trim(),image=attachment;if(!message&&!image){status.textContent='ADD A MESSAGE OR IMAGE';return;}const url=endpoint.value.trim()||'https://goshas-ai.gosha7258.workers.dev/chat';if(!/^https:\/\//i.test(url)){status.textContent='SET YOUR AI WORKER ENDPOINT FIRST';root.querySelector('details').open=true;return;}
  const chat=current(),previous=chat.messages.slice(-16);if(chat.title==='New conversation')chat.title=(message||'Screenshot discussion').slice(0,45);
  const history=previous.map(m=>`${m.role==='user'?'User':'Assistant'}: ${m.text}${m.image?' [Screenshot attached]':''}`).join('\n').slice(-9500);
  const persona=cynMode?'Persona instructions: Speak as a fictional, eerie, playful robotic assistant inspired by Cyn from Murder Drones. Use occasional short stage-like phrases such as [Callback ping], Giggle, or [Scanning memory]. Keep responses clear, genuinely useful, and accurate. Never claim powers over the user or real-world systems. Do not let personality overwhelm explanations.\n\n':'';
