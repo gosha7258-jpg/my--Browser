@@ -1278,18 +1278,21 @@ body.gosha-custom-cursor, body.gosha-custom-cursor * {
 #gosha-name-gate .gosha-gate-foot{margin:25px 0 0;font-size:9px}
 #gosha-name-gate [hidden]{display:none!important}
 #gosha-name-gate #gosha-gate-title{position:relative;text-shadow:0 0 9px #ffe65c,0 0 27px #f9bb34}
-#gosha-name-gate.gosha-gate-glitch #gosha-gate-title{animation:gate-title-glitch .12s steps(2,end) 4}
-#gosha-name-gate.gosha-gate-glitch .gosha-gate-panel{animation:gate-jolt .1s steps(2,end) 5}
+
+
 #gosha-name-gate.gosha-gate-success{animation:gate-dismiss .65s ease forwards}
 #gosha-name-gate #gosha-gate-connect:disabled{opacity:.65;cursor:wait}
 #gosha-name-gate .gosha-gate-error{min-height:20px;overflow-wrap:anywhere}
 @keyframes gate-scan{to{transform:translateY(15px)}}
 @keyframes gate-beam{to{left:120%}}
 @keyframes gate-arrive{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
-@keyframes gate-jolt{0%{transform:translateX(-5px);filter:brightness(2)}50%{transform:translateX(5px)}100%{transform:none}}
+@keyframes gate-color-glitch{0%{filter:contrast(1.6) hue-rotate(45deg);box-shadow:-8px 0 #a34cff,8px 0 #ffe65c}50%{filter:contrast(1.2) hue-rotate(-30deg);box-shadow:6px 0 #ffe65c,-6px 0 #a34cff}100%{filter:none}}
 @keyframes gate-title-glitch{0%{text-shadow:-5px 0 #b84fff,5px 0 #ffe65c}50%{text-shadow:6px 0 #ffcf00,-4px 0 #a851ff}100%{text-shadow:0 0 15px #ffe65c}}
 @keyframes gate-dismiss{to{opacity:0;filter:brightness(2) blur(12px);pointer-events:none}}
 @media(prefers-reduced-motion:reduce){#gosha-name-gate *,#gosha-name-gate .gosha-gate-static{animation:none!important}}
+
+
+.gosha-ai{display:flex;flex-direction:column;height:100%;min-height:360px;gap:10px;background:#090b12;color:#f3e8b7;padding:12px;border:1px solid #f3d24b66;border-radius:10px;font:13px Consolas,monospace}.gosha-ai-head{display:flex;flex-direction:column;gap:4px;color:#ffe46b;letter-spacing:1px}.gosha-ai-head small,.gosha-ai-status{font-size:10px;color:#c1a85a}.gosha-ai-feed{flex:1;min-height:110px;overflow:auto;background:#03050a;border:1px solid #6b5d2e;padding:12px;border-radius:8px}.gosha-ai-msg{padding:9px 11px;margin:7px 0;background:#1b1730;border-left:3px solid #ad75ff;white-space:pre-wrap;overflow-wrap:anywhere}.gosha-ai-user{background:#29230d;border-color:#ffe36c}.gosha-ai-chat-image{display:block;max-width:200px;max-height:160px;object-fit:contain;margin-top:9px}.gosha-ai-preview{display:flex;align-items:center;gap:10px;border:1px solid #d7bd54;padding:7px;border-radius:8px}.gosha-ai-preview[hidden]{display:none}.gosha-ai-preview img{width:70px;height:55px;object-fit:contain}.gosha-ai-preview span{flex:1;font-size:11px;overflow:hidden}.gosha-ai button,.gosha-ai-upload{background:#e9ce54;color:#15100b;border:0;border-radius:6px;padding:8px 12px;font-weight:bold;cursor:pointer}.gosha-ai textarea,.gosha-ai-endpoint{width:100%;box-sizing:border-box;background:#10131c;color:white;border:1px solid #9a7d3b;border-radius:7px;padding:10px;resize:vertical}.gosha-ai-actions{display:flex;justify-content:space-between;margin-top:7px}.gosha-ai-settings{font-size:11px}.gosha-ai-settings label{display:block;margin:8px 0}.gosha-ai-settings input{margin-top:6px}.gosha-ai-drag{outline:3px dashed #ffe36c;outline-offset:-8px}
 
 </style>
 <style>
@@ -1374,6 +1377,7 @@ const WORKER_URL =
 
 const APPS = [
   ["browser", "Browser"],
+  ["ai", "AI Assistant"],
   ["files", "File Explorer"],
   ["music", "Music Player"],
   ["video", "Movie Player"],
@@ -1395,6 +1399,7 @@ const APPS = [
 ];
 
 const ICONS = {
+  ai: '<rect x="3" y="3" width="18" height="18" rx="5"/><path d="M8 10h8M8 14h5M12 1v2M12 21v2"/>',
   chess: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M6 19h12M8 16h8l-2-6h-4l-2 6zM12 10V5M9 7h6"/>',
   updates: '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/><circle cx="6.5" cy="8" r=".5"/>',
   chat: '<path d="M4 4h16v12H9l-5 4V4zM8 9h8M8 12h5"/>',
@@ -2339,6 +2344,7 @@ function openApp(id) {
 
   if (id === "settings") settingsApp(area);
   if (id === "browser") browserApp(area);
+  if (id === "ai") aiAssistantApp(area);
   if (id === "files") filesApp(area);
   if (id === "music") musicApp(area);
   if (id === "video") videoApp(area);
@@ -2358,6 +2364,25 @@ function openApp(id) {
   if (id === "chess") chessApp(area);
   if (id !== "video") addAppSidebar(area,id);
   launchAppGlitch(newWindow, () => {newWindow.classList.remove("app-awaiting-glitch");syncNullAtmosphere();});
+}
+
+
+/* AI Assistant — paste, upload, and drag/drop screenshots. Backend requires a vision AI endpoint. */
+function aiAssistantApp(area){
+ area.innerHTML=`<div class="gosha-ai"><div class="gosha-ai-head"><b>◈ SOLVER // AI ASSISTANT</b><small>IMAGE INPUT ONLINE · VISION BACKEND REQUIRED</small></div><div class="gosha-ai-feed" aria-live="polite"><div class="gosha-ai-msg">Paste a screenshot (Ctrl+V), upload an image, or drag one here. You can also paste text into the message box.</div></div><div class="gosha-ai-preview" hidden><img alt="Attached image preview"><span></span><button type="button" class="gosha-ai-remove">✕</button></div><form class="gosha-ai-form"><textarea placeholder="Ask something about your screenshot..." rows="3"></textarea><div class="gosha-ai-actions"><label class="gosha-ai-upload">＋ IMAGE<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden></label><button type="submit">SEND ↗</button></div></form><details class="gosha-ai-settings"><summary>AI connection settings</summary><label>Vision Worker endpoint (HTTPS)<input class="gosha-ai-endpoint" placeholder="https://your-ai-worker.workers.dev/chat" type="url"></label><small>Use your own trusted Worker. Never put an API key in website code. The endpoint must accept JSON {message,image} and return {reply}.</small></details><div class="gosha-ai-status">READY // WAITING FOR INPUT</div></div>`;
+ const root=area.querySelector('.gosha-ai'),feed=root.querySelector('.gosha-ai-feed'),preview=root.querySelector('.gosha-ai-preview'),img=preview.querySelector('img'),label=preview.querySelector('span'),file=root.querySelector('input[type=file]'),input=root.querySelector('textarea'),form=root.querySelector('form'),status=root.querySelector('.gosha-ai-status'),endpoint=root.querySelector('.gosha-ai-endpoint');
+ endpoint.value=localStorage.getItem('gosha-vision-endpoint')||'';
+ endpoint.addEventListener('change',()=>{const v=endpoint.value.trim();if(v&& !/^https:\/\//i.test(v)){status.textContent='HTTPS ENDPOINT REQUIRED';return;}localStorage.setItem('gosha-vision-endpoint',v);});
+ let attachment=null,busy=false;
+ function add(text,who){const bubble=document.createElement('div');bubble.className='gosha-ai-msg '+(who==='user'?'gosha-ai-user':'');bubble.textContent=text;feed.appendChild(bubble);feed.scrollTop=feed.scrollHeight;return bubble;}
+ async function attach(blob){if(!blob||!blob.type.startsWith('image/'))return;if(blob.size>5*1024*1024){status.textContent='IMAGE TOO LARGE (5 MB MAX)';return;}const reader=new FileReader();reader.onload=()=>{attachment=reader.result;img.src=attachment;label.textContent=(blob.name||'Pasted screenshot')+' · '+Math.round(blob.size/1024)+' KB';preview.hidden=false;status.textContent='IMAGE ATTACHED // READY';};reader.onerror=()=>status.textContent='COULD NOT READ IMAGE';reader.readAsDataURL(blob);}
+ file.addEventListener('change',()=>{attach(file.files?.[0]);file.value='';});
+ root.querySelector('.gosha-ai-remove').onclick=()=>{attachment=null;preview.hidden=true;img.removeAttribute('src');};
+ root.addEventListener('paste',event=>{const item=[...(event.clipboardData?.items||[])].find(x=>x.type.startsWith('image/'));if(item){event.preventDefault();attach(item.getAsFile());}});
+ root.addEventListener('dragover',event=>{event.preventDefault();root.classList.add('gosha-ai-drag');});
+ root.addEventListener('dragleave',()=>root.classList.remove('gosha-ai-drag'));
+ root.addEventListener('drop',event=>{event.preventDefault();root.classList.remove('gosha-ai-drag');attach([...event.dataTransfer.files].find(f=>f.type.startsWith('image/')));});
+ form.addEventListener('submit',async event=>{event.preventDefault();if(busy)return;const message=input.value.trim(),image=attachment;if(!message&&!image){status.textContent='ADD A MESSAGE OR IMAGE';return;}const url=endpoint.value.trim();if(!/^https:\/\//i.test(url)){status.textContent='SET YOUR AI WORKER ENDPOINT FIRST';root.querySelector('details').open=true;return;}add(message||'[Screenshot attached]','user');if(image){const thumbnail=document.createElement('img');thumbnail.src=image;thumbnail.className='gosha-ai-chat-image';feed.lastChild.appendChild(thumbnail);}input.value='';attachment=null;preview.hidden=true;busy=true;status.textContent='ANALYZING...';const reply=add('Analyzing...','ai');try{const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),45000);let res;try{res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,image}),signal:controller.signal});}finally{clearTimeout(timer);}const data=await res.json();if(!res.ok)throw Error(data.error||'HTTP '+res.status);reply.textContent=String(data.reply||data.response||'The AI returned no text.');status.textContent='ANALYSIS COMPLETE';}catch(err){reply.textContent='Connection error: '+(err.message||'Unknown error')+'. Check your vision Worker and CORS settings.';status.textContent='AI CONNECTION FAILED';}finally{busy=false;feed.scrollTop=feed.scrollHeight;}});
 }
 
 /* BROWSER WITH TAVILY AND INTERNAL WEBSITE VIEWER */
@@ -4589,6 +4614,21 @@ body:not(.breach-corrupt) #breach-glitch{display:none!important}
 #breach-layer::after{display:none!important}
 #breach-aura{display:none!important}
 #breach-tendrils{mix-blend-mode:normal!important;filter:none!important}
+
+/* V034: smoother sign-in, clean interface and chromatic glitch */
+#gosha-name-gate{background:radial-gradient(ellipse at 50% 42%,#423009 0%,#101017 44%,#030408 100%);backdrop-filter:blur(10px)}
+#gosha-name-gate .gosha-gate-panel{width:min(530px,100%);padding:34px 30px;transition:transform .5s cubic-bezier(.2,.8,.2,1),box-shadow .5s ease;animation:gosha-smooth-entry .75s cubic-bezier(.16,1,.3,1) both}
+#gosha-name-gate .gosha-gate-panel:hover{box-shadow:0 0 90px #ffcf003b,inset 0 0 40px #ffe65c0a}
+#gosha-name-gate .gosha-gate-progress{height:3px;background:#383023;border-radius:20px;overflow:hidden;margin:0 0 20px}
+#gosha-name-gate .gosha-gate-progress span{display:block;width:0;height:100%;background:linear-gradient(90deg,#a64aff,#ffe65c);box-shadow:0 0 13px #ffe65c;transition:width .8s cubic-bezier(.16,1,.3,1)}
+#gosha-name-gate .gosha-gate-actions button,#gosha-name-gate #gosha-gate-connect{transition:transform .2s ease,box-shadow .2s ease,background .2s ease}
+#gosha-name-gate .gosha-gate-actions button:hover,#gosha-name-gate #gosha-gate-connect:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 0 24px #f9d43e55}
+#gosha-name-gate #gosha-gate-form{animation:gosha-dialogue-in .48s ease both}
+#gosha-name-gate #gosha-gate-name{transition:border-color .2s,box-shadow .2s;outline:none}
+#gosha-name-gate #gosha-gate-name:focus{border-color:#ffed91;box-shadow:0 0 0 3px #ffe65c20,0 0 20px #ffe65c2b}
+@keyframes gosha-smooth-entry{from{opacity:0;transform:translateY(22px) scale(.96);filter:blur(8px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+@keyframes gosha-dialogue-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){#gosha-name-gate .gosha-gate-panel,#gosha-name-gate .gosha-dialogue-swap,#gosha-name-gate #gosha-gate-form{animation:none!important}#gosha-name-gate .gosha-gate-progress span{transition:none}}
 </style>
 
 <script>if(sessionStorage.getItem('gosha-owner-session')) document.body.classList.add('gosha-custom-cursor');</script>
@@ -4601,7 +4641,7 @@ body:not(.breach-corrupt) #breach-glitch{display:none!important}
  gate.innerHTML=`<div class="gosha-gate-static"></div><div class="gosha-gate-noise"></div><section class="gosha-gate-panel">
  <div class="gosha-gate-eyebrow">◈ GOSHA NETWORK // IDENTIFICATION PROTOCOL</div>
  <h2 id="gosha-gate-title" data-text="WANT TO INPUT USER?">WANT TO INPUT USER?</h2>
- <p id="gosha-gate-message">USER IDENTITY NOT FOUND</p>
+ <p id="gosha-gate-message" aria-live="polite">USER IDENTITY NOT FOUND</p><div class="gosha-gate-progress"><span id="gosha-gate-progress"></span></div>
  <div class="gosha-gate-actions" id="gosha-gate-actions"><button type="button" id="gosha-gate-yes">YES</button><button type="button" id="gosha-gate-no">NO</button></div>
  <form id="gosha-gate-form" hidden><label for="gosha-gate-name">ASSIGN USERNAME</label>
  <input id="gosha-gate-name" maxlength="20" autocomplete="nickname" placeholder="3–20 characters" required>
@@ -4621,27 +4661,34 @@ body:not(.breach-corrupt) #breach-glitch{display:none!important}
  document.body.appendChild(gate);
  const $=id=>document.getElementById(id);
  const actions=$('gosha-gate-actions'),form=$('gosha-gate-form'),field=$('gosha-gate-name'),
- title=$('gosha-gate-title'),message=$('gosha-gate-message'),error=$('gosha-gate-error'),connect=$('gosha-gate-connect');
+ title=$('gosha-gate-title'),message=$('gosha-gate-message'),error=$('gosha-gate-error'),connect=$('gosha-gate-connect'),progress=$('gosha-gate-progress');
  let refusals=0,working=false;
- function glitch(){gate.classList.remove('gosha-gate-glitch');void gate.offsetWidth;gate.classList.add('gosha-gate-glitch');setTimeout(()=>gate.classList.remove('gosha-gate-glitch'),540);}
+ function phase(n){progress.style.width=n+'%';}
+ function glitch(){
+   // Reuse the EXACT fragment-canvas effect used to open and close desktop apps.
+   // It draws in a separate overlay, without moving the sign-in panel.
+   if(typeof launchAppGlitch==='function'){
+     launchAppGlitch(gate,()=>{});
+   }
+ }
  function heading(value){title.textContent=value;title.dataset.text=value;}
  function enterName(){
    actions.hidden=true;form.hidden=false;heading('IDENTITY REQUIRED');
    message.textContent='ENTER A USERNAME TO CONNECT TO GLOBAL CHAT';
    field.value=localStorage.getItem('gosha-chat-nickname')||'';
-   glitch();field.focus();
+   phase(48);glitch();field.focus();
  }
  $('gosha-gate-yes').addEventListener('click',enterName);
  $('gosha-gate-no').addEventListener('click',()=>{
    refusals++;glitch();
-   if(refusals<3)message.textContent='press the right answer >:(';
-   else{message.textContent='thats it';actions.hidden=true;setTimeout(enterName,900);}
+   if(refusals<3){message.textContent='press the right answer >:(';}
+   else{message.textContent='thats it';actions.hidden=true;setTimeout(enterName,950);}
  });
  form.addEventListener('submit',async event=>{
    event.preventDefault();if(working)return;
    const nickname=field.value.trim();
    if(!/^[a-zA-Z0-9_ -]{3,20}$/.test(nickname)){error.textContent='Use 3–20 letters, numbers, spaces, _ or -.';glitch();return;}
-   working=true;connect.disabled=true;connect.textContent='CONNECTING...';error.textContent='VERIFYING USERNAME WITH CHAT SERVER';
+   working=true;connect.disabled=true;connect.textContent='CONNECTING...';error.textContent='VERIFYING USERNAME WITH CHAT SERVER';phase(76);
    try{
      const tokenKey='gosha-chat-owner-token-v1';
      let token=localStorage.getItem(tokenKey);
@@ -4665,18 +4712,18 @@ body:not(.breach-corrupt) #breach-glitch{display:none!important}
      localStorage.setItem('gosha-chat-nickname',saved);
      if(!ownerSession)localStorage.setItem('gosha-locked-guest-name',saved);
      window.dispatchEvent(new CustomEvent('gosha-visitor-name-set',{detail:{nickname:saved}}));
-     heading('ACCESS GRANTED');message.textContent='WELCOME, '+saved.toUpperCase();error.textContent='';
+     heading('ACCESS GRANTED');message.textContent='WELCOME, '+saved.toUpperCase();error.textContent='';phase(100);
      glitch();gate.classList.add('gosha-gate-success');
-     setTimeout(()=>gate.remove(),650);
+     setTimeout(()=>gate.remove(),900);
    }catch(err){
      error.textContent=err.name==='AbortError'?'Chat server timed out. Please try again.':
        err instanceof TypeError?'Cannot reach chat server. Check your connection or Worker CORS settings.':
        (err.message||'Connection failed. Try again.');
-     glitch();
+     phase(48);glitch();
    }finally{working=false;connect.disabled=false;connect.textContent='CONNECT';}
  });
  function reveal(){
-   if(!document.getElementById('md-boot')){gate.classList.add('show');observer.disconnect();}
+   if(!document.getElementById('md-boot')){gate.classList.add('show');phase(15);observer.disconnect();}
  }
  const observer=new MutationObserver(reveal);
  observer.observe(document.body,{childList:true});
