@@ -1989,8 +1989,18 @@ function globalChatApp(area){
   if(ownerSession)nickname=sessionStorage.getItem('gosha-owner-alias')||'gosha';
   let muted=[];try{muted=JSON.parse(localStorage.getItem(muteKey)||'[]')}catch{}
   nameInput.value=nickname;
+  const guestLockedName=localStorage.getItem('gosha-locked-guest-name')||'';
+  function updateGuestNameLock(){
+    const locked=!!localStorage.getItem('gosha-locked-guest-name') && !sessionStorage.getItem('gosha-owner-session');
+    nameInput.readOnly=locked;
+    nameInput.title=locked?'Username locked after first connection':'';
+    $('.chat-save').hidden=locked;
+    if(locked)nameInput.value=localStorage.getItem('gosha-locked-guest-name');
+  }
+  updateGuestNameLock();
   window.addEventListener('gosha-hatred-identity',()=>{
     if(!sessionStorage.getItem('gosha-owner-session')){
+      if(localStorage.getItem('gosha-locked-guest-name'))return;
       nickname='HATRED';nameInput.value='HATRED';claimedName='';
       setStatus('HATRED SOUL READY — SAVE NAME TO CLAIM');
     }
@@ -2011,6 +2021,8 @@ function globalChatApp(area){
     ownerSession=sessionStorage.getItem('gosha-owner-session')||'';
     if(ownerSession && sessionStorage.getItem('gosha-owner-alias')){nickname=sessionStorage.getItem('gosha-owner-alias');claimedName=nickname;nameInput.value=nickname;return true;}
     if(ownerSession && nameInput.value.trim().toLowerCase()==='gosha')nameInput.value='gosha';
+    const locked=localStorage.getItem('gosha-locked-guest-name');
+    if(locked&&!ownerSession){nameInput.value=locked;}
     const n=nameInput.value.trim();
     if(!checkName(n)){setStatus('NAME: 3–20 LETTERS / NUMBERS');return false}
     if(claimedName===n)return true;
@@ -2018,7 +2030,9 @@ function globalChatApp(area){
     try{
       const data=await api('/claim',{method:'POST',body:JSON.stringify({nickname:n,token,ownerSession})});
       nickname=data.nickname||n;claimedName=nickname;
-      localStorage.setItem(nameKey,nickname);setStatus('● NAME RESERVED');return true;
+      localStorage.setItem(nameKey,nickname);
+      if(!ownerSession&&!localStorage.getItem('gosha-locked-guest-name'))localStorage.setItem('gosha-locked-guest-name',nickname);
+      updateGuestNameLock();setStatus('● NAME RESERVED');return true;
     }catch(err){setStatus(err.message.slice(0,80));return false}
     finally{button.disabled=false}
   }
@@ -2092,12 +2106,14 @@ function globalChatApp(area){
     nickname=event.detail.nickname;
     claimedName=nickname;
     nameInput.value=nickname;
+    if(!localStorage.getItem('gosha-locked-guest-name'))localStorage.setItem('gosha-locked-guest-name',nickname);
+    updateGuestNameLock();
     setStatus('● USER CONNECTED: '+nickname);
   });
-  window.addEventListener('gosha-owner-login',()=>{ownerSession=sessionStorage.getItem('gosha-owner-session')||'';clearButton.hidden=!ownerSession;nickname='gosha';nameInput.value='gosha';claimedName='';setStatus('OWNER CONNECTED — SETTING UP CHAT');saveName();});
+  window.addEventListener('gosha-owner-login',()=>{nameInput.readOnly=false;$('.chat-save').hidden=false;ownerSession=sessionStorage.getItem('gosha-owner-session')||'';clearButton.hidden=!ownerSession;nickname='gosha';nameInput.value='gosha';claimedName='';setStatus('OWNER CONNECTED — SETTING UP CHAT');saveName();});
   window.addEventListener('gosha-owner-become',()=>{ownerSession=sessionStorage.getItem('gosha-owner-session')||'';if(!ownerSession)return;nickname=sessionStorage.getItem('gosha-owner-alias')||'gosha';nameInput.value=nickname;claimedName=nickname;localStorage.setItem(nameKey,nickname);clearButton.hidden=false;setStatus('● ACTIVE: '+(nickname.toLowerCase()==='nat321'?'HATRED':nickname));});
-  window.addEventListener('gosha-owner-logout',()=>{ownerSession='';clearButton.hidden=true;clearButton.disabled=false;nickname='';claimedName='';nameInput.value='';setStatus('OWNER MODE OFF — SET A GUEST NAME');});
-  window.addEventListener('gosha-chat-identity-out',()=>{ownerSession='';clearButton.hidden=true;clearButton.disabled=false;nickname='';claimedName='';nameInput.value='';setStatus('IDENTITY CLEARED — SET A GUEST NAME');});
+  window.addEventListener('gosha-owner-logout',()=>{ownerSession='';clearButton.hidden=true;clearButton.disabled=false;nickname=localStorage.getItem('gosha-locked-guest-name')||'';claimedName='';nameInput.value=nickname;updateGuestNameLock();setStatus('OWNER MODE OFF — GUEST NAME RESTORED');});
+  window.addEventListener('gosha-chat-identity-out',()=>{ownerSession='';clearButton.hidden=true;clearButton.disabled=false;nickname=localStorage.getItem('gosha-locked-guest-name')||'';claimedName='';nameInput.value=nickname;updateGuestNameLock();setStatus('GUEST NAME LOCKED');});
   if(!configured){setStatus('SETUP REQUIRED');note('Chat is not connected yet. Deploy the chat Worker and replace CHAT_WORKER_URL in index.html.')}else{setStatus('CONNECTING');refresh();if(nickname)saveName();interval=setInterval(refresh,3000)}
   const watcher=new MutationObserver(()=>{if(!win.isConnected){disposed=true;clearInterval(interval);watcher.disconnect()}});watcher.observe(document.body,{childList:true,subtree:true});
 }
@@ -4592,6 +4608,16 @@ body:not(.breach-corrupt) #breach-glitch{display:none!important}
  <button type="submit" id="gosha-gate-connect">CONNECT</button></form>
  <p class="gosha-gate-error" id="gosha-gate-error" role="status" aria-live="polite"></p>
  <div class="gosha-gate-foot">ABSOLUTE SOLVER // IDENTITY SYNCHRONIZATION</div></section>`;
+ // A returning visitor keeps the same local identity and chat token.
+ // Never skip setup when the nickname or identity token is missing/invalid.
+ const rememberedName=localStorage.getItem('gosha-locked-guest-name')||localStorage.getItem('gosha-chat-nickname')||'';
+ const rememberedToken=localStorage.getItem('gosha-chat-owner-token-v1')||'';
+ const returningVisitor=/^[a-zA-Z0-9_ -]{3,20}$/.test(rememberedName) && /^[0-9a-f]{64}$/i.test(rememberedToken);
+ if(returningVisitor){
+   if(!localStorage.getItem('gosha-locked-guest-name'))localStorage.setItem('gosha-locked-guest-name',rememberedName);
+   window.dispatchEvent(new CustomEvent('gosha-visitor-name-set',{detail:{nickname:rememberedName}}));
+   return;
+ }
  document.body.appendChild(gate);
  const $=id=>document.getElementById(id);
  const actions=$('gosha-gate-actions'),form=$('gosha-gate-form'),field=$('gosha-gate-name'),
@@ -4637,6 +4663,7 @@ body:not(.breach-corrupt) #breach-glitch{display:none!important}
      if(!response.ok||data.ok===false)throw Error(data.error||'Username unavailable (HTTP '+response.status+').');
      const saved=data.nickname||nickname;
      localStorage.setItem('gosha-chat-nickname',saved);
+     if(!ownerSession)localStorage.setItem('gosha-locked-guest-name',saved);
      window.dispatchEvent(new CustomEvent('gosha-visitor-name-set',{detail:{nickname:saved}}));
      heading('ACCESS GRANTED');message.textContent='WELCOME, '+saved.toUpperCase();error.textContent='';
      glitch();gate.classList.add('gosha-gate-success');
