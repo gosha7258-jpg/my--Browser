@@ -1619,6 +1619,13 @@ function makeWindow(id, title) {
   if (existing) {
     document.querySelectorAll('.window.window-active').forEach(w=>w.classList.remove('window-active'));
     existing.classList.add('window-active');
+    if (!existing.classList.contains('window-fullscreen')) {
+      const rect = existing.getBoundingClientRect();
+      if (rect.top < 0 || rect.top > innerHeight - 90 || rect.left > innerWidth - 90) {
+        existing.style.left = Math.max(8, Math.round((innerWidth - rect.width) / 2)) + 'px';
+        existing.style.top = Math.max(8, Math.round((innerHeight - rect.height) / 2 - 20)) + 'px';
+      }
+    }
     existing.style.zIndex = ++topZ;
     syncNullAtmosphere();
     existing.classList.add('window-focus');
@@ -1631,15 +1638,19 @@ function makeWindow(id, title) {
   win.className = "window";
   win.dataset.app = id;
 
-  win.style.left = Math.max(5, Math.min(
-    innerWidth - 300,
-    100 + windowCount * 26
-  )) + "px";
-
-  win.style.top = Math.max(5, Math.min(
-    innerHeight - 200,
-    50 + windowCount * 22
-  )) + "px";
+  // Open windows near the center of the visible screen, not the bottom.
+  // Offset each new app slightly so multiple open windows remain visible.
+  const viewportWidth = document.documentElement.clientWidth || innerWidth;
+  const viewportHeight = window.innerHeight;
+  const windowWidth = Math.min(790, viewportWidth * 0.96);
+  const windowHeight = Math.min(540, Math.max(200, viewportHeight - 100));
+  const cascade = (windowCount % 5) * 22;
+  const left = Math.max(8, Math.min(viewportWidth - windowWidth - 8,
+    (viewportWidth - windowWidth) / 2 + cascade));
+  const top = Math.max(8, Math.min(viewportHeight - windowHeight - 60,
+    (viewportHeight - windowHeight) / 2 - 20 + cascade));
+  win.style.left = Math.round(left) + "px";
+  win.style.top = Math.round(top) + "px";
 
   win.style.zIndex = ++topZ;
   windowCount = (windowCount + 1) % 9;
